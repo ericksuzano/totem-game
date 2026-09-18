@@ -1,0 +1,177 @@
+<meta charset="UTF-8">
+<title>APROXIMA 2026 - Totens FIPECq Previdencia</title>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/transformations.css">
+<link rel="stylesheet" href="css/voting.css">
+
+<div id="app">
+  <header class="totem-topbar">
+    <span class="totem-topbar__mark" id="kiosk-exit-hitzone">FIPECq Previdência</span>
+    <span class="totem-topbar__mark">APROXIMA 2026</span>
+  </header>
+
+  <main id="screen-container">
+
+    <section class="screen is-active" data-screen="loading">
+      <p class="loading-mark">Carregando...</p>
+    </section>
+
+    <!-- Menu principal: um unico totem, o visitante escolhe a experiencia. -->
+    <section class="screen" data-screen="menu">
+      <div class="menu-layout">
+        <p class="screen__eyebrow">APROXIMA 2026</p>
+        <h1 class="menu-layout__title">O que você quer fazer?</h1>
+        <p class="screen__text">Escolha uma das opções abaixo para participar.</p>
+        <div class="menu-layout__choices">
+          <button class="menu-choice" id="menu-choice-transformations">
+            <span class="menu-choice__title">Jogo das Transformações</span>
+            <span class="menu-choice__subtitle">O que mudou? O que ficou?</span>
+          </button>
+          <button class="menu-choice" id="menu-choice-voting">
+            <span class="menu-choice__title">Totem de Votação</span>
+            <span class="menu-choice__subtitle">Sua voz faz história</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Jogo das Transformacoes - Tela 1 (Instrucao/Jogo/Conclusao: Etapa 5) -->
+    <section class="screen" data-screen="transformations-start">
+      <div class="screen__panel">
+        <p class="screen__eyebrow">Jogo das Transformações</p>
+        <h1 class="screen__title">O que mudou? O que ficou?</h1>
+        <hr class="screen__rule">
+        <p class="screen__text">
+          Relacione cada tecnologia de antigamente com a tecnologia que usamos hoje.
+        </p>
+        <div class="screen__actions">
+          <button class="btn btn-primary" id="btn-transformations-start">COMEÇAR</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Jogo das Transformacoes - Tela 2 (instrucao) -->
+    <section class="screen" data-screen="transformations-instruction">
+      <div class="screen__panel">
+        <p class="screen__eyebrow">Jogo das Transformações</p>
+        <h1 class="screen__title">Como jogar</h1>
+        <hr class="screen__rule">
+        <p class="screen__text">
+          Toque em uma tecnologia antiga e depois toque na tecnologia correspondente.
+        </p>
+        <div class="screen__actions">
+          <button class="btn btn-primary" id="btn-transformations-instruction-ok">ENTENDI</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Jogo das Transformacoes - Tela 3 (jogo de associacao) -->
+    <section class="screen" data-screen="transformations-game">
+      <div class="game-layout" id="transformations-game-layout"></div>
+    </section>
+
+    <!-- Jogo das Transformacoes - Tela 4 (conclusao) -->
+    <section class="screen" data-screen="transformations-complete">
+      <div class="screen__panel">
+        <p class="screen__eyebrow">Jogo das Transformações</p>
+        <h1 class="screen__title">Você completou o Jogo das Transformações!</h1>
+        <hr class="screen__rule">
+        <p class="screen__text">
+          A tecnologia mudou as ferramentas.<br>
+          As pessoas continuam mudando o mundo.
+        </p>
+        <div class="screen__actions">
+          <button class="btn btn-primary" id="btn-transformations-play-again">JOGAR NOVAMENTE</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Totem de Votacao - Tela 1 (Trabalhos/Confirmacao/Registrado: Etapa 7) -->
+    <section class="screen" data-screen="voting-start">
+      <div class="screen__panel">
+        <p class="screen__eyebrow">Totem de Votação</p>
+        <h1 class="screen__title">Sua voz faz história</h1>
+        <hr class="screen__rule">
+        <p class="screen__text">
+          Conheça os trabalhos e escolha o seu favorito.
+        </p>
+        <div class="screen__actions">
+          <button class="btn btn-gold" id="btn-voting-start">VOTAR</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Totem de Votacao - Tela 2 (trabalhos) -->
+    <section class="screen" data-screen="voting-works">
+      <div class="voting-layout">
+        <div class="voting-header">
+          <p class="screen__eyebrow">Totem de Votação</p>
+          <h1 class="voting-header__title">Escolha um trabalho</h1>
+        </div>
+        <div class="voting-grid" id="voting-grid"></div>
+      </div>
+    </section>
+
+    <!-- Totem de Votacao - Tela 3 (confirmacao) -->
+    <section class="screen" data-screen="voting-confirm">
+      <div class="screen__panel">
+        <p class="screen__eyebrow">Totem de Votação</p>
+        <h1 class="screen__title">Você escolheu:</h1>
+        <div class="voting-confirm__image" id="voting-confirm-image">
+          <span class="voting-confirm__image-fallback">Imagem do trabalho</span>
+        </div>
+        <p class="voting-confirm__title" id="voting-confirm-title"></p>
+        <p class="screen__text">Tem certeza de que deseja confirmar seu voto?</p>
+        <div class="screen__actions">
+          <button class="btn btn-secondary" id="btn-voting-back">VOLTAR</button>
+          <button class="btn btn-gold" id="btn-voting-confirm">CONFIRMAR VOTO</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Totem de Votacao - Tela 4 (voto registrado) -->
+    <section class="screen" data-screen="voting-registered">
+      <div class="screen__panel">
+        <p class="screen__eyebrow">Totem de Votação</p>
+        <h1 class="screen__title">Voto registrado!</h1>
+        <hr class="screen__rule">
+        <p class="screen__text">Obrigado por participar do APROXIMA 2026.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Gesto oculto de manutencao: 5 toques no logo "FIPECq Previdência" da
+       topbar (ver #kiosk-exit-hitzone acima). Nao ha nenhuma indicacao visual
+       disso para o publico - so parece parte da marca institucional. -->
+
+  <div id="kiosk-exit-overlay" class="kiosk-overlay" hidden>
+    <div class="kiosk-overlay__panel">
+      <p class="kiosk-overlay__title">Acesso de manutenção</p>
+      <p class="kiosk-overlay__display" id="kiosk-exit-display">&nbsp;</p>
+      <p class="kiosk-overlay__error" id="kiosk-exit-error" hidden>PIN incorreto.</p>
+      <div class="kiosk-overlay__keypad" id="kiosk-exit-keypad">
+        <button type="button" data-digit="1">1</button>
+        <button type="button" data-digit="2">2</button>
+        <button type="button" data-digit="3">3</button>
+        <button type="button" data-digit="4">4</button>
+        <button type="button" data-digit="5">5</button>
+        <button type="button" data-digit="6">6</button>
+        <button type="button" data-digit="7">7</button>
+        <button type="button" data-digit="8">8</button>
+        <button type="button" data-digit="9">9</button>
+        <button type="button" id="kiosk-exit-backspace">⌫</button>
+        <button type="button" data-digit="0">0</button>
+        <button type="button" id="kiosk-exit-cancel">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/utils/shuffle.js"></script>
+<script src="js/data/transformations-data.js"></script>
+<script src="js/data/voting-data.js"></script>
+<script src="js/games/transformations.js"></script>
+<script src="js/voting/voting.js"></script>
+<script src="js/kiosk.js"></script>
+<script src="js/app.js"></script>

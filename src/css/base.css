@@ -1,0 +1,399 @@
+/* ==========================================================================
+   Design system - Totens APROXIMA 2026 (FIPECq Previdencia)
+   Publico-alvo: 60+, touchscreen. Prioridades: contraste alto, fontes e
+   botoes grandes, poucas informacoes por tela, aparencia institucional/
+   premium (nao infantil, sem neon).
+   ========================================================================== */
+
+:root {
+  /* Paleta: azul-marinho institucional (confianca) + dourado quente (memoria,
+     acolhimento) sobre fundo claro tipo papel (nostalgia, legibilidade). */
+  --color-navy-900: #101B33;
+  --color-navy-800: #16264A;
+  --color-navy-700: #1F3363;
+  --color-gold-500: #B8862E;
+  --color-gold-400: #CBA04A;
+  --color-paper-100: #F7F3EA;
+  --color-paper-000: #FFFDF8;
+  --color-ink-900: #1C1E24;
+  --color-ink-600: #4A4D57;
+  --color-success: #2F6B4F;
+  --color-success-bg: #E4F0E9;
+  --color-error: #A8452F;
+  --color-error-bg: #F5E4DF;
+  --color-focus: #2E6FB8;
+
+  --font-family-base: 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+  --font-size-body: 24px;
+  --font-size-lg: 30px;
+  --font-size-xl: 40px;
+  --font-size-title: 60px;
+  --font-size-button: 30px;
+
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 40px;
+  --space-5: 64px;
+  --space-6: 96px;
+
+  --radius-md: 16px;
+  --radius-lg: 24px;
+
+  --shadow-card: 0 12px 32px rgba(16, 27, 51, 0.16);
+  --shadow-button: 0 6px 18px rgba(16, 27, 51, 0.22);
+
+  --transition-screen: 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Garante que o atributo "hidden" sempre vença, mesmo quando um elemento tem
+   uma regra propria de "display" (ex.: .kiosk-overlay usa display:flex, que
+   empataria em especificidade com o [hidden] padrao do navegador e venceria
+   por ser CSS de autor - escondendo o "hidden" e deixando o overlay sempre
+   visivel). Alternar visibilidade sempre via .hidden = true/false no JS. */
+[hidden] {
+  display: none !important;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
+  overscroll-behavior: none;
+}
+
+body {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-body);
+  color: var(--color-ink-900);
+  background: linear-gradient(160deg, var(--color-navy-900) 0%, var(--color-navy-700) 100%);
+  touch-action: manipulation;
+}
+
+img {
+  -webkit-user-drag: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+/* ---- Topbar institucional (discreta, nao compete com o conteudo) -------- */
+
+.totem-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-4);
+  color: var(--color-paper-100);
+  font-size: 22px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.85;
+  z-index: 5;
+}
+
+.totem-topbar__mark {
+  font-weight: 600;
+}
+
+/* ---- Telas (uma visivel por vez, com transicao suave) -------------------- */
+
+#screen-container {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* padding-top soma a altura da topbar fixa (88px) para que paineis altos
+     nunca se sobreponham a ela em janelas com pouca altura disponivel. */
+  padding: calc(88px + var(--space-3)) var(--space-5) var(--space-5);
+  opacity: 0;
+  transform: translateY(24px) scale(0.99);
+  pointer-events: none;
+  transition: opacity var(--transition-screen), transform var(--transition-screen);
+}
+
+.screen.is-active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+/* Painel central tipo "placa" institucional, da elegancia sem poluir. */
+.screen__panel {
+  width: 100%;
+  max-width: 1040px;
+  /* Se o conteudo for mais alto do que o espaco disponivel (janela baixa ou
+     estreita), rola dentro do proprio painel em vez de vazar por cima da
+     topbar ou ser cortado sem aviso. */
+  max-height: 100%;
+  overflow-y: auto;
+  background: var(--color-paper-000);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-4) var(--space-5);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.screen__eyebrow {
+  color: var(--color-gold-500);
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+
+.screen__title {
+  color: var(--color-navy-900);
+  font-size: var(--font-size-title);
+  font-weight: 700;
+  line-height: 1.15;
+  margin: 0;
+}
+
+.screen__rule {
+  width: 96px;
+  height: 4px;
+  background: var(--color-gold-400);
+  border: none;
+  border-radius: 2px;
+  margin: var(--space-1) 0;
+}
+
+.screen__text {
+  color: var(--color-ink-600);
+  font-size: var(--font-size-lg);
+  line-height: 1.5;
+  max-width: 760px;
+  margin: 0;
+}
+
+.screen__actions {
+  margin-top: var(--space-3);
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ---- Botoes grandes, feedback claro ao toque ----------------------------- */
+
+.btn {
+  min-height: 96px;
+  min-width: 280px;
+  padding: var(--space-2) var(--space-5);
+  font-size: var(--font-size-button);
+  font-weight: 700;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+}
+
+.btn:focus-visible {
+  outline: 4px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+.btn:active {
+  transform: scale(0.96);
+}
+
+.btn-primary {
+  background: var(--color-navy-800);
+  color: var(--color-paper-000);
+  box-shadow: var(--shadow-button);
+}
+
+.btn-primary:hover {
+  background: var(--color-navy-700);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--color-navy-800);
+  border: 3px solid var(--color-navy-800);
+}
+
+.btn-gold {
+  background: var(--color-gold-500);
+  color: var(--color-navy-900);
+  box-shadow: var(--shadow-button);
+}
+
+.btn-gold:hover {
+  background: var(--color-gold-400);
+}
+
+/* ---- Menu principal (escolha entre as duas experiencias) ------------------ */
+
+.menu-layout {
+  width: 100%;
+  max-width: 1100px;
+  max-height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  text-align: center;
+  color: var(--color-paper-100);
+}
+
+.menu-layout__title {
+  font-size: var(--font-size-title);
+  font-weight: 700;
+  color: var(--color-paper-000);
+  margin: 0;
+}
+
+.menu-layout__choices {
+  margin-top: var(--space-4);
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--space-4);
+}
+
+.menu-choice {
+  min-height: 220px;
+  background: var(--color-paper-000);
+  border: none;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  cursor: pointer;
+  font-family: inherit;
+  transition: transform 150ms ease;
+}
+
+.menu-choice:active {
+  transform: scale(0.97);
+}
+
+.menu-choice__title {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-navy-900);
+}
+
+.menu-choice__subtitle {
+  font-size: var(--font-size-lg);
+  color: var(--color-gold-500);
+  font-weight: 600;
+}
+
+/* ---- Tela de carregamento -------------------------------------------------- */
+
+.loading-mark {
+  color: var(--color-paper-100);
+  font-size: var(--font-size-lg);
+  letter-spacing: 0.04em;
+}
+
+/* ---- Saida de manutencao do kiosk (nao visivel ao publico) ---------------- */
+/* O gesto (5 toques) acontece no proprio logo "FIPECq Previdência" da topbar
+   (#kiosk-exit-hitzone em index.html) - nao ha area extra ou indicacao
+   visual, para nao chamar atencao do publico. */
+
+.kiosk-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(16, 27, 51, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kiosk-overlay__panel {
+  width: 320px;
+  background: var(--color-paper-000);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.kiosk-overlay__title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-navy-900);
+  margin: 0;
+}
+
+.kiosk-overlay__display {
+  font-size: 32px;
+  letter-spacing: 0.3em;
+  color: var(--color-navy-900);
+  min-height: 40px;
+  margin: 0;
+}
+
+.kiosk-overlay__error {
+  color: var(--color-error);
+  font-size: 16px;
+  margin: 0;
+}
+
+.kiosk-overlay__keypad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-1);
+  width: 100%;
+}
+
+.kiosk-overlay__keypad button {
+  min-height: 56px;
+  font-size: 20px;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--color-navy-800);
+  background: var(--color-paper-000);
+  color: var(--color-navy-900);
+  cursor: pointer;
+}
+
+.kiosk-overlay__keypad button:active {
+  background: var(--color-navy-800);
+  color: var(--color-paper-000);
+}
+
+.kiosk-overlay__keypad #kiosk-exit-cancel {
+  grid-column: span 3;
+  border-color: var(--color-error);
+  color: var(--color-error);
+}

@@ -1,0 +1,18 @@
+{
+  "_comment": "Configuracao deste totem. Um unico app: o visitante escolhe no menu se quer jogar o Jogo das Transformacoes ou votar. Editar aqui na instalacao da maquina, sem precisar alterar codigo.",
+
+  "idleTimeoutMs": 60000,
+
+  "kiosk": {
+    "enabled": true,
+    "exitPin": "0000",
+    "_exitPin_todo": "TODO: definir PIN oficial de saida antes do evento e nao deixar o padrao.",
+    "_exitGesture_info": "Gesto: 5 toques no logo 'FIPECq Previdencia' da barra superior, em ate windowMs.",
+    "exitGesture": {
+      "taps": 5,
+      "windowMs": 3000
+    }
+  },
+
+  "development": false
+}

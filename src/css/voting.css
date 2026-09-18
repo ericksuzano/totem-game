@@ -1,0 +1,169 @@
+/* ==========================================================================
+   Layout do Totem de Votacao (Tela 2 - trabalhos).
+   ========================================================================== */
+
+.voting-layout {
+  width: 100%;
+  max-width: 1500px;
+  height: 100%;
+  max-height: 920px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  overflow: hidden;
+}
+
+.voting-header {
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.voting-header__title {
+  color: var(--color-paper-100);
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  margin: 0;
+}
+
+.voting-grid {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--space-3);
+  align-content: start;
+  padding: var(--space-1) var(--space-1) var(--space-4);
+}
+
+.work-card {
+  background: var(--color-paper-000);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  transition: transform 150ms ease;
+  /* Altura fixa: titulo/descricao sao limitados por numero de linhas (abaixo)
+     para que todo card - independente do tamanho do texto real que a producao
+     for cadastrar - mantenha a mesma altura e o botao nunca fique cortado. */
+  height: 560px;
+}
+
+.work-card:active {
+  transform: scale(0.98);
+}
+
+.work-card__image {
+  position: relative;
+  height: 220px;
+  background: var(--color-paper-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.work-card__image img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.work-card__image-fallback {
+  color: var(--color-ink-600);
+  font-size: 20px;
+  opacity: 0.6;
+}
+
+.work-card__body {
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  flex: 1;
+}
+
+.work-card__title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-navy-900);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.work-card__author {
+  font-size: 20px;
+  color: var(--color-gold-500);
+  font-weight: 600;
+  margin: 0;
+}
+
+.work-card__description {
+  font-size: 20px;
+  color: var(--color-ink-600);
+  line-height: 1.4;
+  margin: 0 0 var(--space-2);
+  flex: 1;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+.work-card__choose {
+  min-height: 72px;
+  min-width: 0;
+  width: 100%;
+  font-size: 24px;
+}
+
+/* ---- Tela de confirmacao ------------------------------------------------- */
+
+.voting-confirm__image {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  height: 220px;
+  border-radius: var(--radius-md);
+  background: var(--color-paper-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.voting-confirm__image img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.voting-confirm__image-fallback {
+  color: var(--color-ink-600);
+  font-size: 20px;
+  opacity: 0.6;
+}
+
+.voting-confirm__title {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-navy-900);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
