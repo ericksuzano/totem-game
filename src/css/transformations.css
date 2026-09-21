@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Jogo das Transformações
+   JOGO DAS TRANSFORMAÇÕES
    APROXIMA 2026 | FIPECq Previdência
 
    Identidade:
@@ -10,9 +10,17 @@
    - Mostarda
    - Verde oliva
 
+   Público:
+   - Maioria 60+
+   - Touchscreen
+   - Alta legibilidade
+   - Poucos elementos por vez
+   - Sem rolagem desnecessária
+
    Responsivo para:
    - Notebook
    - Full HD 1920x1080
+   - TV 50"
    - 4K
    ========================================================================== */
 
@@ -49,6 +57,8 @@
 .game-header {
   flex: 0 0 auto;
 
+  width: 100%;
+
   text-align: center;
 
   min-width: 0;
@@ -57,9 +67,9 @@
 }
 
 
-/*
-   Pequeno detalhe visual para reforçar o conceito de circuito.
-*/
+/* --------------------------------------------------------------------------
+   Detalhe visual de circuito
+   -------------------------------------------------------------------------- */
 
 .game-header::after {
   content: '';
@@ -72,7 +82,7 @@
   height: 3px;
 
   margin:
-    clamp(7px, 0.8vh, 12px)
+    clamp(8px, 0.8vh, 12px)
     auto
     0;
 
@@ -83,16 +93,20 @@
 }
 
 
+/* ==========================================================================
+   RODADA
+   ========================================================================== */
+
 .game-header__round {
   margin:
     0 0
-    clamp(4px, 0.5vh, 8px);
+    clamp(8px, 1vh, 14px);
 
   font-family:
     var(--font-family-heading);
 
   font-size:
-    clamp(18px, 2.4vh, 30px);
+    clamp(22px, 3vh, 34px);
 
   font-weight: 800;
 
@@ -107,21 +121,171 @@
 }
 
 
-.game-header__progress {
-  margin: 0;
+/* ==========================================================================
+   STATUS DA RODADA
+   ==========================================================================
+
+   Criado para substituir o antigo:
+   "Acertos: 0 de 2 • Tentativas: 0 de 3"
+
+   Agora os indicadores ficam em blocos grandes e independentes.
+   ========================================================================== */
+
+.game-status {
+  width: 100%;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: stretch;
+
+  gap:
+    clamp(10px, 1.5vw, 24px);
+
+  margin:
+    0 auto;
+
+  min-width: 0;
+}
+
+
+.game-status__item {
+  flex:
+    0 1 300px;
+
+  min-width:
+    min(230px, 40vw);
+
+  min-height:
+    clamp(72px, 9vh, 112px);
+
+  padding:
+    clamp(9px, 1.2vh, 16px)
+    clamp(18px, 2vw, 32px);
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  text-align: center;
+
+  border-radius:
+    var(--radius-md);
+
+  background:
+    var(--bg-surface);
+
+  border:
+    3px solid
+    rgba(43, 35, 29, 0.10);
+
+  box-shadow:
+    var(--shadow-card);
+
+  box-sizing: border-box;
+}
+
+
+/* --------------------------------------------------------------------------
+   Rótulo ACERTOS / TENTATIVAS
+   -------------------------------------------------------------------------- */
+
+.game-status__label {
+  display: block;
+
+  margin: 0 0 2px;
 
   font-family:
-    var(--font-family-base);
+    var(--font-family-heading);
 
   font-size:
-    clamp(16px, 2.1vh, 26px);
+    clamp(17px, 2vh, 24px);
 
-  font-weight: 600;
+  font-weight: 800;
 
-  line-height: 1.1;
+  line-height: 1;
+
+  letter-spacing: 0.05em;
+
+  text-transform: uppercase;
 
   color:
     var(--color-secondary);
+}
+
+
+/* --------------------------------------------------------------------------
+   Número do status
+   -------------------------------------------------------------------------- */
+
+.game-status__value {
+  display: block;
+
+  margin: 0;
+
+  font-family:
+    var(--font-family-heading);
+
+  font-size:
+    clamp(32px, 4vh, 48px);
+
+  font-weight: 900;
+
+  line-height: 1;
+
+  letter-spacing: 0.02em;
+
+  color:
+    var(--color-secondary);
+}
+
+
+/* --------------------------------------------------------------------------
+   Bloco de ACERTOS
+   -------------------------------------------------------------------------- */
+
+.game-status__item--correct {
+  border-color:
+    rgba(92, 107, 70, 0.35);
+
+  background:
+    rgba(92, 107, 70, 0.08);
+}
+
+
+.game-status__item--correct
+.game-status__label,
+.game-status__item--correct
+.game-status__value {
+  color:
+    var(--color-success);
+}
+
+
+/* --------------------------------------------------------------------------
+   Bloco de TENTATIVAS
+   -------------------------------------------------------------------------- */
+
+.game-status__item--attempts {
+  border-color:
+    rgba(211, 84, 0, 0.28);
+
+  background:
+    rgba(211, 84, 0, 0.07);
+}
+
+
+.game-status__item--attempts
+.game-status__label,
+.game-status__item--attempts
+.game-status__value {
+  color:
+    var(--color-primary);
 }
 
 
@@ -132,7 +296,8 @@
 .game-columns {
   position: relative;
 
-  flex: 1 1 auto;
+  flex:
+    1 1 auto;
 
   width: 100%;
 
@@ -152,6 +317,10 @@
 }
 
 
+/* ==========================================================================
+   COLUNA
+   ========================================================================== */
+
 .game-column {
   min-width: 0;
   min-height: 0;
@@ -168,7 +337,7 @@
 
 
 /* ==========================================================================
-   TÍTULOS DAS COLUNAS
+   TÍTULO DAS COLUNAS
    ========================================================================== */
 
 .game-column__title {
@@ -179,7 +348,7 @@
   margin: 0;
 
   padding:
-    clamp(6px, 0.7vh, 10px)
+    clamp(7px, 0.8vh, 12px)
     clamp(10px, 1vw, 18px);
 
   text-align: center;
@@ -191,7 +360,7 @@
     rgba(26, 54, 93, 0.06);
 
   border:
-    1px solid
+    2px solid
     rgba(26, 54, 93, 0.12);
 
   border-radius:
@@ -201,7 +370,7 @@
     var(--font-family-heading);
 
   font-size:
-    clamp(15px, 2.3vh, 28px);
+    clamp(17px, 2.4vh, 28px);
 
   font-weight: 800;
 
@@ -215,13 +384,14 @@
 }
 
 
-/*
-   A coluna de tecnologia antiga recebe o detalhe terracota.
-*/
+/* --------------------------------------------------------------------------
+   Coluna antiga
+   -------------------------------------------------------------------------- */
 
-.game-column:first-child .game-column__title {
+.game-column:first-child
+.game-column__title {
   border-color:
-    rgba(211, 84, 0, 0.22);
+    rgba(211, 84, 0, 0.25);
 
   background:
     rgba(211, 84, 0, 0.07);
@@ -231,13 +401,14 @@
 }
 
 
-/*
-   A coluna moderna recebe o detalhe azul/petróleo.
-*/
+/* --------------------------------------------------------------------------
+   Coluna moderna
+   -------------------------------------------------------------------------- */
 
-.game-column:last-child .game-column__title {
+.game-column:last-child
+.game-column__title {
   border-color:
-    rgba(26, 54, 93, 0.18);
+    rgba(26, 54, 93, 0.20);
 
   background:
     rgba(26, 54, 93, 0.07);
@@ -248,15 +419,19 @@
 
 
 /* ==========================================================================
-   LISTA
+   LISTA DOS CARDS
    ==========================================================================
 
-   Cada rodada possui exatamente 5 pares.
-   Os 5 cards continuam visíveis.
+   Agora cada rodada possui:
+   - 3 cards antigos
+   - 3 cards modernos
+
+   Por isso usamos 3 linhas.
    ========================================================================== */
 
 .game-column__list {
-  flex: 1 1 auto;
+  flex:
+    1 1 auto;
 
   min-width: 0;
   min-height: 0;
@@ -264,10 +439,10 @@
   display: grid;
 
   grid-template-rows:
-    repeat(5, minmax(0, 1fr));
+    repeat(3, minmax(0, 1fr));
 
   gap:
-    clamp(6px, 0.9vh, 14px);
+    clamp(7px, 1vh, 14px);
 
   overflow: hidden;
 
@@ -290,32 +465,24 @@
 
   display: grid;
 
-  /*
-     Imagem grande à esquerda + texto.
-  */
-
   grid-template-columns:
-    minmax(90px, 36%)
+    minmax(105px, 38%)
     minmax(0, 1fr);
 
   align-items: center;
 
   gap:
-    clamp(8px, 1vw, 20px);
+    clamp(10px, 1vw, 20px);
 
   padding:
-    clamp(6px, 1vh, 14px)
-    clamp(8px, 1vw, 18px);
+    clamp(8px, 1vh, 14px)
+    clamp(10px, 1vw, 18px);
 
   background:
     var(--bg-surface);
 
   color:
     var(--text-main);
-
-  /*
-     Borda inspirada em componentes físicos/tecnológicos.
-  */
 
   border:
     3px solid
@@ -333,28 +500,22 @@
 
   text-align: left;
 
-  /*
-     Transição mais orgânica.
-  */
-
   transition:
     transform 150ms ease,
     border-color 150ms ease,
     background-color 150ms ease,
     box-shadow 150ms ease;
 
-  /*
-     Compatível com touchscreen.
-  */
+  touch-action:
+    manipulation;
 
-  touch-action: manipulation;
-
-  -webkit-tap-highlight-color: transparent;
+  -webkit-tap-highlight-color:
+    transparent;
 }
 
 
 /* ==========================================================================
-   PEQUENO DETALHE DE CIRCUITO NO CARD
+   DETALHE LATERAL DO CARD
    ========================================================================== */
 
 .game-card::before {
@@ -375,9 +536,9 @@
 }
 
 
-/*
-   Cards do lado moderno usam azul.
-*/
+/* --------------------------------------------------------------------------
+   Cards modernos
+   -------------------------------------------------------------------------- */
 
 .game-card[data-side="new"]::before {
   background:
@@ -411,7 +572,7 @@
 
 
 /* ==========================================================================
-   IMAGEM
+   IMAGEM DOS CARDS
    ========================================================================== */
 
 .game-card__image {
@@ -423,15 +584,11 @@
   min-width: 0;
   min-height: 0;
 
-  /*
-     Imagem pode crescer bastante na TV.
-  */
-
   max-width:
-    230px;
+    250px;
 
   max-height:
-    140px;
+    150px;
 
   object-fit:
     contain;
@@ -475,21 +632,17 @@
   padding:
     4px 8px;
 
-  /*
-     Nunito deixa os nomes das tecnologias mais acolhedores.
-  */
-
   font-family:
     var(--font-family-heading);
 
   font-size:
-    clamp(17px, 2.8vh, 30px);
+    clamp(21px, 3vh, 34px);
 
   font-weight:
     800;
 
   line-height:
-    1.12;
+    1.15;
 
   text-align:
     center;
@@ -503,15 +656,26 @@
   word-break:
     normal;
 
-  /*
-     Impede scrollbar dentro do card.
-  */
-
   overflow:
     hidden;
 
   text-wrap:
     balance;
+}
+
+
+/* --------------------------------------------------------------------------
+   Evita textos enormes ultrapassarem o card.
+   -------------------------------------------------------------------------- */
+
+.game-card__label {
+  display: -webkit-box;
+
+  -webkit-box-orient:
+    vertical;
+
+  -webkit-line-clamp:
+    3;
 }
 
 
@@ -577,7 +741,8 @@
 }
 
 
-.game-card.is-matched .game-card__label {
+.game-card.is-matched
+.game-card__label {
   color:
     var(--color-success);
 }
@@ -663,10 +828,6 @@
 }
 
 
-/*
-   Nó de circuito no final da linha.
-*/
-
 .connection-line::after {
   content: '';
 
@@ -722,8 +883,8 @@
     translate(-50%, 24px);
 
   padding:
-    clamp(10px, 1vh, 16px)
-    clamp(16px, 2vw, 32px);
+    clamp(12px, 1.2vh, 18px)
+    clamp(18px, 2vw, 32px);
 
   border-radius:
     var(--radius-md);
@@ -732,10 +893,10 @@
     var(--font-family-heading);
 
   font-size:
-    clamp(17px, 2.2vh, 28px);
+    clamp(19px, 2.4vh, 30px);
 
   font-weight:
-    700;
+    800;
 
   line-height:
     1.25;
@@ -799,6 +960,88 @@
 
 
 /* ==========================================================================
+   TELA DE "TENTE DAQUI A POUCO"
+   ========================================================================== */
+
+.game-round-failure {
+  width: 100%;
+  height: 100%;
+
+  min-height: 360px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  text-align: center;
+
+  gap:
+    clamp(18px, 2vh, 28px);
+
+  padding:
+    clamp(24px, 4vw, 60px);
+
+  box-sizing: border-box;
+}
+
+
+.game-round-failure p:first-child {
+  margin: 0;
+
+  font-family:
+    var(--font-family-heading);
+
+  font-size:
+    clamp(36px, 5vh, 64px);
+
+  font-weight:
+    900;
+
+  line-height:
+    1.1;
+
+  color:
+    var(--color-primary);
+}
+
+
+.game-round-failure p:nth-child(2) {
+  margin: 0;
+
+  max-width:
+    850px;
+
+  font-family:
+    var(--font-family-base);
+
+  font-size:
+    clamp(22px, 2.5vh, 32px);
+
+  line-height:
+    1.4;
+
+  color:
+    var(--text-main);
+}
+
+
+.game-round-failure .btn {
+  min-width:
+    280px;
+
+  min-height:
+    72px;
+
+  font-size:
+    24px;
+}
+
+
+/* ==========================================================================
    FULL HD / TV 1920x1080
    ========================================================================== */
 
@@ -816,12 +1059,40 @@
   .game-header__round {
     font-size:
       28px;
+
+    margin-bottom:
+      12px;
   }
 
 
-  .game-header__progress {
+  .game-status {
+    gap:
+      18px;
+  }
+
+
+  .game-status__item {
+    flex-basis:
+      280px;
+
+    min-height:
+      88px;
+
+    padding:
+      12px
+      24px;
+  }
+
+
+  .game-status__label {
     font-size:
-      23px;
+      20px;
+  }
+
+
+  .game-status__value {
+    font-size:
+      38px;
   }
 
 
@@ -848,6 +1119,9 @@
 
 
   .game-column__list {
+    grid-template-rows:
+      repeat(3, minmax(0, 1fr));
+
     gap:
       10px;
 
@@ -858,7 +1132,7 @@
 
   .game-card {
     grid-template-columns:
-      minmax(150px, 36%)
+      minmax(150px, 37%)
       minmax(0, 1fr);
 
     gap:
@@ -881,10 +1155,10 @@
 
   .game-card__image {
     max-width:
-      220px;
+      250px;
 
     max-height:
-      130px;
+      145px;
   }
 
 
@@ -914,7 +1188,7 @@
 
 
 /* ==========================================================================
-   TELAS 4K
+   TV 4K
    ========================================================================== */
 
 @media (min-width: 2500px) and (min-height: 1400px) {
@@ -931,12 +1205,40 @@
   .game-header__round {
     font-size:
       34px;
+
+    margin-bottom:
+      16px;
   }
 
 
-  .game-header__progress {
+  .game-status {
+    gap:
+      26px;
+  }
+
+
+  .game-status__item {
+    flex-basis:
+      360px;
+
+    min-height:
+      115px;
+
+    padding:
+      16px
+      32px;
+  }
+
+
+  .game-status__label {
     font-size:
-      28px;
+      26px;
+  }
+
+
+  .game-status__value {
+    font-size:
+      48px;
   }
 
 
@@ -963,6 +1265,9 @@
 
 
   .game-column__list {
+    grid-template-rows:
+      repeat(3, minmax(0, 1fr));
+
     gap:
       14px;
 
@@ -973,7 +1278,7 @@
 
   .game-card {
     grid-template-columns:
-      minmax(190px, 36%)
+      minmax(190px, 38%)
       minmax(0, 1fr);
 
     gap:
@@ -996,10 +1301,10 @@
 
   .game-card__image {
     max-width:
-      290px;
+      320px;
 
     max-height:
-      170px;
+      190px;
   }
 
 
@@ -1039,7 +1344,59 @@
 
   .game-layout {
     gap:
+      7px;
+  }
+
+
+  .game-header__round {
+    font-size:
+      21px;
+
+    margin-bottom:
+      7px;
+  }
+
+
+  .game-status {
+    gap:
+      10px;
+  }
+
+
+  .game-status__item {
+    flex-basis:
+      210px;
+
+    min-height:
+      62px;
+
+    padding:
+      7px
+      14px;
+
+    border-width:
+      2px;
+  }
+
+
+  .game-status__label {
+    font-size:
+      15px;
+  }
+
+
+  .game-status__value {
+    font-size:
+      28px;
+  }
+
+
+  .game-header::after {
+    margin-top:
       6px;
+
+    height:
+      2px;
   }
 
 
@@ -1066,6 +1423,9 @@
 
 
   .game-column__list {
+    grid-template-rows:
+      repeat(3, minmax(0, 1fr));
+
     gap:
       5px;
   }
@@ -1073,7 +1433,7 @@
 
   .game-card {
     grid-template-columns:
-      minmax(65px, 36%)
+      minmax(75px, 35%)
       minmax(0, 1fr);
 
     gap:
@@ -1096,16 +1456,22 @@
 
   .game-card__image {
     max-width:
-      130px;
+      135px;
 
     max-height:
-      78px;
+      82px;
   }
 
 
   .game-card__label {
     font-size:
-      clamp(15px, 2.5vh, 21px);
+      clamp(17px, 2.6vh, 22px);
+
+    line-height:
+      1.1;
+
+    -webkit-line-clamp:
+      3;
   }
 
 
@@ -1122,15 +1488,55 @@
 
 @media (max-height: 680px) {
 
-  .game-header__round {
-    font-size:
-      15px;
+  .game-layout {
+    gap:
+      5px;
   }
 
 
-  .game-header__progress {
+  .game-header__round {
     font-size:
-      14px;
+      17px;
+
+    margin-bottom:
+      5px;
+  }
+
+
+  .game-status {
+    gap:
+      7px;
+  }
+
+
+  .game-status__item {
+    flex-basis:
+      175px;
+
+    min-height:
+      52px;
+
+    padding:
+      5px
+      10px;
+  }
+
+
+  .game-status__label {
+    font-size:
+      13px;
+  }
+
+
+  .game-status__value {
+    font-size:
+      23px;
+  }
+
+
+  .game-header::after {
+    display:
+      none;
   }
 
 
@@ -1152,7 +1558,7 @@
 
   .game-card {
     grid-template-columns:
-      minmax(55px, 34%)
+      minmax(60px, 33%)
       minmax(0, 1fr);
 
     gap:
@@ -1166,16 +1572,19 @@
 
   .game-card__image {
     max-width:
-      105px;
+      110px;
 
     max-height:
-      64px;
+      66px;
   }
 
 
   .game-card__label {
     font-size:
-      15px;
+      16px;
+
+    line-height:
+      1.08;
   }
 }
 
@@ -1192,6 +1601,12 @@
   }
 
 
+  .game-status__item {
+    flex-basis:
+      min(260px, 42vw);
+  }
+
+
   .game-columns {
     gap:
       8px;
@@ -1200,7 +1615,7 @@
 
   .game-card {
     grid-template-columns:
-      minmax(65px, 36%)
+      minmax(68px, 35%)
       minmax(0, 1fr);
   }
 
@@ -1221,6 +1636,37 @@
   .game-layout {
     width:
       97vw;
+  }
+
+
+  .game-status {
+    gap:
+      6px;
+  }
+
+
+  .game-status__item {
+    min-width:
+      0;
+
+    flex:
+      1 1 0;
+
+    padding:
+      6px
+      8px;
+  }
+
+
+  .game-status__label {
+    font-size:
+      12px;
+  }
+
+
+  .game-status__value {
+    font-size:
+      22px;
   }
 
 
@@ -1270,6 +1716,21 @@
    ========================================================================== */
 
 @media (orientation: portrait) {
+
+  .game-status {
+    gap:
+      6px;
+  }
+
+
+  .game-status__item {
+    min-width:
+      0;
+
+    flex:
+      1 1 0;
+  }
+
 
   .game-columns {
     gap:

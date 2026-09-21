@@ -13,6 +13,11 @@
 //   "Tente daqui a pouco."
 // - As partidas sao embaralhadas
 // - Historico recente evita repetir a mesma configuracao
+//
+// Alteracao visual:
+// - Acertos e tentativas agora possuem uma area propria
+// - Os valores ficam separados e com IDs proprios
+// - O CSS sera responsavel por definir tamanho, espacamento e destaque
 // ==========================================================================
 
 (function () {
@@ -249,10 +254,6 @@
 
   // ==========================================================================
   // GERA UMA PARTIDA
-  //
-  // IMPORTANTE:
-  // Aqui usamos TRANSFORMATIONS_DATA diretamente,
-  // como o projeto original fazia.
   // ==========================================================================
 
   function generateCandidateGame() {
@@ -370,8 +371,8 @@
       }
     }
 
-    // Caso extremo: usa a ultima configuracao gerada
-    // para evitar que o jogo fique travado.
+    // Caso extremo:
+    // usa a ultima configuracao gerada para evitar travamento.
 
     if (fallback) {
       const signature =
@@ -462,7 +463,7 @@
   }
 
   // ==========================================================================
-  // RENDER
+  // RENDER DA RODADA
   // ==========================================================================
 
   function renderRound() {
@@ -481,11 +482,35 @@
           Rodada ${state.roundIndex + 1} de ${state.rounds.length}
         </p>
 
-        <p class="game-header__progress">
-          Acertos: ${state.correctAnswers} de ${CORRECT_PAIRS_PER_ROUND}
-          &nbsp;•&nbsp;
-          Tentativas: ${state.attempts} de ${ATTEMPTS_PER_ROUND}
-        </p>
+        <div class="game-status">
+
+          <div class="game-status__item game-status__item--correct">
+            <span class="game-status__label">
+              Acertos
+            </span>
+
+            <strong
+              class="game-status__value"
+              id="game-correct-count"
+            >
+              ${state.correctAnswers} / ${CORRECT_PAIRS_PER_ROUND}
+            </strong>
+          </div>
+
+          <div class="game-status__item game-status__item--attempts">
+            <span class="game-status__label">
+              Tentativas
+            </span>
+
+            <strong
+              class="game-status__value"
+              id="game-attempt-count"
+            >
+              ${state.attempts} / ${ATTEMPTS_PER_ROUND}
+            </strong>
+          </div>
+
+        </div>
 
       </div>
 
@@ -534,6 +559,10 @@
       );
 
     if (!oldList || !newList) {
+      console.error(
+        '[TRANSFORMATIONS] Colunas do jogo nao encontradas.'
+      );
+
       return;
     }
 
@@ -694,24 +723,29 @@
   }
 
   // ==========================================================================
-  // PROGRESSO
+  // ATUALIZA STATUS VISUAL
   // ==========================================================================
 
   function updateRoundProgress() {
-    const progress =
-      document.querySelector(
-        '.game-header__progress'
+    const correctCount =
+      document.getElementById(
+        'game-correct-count'
       );
 
-    if (!progress) {
-      return;
+    const attemptCount =
+      document.getElementById(
+        'game-attempt-count'
+      );
+
+    if (correctCount) {
+      correctCount.textContent =
+        `${state.correctAnswers} / ${CORRECT_PAIRS_PER_ROUND}`;
     }
 
-    progress.innerHTML = `
-      Acertos: ${state.correctAnswers} de ${CORRECT_PAIRS_PER_ROUND}
-      &nbsp;•&nbsp;
-      Tentativas: ${state.attempts} de ${ATTEMPTS_PER_ROUND}
-    `;
+    if (attemptCount) {
+      attemptCount.textContent =
+        `${state.attempts} / ${ATTEMPTS_PER_ROUND}`;
+    }
   }
 
   // ==========================================================================
@@ -789,7 +823,8 @@
     line.style.top =
       `${y1}px`;
 
-    line.style.width = '0px';
+    line.style.width =
+      '0px';
 
     line.style.transform =
       `rotate(${angle}deg)`;
@@ -825,7 +860,7 @@
     }
 
     // ------------------------------------------------------------------------
-    // CARD ANTIGO
+    // ANTIGO
     // ------------------------------------------------------------------------
 
     if (side === 'old') {
@@ -858,7 +893,7 @@
     }
 
     // ------------------------------------------------------------------------
-    // CARD MODERNO
+    // MODERNO
     // ------------------------------------------------------------------------
 
     if (
@@ -990,7 +1025,7 @@
         }
 
         // ---------------------------------------------------
-        // CHEGOU A 3 TENTATIVAS SEM 2 ACERTOS
+        // 3 TENTATIVAS SEM 2 ACERTOS
         // ---------------------------------------------------
 
         if (
@@ -1026,7 +1061,10 @@
       ERROR_FEEDBACK_MS
     );
 
-    [oldCardEl, newCardEl].forEach(
+    [
+      oldCardEl,
+      newCardEl
+    ].forEach(
       (el) => {
         if (el) {
           el.classList.add(
@@ -1038,7 +1076,10 @@
 
     setTimeout(
       () => {
-        [oldCardEl, newCardEl].forEach(
+        [
+          oldCardEl,
+          newCardEl
+        ].forEach(
           (el) => {
             if (!el) {
               return;
@@ -1125,40 +1166,13 @@
     layout.innerHTML = `
       <div
         class="game-round-failure"
-        style="
-          width: 100%;
-          height: 100%;
-          min-height: 360px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          text-align: center;
-          gap: 24px;
-          padding: 40px;
-          box-sizing: border-box;
-        "
       >
 
-        <p
-          style="
-            margin: 0;
-            font-size: clamp(34px, 4vw, 60px);
-            font-weight: 800;
-            line-height: 1.15;
-          "
-        >
+        <p>
           Tente daqui a pouco.
         </p>
 
-        <p
-          style="
-            margin: 0;
-            max-width: 850px;
-            font-size: clamp(22px, 2.2vw, 32px);
-            line-height: 1.4;
-          "
-        >
+        <p>
           Obrigado por participar!
         </p>
 
@@ -1166,11 +1180,6 @@
           type="button"
           id="btn-transformations-try-later-home"
           class="btn btn-primary"
-          style="
-            min-width: 280px;
-            min-height: 72px;
-            font-size: 24px;
-          "
         >
           Voltar ao início
         </button>
