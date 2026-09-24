@@ -1,0 +1,33 @@
+{
+  "_comment": "Trabalhos exibidos no Totem de Votacao e no Totem do Concurso Cultural. Editavel no totem ja instalado (pasta resources/content/trabalhos ao lado do .exe), sem gerar novo instalador. Minimo 2, maximo 4 trabalhos - a grade da tela se ajusta sozinha a 2, 3 ou 4.",
+
+  "_como_editar": [
+    "FOTOS: colocar a foto nesta mesma pasta com o nome igual ao id do trabalho: trabalho-1.jpg, trabalho-2.jpg (tambem aceita .jpeg, .png ou .webp). Nao e preciso mexer neste arquivo para trocar uma foto.",
+    "Enquanto a foto nao existir, a tela mostra um quadro neutro 'Foto do trabalho' no lugar - o app nao quebra.",
+    "3o e 4o TRABALHO: copiar o bloco modelo de _modelo_novo_trabalho para dentro da lista works (separado por virgula), trocar o id para trabalho-3 / trabalho-4 e preencher os campos. A foto segue a mesma regra (trabalho-3.jpg, trabalho-4.jpg).",
+    "O id nunca deve ser alterado depois que a votacao comecar: os votos sao contados por ele.",
+    "category e o tipo do trabalho (ex.: Quadro, Fotografia). description e opcional (1-2 frases curtas)."
+  ],
+
+  "works": [
+    {
+      "id": "trabalho-1",
+      "category": "Quadro",
+      "title": "Ela e Eu",
+      "author": "Rejane Lins"
+    },
+    {
+      "id": "trabalho-2",
+      "category": "Fotografia",
+      "title": "Aconchego Seguro em tempo futuro",
+      "author": "Palmira Mariconi"
+    }
+  ],
+
+  "_modelo_novo_trabalho": {
+    "id": "trabalho-3",
+    "category": "TODO: tipo do trabalho",
+    "title": "TODO: titulo do trabalho",
+    "author": "TODO: nome do autor(a)"
+  }
+}

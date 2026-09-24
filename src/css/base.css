@@ -1,2576 +1,585 @@
 /* ==========================================================================
-   DESIGN SYSTEM - APROXIMA DE IMPACTO
-   APROXIMA 2026 | FIPECq Previdência
+   Design system - Totens APROXIMA 2026 (FIPECq Previdencia)
+   Identidade: "APROXIMA de IMPACTO - Entre os fios da historia e a
+   inteligencia do amanha" (cores tiradas dos vetores do PDF oficial do
+   evento, levemente mais vivas a pedido do cliente).
+   Publico-alvo: 60+, touchscreen. Prioridades: contraste alto, fontes e
+   botoes grandes, poucas informacoes por tela.
 
-   Conceito visual:
-   História + Artesanato + Tecnologia + Futuro
-
-   - Fundo com imagem
-   - Laranja terroso como destaque
-   - Azul petróleo/navy como estrutura
-   - Mostarda e oliva como cores de apoio
-   - Logo grande no canto superior esquerdo da página inicial
-   - Topbar mantida nas demais páginas
-   - Tipografia acolhedora nos títulos
-   - Tipografia altamente legível no corpo
-   - Responsivo para notebook, Full HD e 4K
-   - Touchscreen / Totem
-   ========================================================================== */
-
-
-/* ==========================================================================
-   FONTES
-   ========================================================================== */
-
-@import url(
-  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Nunito:wght@500;600;700;800&display=swap'
-);
-
-
-/* ==========================================================================
-   ROOT / IDENTIDADE VISUAL
+   ESCALA RESPONSIVA (uma unica regra, sem media queries de tamanho):
+   todo o layout usa "rem", e o rem vale 1/108 da menor dimensao da tela.
+     notebook 1366x768 -> 1rem = 7.1px
+     Full HD 1920x1080 -> 1rem = 10px
+     4K 3840x2160      -> 1rem = 20px
+     retrato 1080x1920 -> 1rem = 10px
+   Assim a proporcao do layout e sempre a mesma e nada "volta" a um tamanho
+   menor por causa de uma media query posterior. As unicas media queries do
+   projeto sao de ORIENTACAO (retrato x paisagem) e so trocam disposicao
+   (colunas), nunca tamanhos de fonte/logo.
    ========================================================================== */
 
 :root {
-
-  /* ------------------------------------------------------------------------
-     FUNDO
-     ------------------------------------------------------------------------ */
-
-  --bg-primary: #F4F1EA;
-
-  --bg-surface: #FFFFFF;
-
-  --bg-surface-soft: #FCFBF8;
-
-
-  /* ------------------------------------------------------------------------
-     TEXTO
-     ------------------------------------------------------------------------ */
-
-  --text-main: #2B231D;
-
-  --text-secondary: #5A514A;
-
-  --text-muted: #746B63;
-
-
-  /* ------------------------------------------------------------------------
-     COR PRIMÁRIA
-     ------------------------------------------------------------------------ */
-
-  --color-primary: #D35400;
-
-  --color-primary-dark: #A94200;
-
-  --color-primary-light: #E1712A;
-
-
-  /* ------------------------------------------------------------------------
-     AZUL PETRÓLEO / NAVY
-     ------------------------------------------------------------------------ */
-
-  --color-secondary: #1A365D;
-
-  --color-secondary-dark: #122843;
-
-  --color-secondary-light: #294C78;
-
-
-  /* ------------------------------------------------------------------------
-     CORES DE APOIO
-     ------------------------------------------------------------------------ */
-
-  --color-accent-1: #E6A722;
-
-  --color-accent-1-light: #F2C65F;
-
-  --color-accent-2: #5C6B46;
-
-  --color-accent-2-light: #78865F;
-
-
-  /* ------------------------------------------------------------------------
-     ESTADOS
-     ------------------------------------------------------------------------ */
-
-  --color-success: #477052;
-
-  --color-success-bg: #E7F0E8;
-
-  --color-error: #A8452F;
-
-  --color-error-bg: #F5E4DF;
-
-  --color-focus: #1A365D;
-
-
-  /* ------------------------------------------------------------------------
-     COMPATIBILIDADE
-     ------------------------------------------------------------------------ */
-
-  --color-navy-900:
-    var(--color-secondary-dark);
-
-  --color-navy-800:
-    var(--color-secondary);
-
-  --color-navy-700:
-    var(--color-secondary-light);
-
-  --color-gold-500:
-    var(--color-accent-1);
-
-  --color-gold-400:
-    var(--color-accent-1-light);
-
-  --color-paper-100:
-    var(--bg-primary);
-
-  --color-paper-000:
-    var(--bg-surface-soft);
-
-  --color-ink-900:
-    var(--text-main);
-
-  --color-ink-600:
-    var(--text-secondary);
-
-
-  /* ------------------------------------------------------------------------
-     TIPOGRAFIA
-     ------------------------------------------------------------------------ */
-
-  --font-family-heading:
-    'Nunito',
-    'Segoe UI',
-    system-ui,
-    sans-serif;
-
-  --font-family-base:
-    'Inter',
-    'Segoe UI',
-    system-ui,
-    sans-serif;
-
-
-  /* ------------------------------------------------------------------------
-     ESCALA TIPOGRÁFICA
-     ------------------------------------------------------------------------ */
-
-  --font-size-body:
-    clamp(17px, 1.35vw, 28px);
-
-  --font-size-lg:
-    clamp(21px, 1.7vw, 34px);
-
-  --font-size-xl:
-    clamp(28px, 2.5vw, 48px);
-
-  --font-size-title:
-    clamp(36px, 4vw, 72px);
-
-  --font-size-button:
-    clamp(21px, 1.7vw, 34px);
-
-
-  /* ------------------------------------------------------------------------
-     ESPAÇAMENTO
-     ------------------------------------------------------------------------ */
-
-  --space-1:
-    clamp(6px, 0.55vw, 12px);
-
-  --space-2:
-    clamp(10px, 0.9vw, 18px);
-
-  --space-3:
-    clamp(16px, 1.4vw, 28px);
-
-  --space-4:
-    clamp(24px, 2.2vw, 44px);
-
-  --space-5:
-    clamp(36px, 3.2vw, 68px);
-
-  --space-6:
-    clamp(56px, 5vw, 100px);
-
-
-  /* ------------------------------------------------------------------------
-     BORDAS
-     ------------------------------------------------------------------------ */
-
-  --radius-sm:
-    clamp(6px, 0.45vw, 10px);
-
-  --radius-md:
-    clamp(8px, 0.7vw, 14px);
-
-  --radius-lg:
-    clamp(16px, 1.4vw, 26px);
-
-
-  /* ------------------------------------------------------------------------
-     SOMBRAS
-     ------------------------------------------------------------------------ */
-
-  --shadow-card:
-    0 10px 28px rgba(43, 35, 29, 0.10);
-
-  --shadow-card-hover:
-    0 16px 36px rgba(43, 35, 29, 0.16);
-
-  --shadow-button:
-    0 6px 18px rgba(43, 35, 29, 0.18);
-
-
-  /* ------------------------------------------------------------------------
-     TRANSIÇÕES
-     ------------------------------------------------------------------------ */
-
-  --transition-screen:
-    420ms cubic-bezier(0.22, 1, 0.36, 1);
-
-  --transition-ui:
-    180ms ease;
+  /* ---- Cores da identidade APROXIMA (PDF oficial -> versao "viva") ---- */
+  --c-orange: #E4571C;        /* laranja IMPACTO (PDF #C25217), vivo */
+  --c-orange-strong: #C9460F; /* laranja p/ texto e botoes (contraste AA) */
+  --c-orange-dark: #9C360B;
+  --c-mustard: #F2A516;       /* mostarda (PDF #C4850D), vivo - so decoracao/fundo */
+  --c-mustard-soft: #FCE7B8;
+  --c-olive: #5A7A2C;         /* verde oliva (PDF #4A573D), vivo */
+  --c-olive-soft: #E4EED3;
+  --c-navy: #144B74;          /* azul petroleo (PDF #1C4057), vivo */
+  --c-navy-deep: #0E3A5C;
+  --c-navy-soft: #DCE8F2;
+  --c-blue: #1264A0;          /* azul FIPECq (PANTONE 634 C) */
+  --c-brown: #3B2418;         /* marrom "APROXIMA" (PDF #332117) */
+
+  /* Fundo "papel" da identidade, mais claro e limpo que o original. */
+  --c-cream: #F8EEDF;
+  --c-cream-light: #FFFAF3;
+  --c-sand: #EBD9BF;
+  --c-ink: #2B1D14;
+  --c-ink-soft: #5B4A3E;
+
+  --c-success: #3C7A2A;
+  --c-success-bg: #E6F2DC;
+  --c-error: #B8321A;
+  --c-error-bg: #FBE3DC;
+  --c-focus: #1264A0;
+
+  /* Faixa de 4 cores da marca (usada no cabecalho e nos divisores). */
+  --stripe: linear-gradient(90deg,
+    var(--c-orange) 0 25%, var(--c-mustard) 25% 50%,
+    var(--c-olive) 50% 75%, var(--c-navy) 75% 100%);
+
+  --font-family-base: 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+  /* Tamanhos em rem (ver "ESCALA RESPONSIVA" acima). Em Full HD: 1rem=10px. */
+  --fs-body: 2.8rem;
+  --fs-lg: 3.2rem;
+  --fs-xl: 4.2rem;
+  --fs-title: 6rem;
+  --fs-button: 3.2rem;
+  --fs-eyebrow: 2.4rem;
+
+  --header-h: 8.4rem;
+
+  --space-1: 0.8rem;
+  --space-2: 1.6rem;
+  --space-3: 2.4rem;
+  --space-4: 4rem;
+  --space-5: 6.4rem;
+
+  --radius-sm: 1.6rem;
+  --radius-md: 2.4rem;
+  --radius-lg: 4rem;
+  --radius-pill: 999px;
+
+  --shadow-card: 0 1.2rem 3.2rem rgba(59, 36, 24, 0.14), 0 0.2rem 0.6rem rgba(59, 36, 24, 0.08);
+  --shadow-button: 0 0.8rem 2rem rgba(156, 54, 11, 0.28);
+
+  --transition-screen: 420ms cubic-bezier(0.22, 1, 0.36, 1);
 }
-
-
-/* ==========================================================================
-   RESET
-   ========================================================================== */
 
 * {
   box-sizing: border-box;
 }
 
+/* Garante que o atributo "hidden" sempre vença, mesmo quando um elemento tem
+   uma regra propria de "display" (ex.: .kiosk-overlay usa display:flex, que
+   empataria em especificidade com o [hidden] padrao do navegador e venceria
+   por ser CSS de autor - escondendo o "hidden" e deixando o overlay sempre
+   visivel). Alternar visibilidade sempre via .hidden = true/false no JS. */
 [hidden] {
   display: none !important;
 }
 
-html,
-body {
+html {
+  /* A regra de escala: 1rem = 1/108 da menor dimensao da janela. */
+  font-size: max(5px, calc(100vmin / 108));
+}
+
+html, body {
   margin: 0;
   padding: 0;
-
   width: 100%;
   height: 100%;
-
   overflow: hidden;
-
   -webkit-user-select: none;
   user-select: none;
-
   overscroll-behavior: none;
 }
 
 body {
-  position: relative;
-
-  font-family:
-    var(--font-family-base);
-
-  font-size:
-    var(--font-size-body);
-
-  color:
-    var(--text-main);
-
-  background:
-    var(--bg-primary);
-
-  touch-action:
-    manipulation;
+  font-family: var(--font-family-base);
+  font-size: var(--fs-body);
+  color: var(--c-ink);
+  background-color: var(--c-cream);
+  /* Leve textura de papel, so com CSS (offline). */
+  background-image:
+    radial-gradient(ellipse at 12% 8%, rgba(255, 255, 255, 0.85), transparent 55%),
+    radial-gradient(ellipse at 90% 95%, rgba(242, 165, 22, 0.14), transparent 50%),
+    radial-gradient(ellipse at 95% 5%, rgba(20, 75, 116, 0.08), transparent 45%);
+  touch-action: manipulation;
 }
 
 img {
-  display: block;
-
-  max-width: 100%;
-
   -webkit-user-drag: none;
 }
 
 button {
-  font-family:
-    inherit;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
 }
 
+/* ---- Cabecalho institucional -------------------------------------------- */
+/* Barra fina nas telas internas; na tela de espera (data-chrome="minimal")
+   vira so o logo FIPECq solto no canto, integrado a arte. O logo FIPECq e
+   tambem a area do gesto de manutencao (#kiosk-exit-hitzone). */
 
-/* ==========================================================================
-   TIPOGRAFIA GLOBAL
-   ========================================================================== */
+.totem-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 0 var(--space-4);
+  background: var(--c-cream-light);
+  box-shadow: 0 0.4rem 1.6rem rgba(59, 36, 24, 0.08);
+  z-index: 5;
+  transition: background-color 300ms ease, box-shadow 300ms ease;
+}
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+/* Faixa de 4 cores na base da barra. */
+.totem-header::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 0.6rem;
+  background: var(--stripe);
+}
+
+.totem-header__brand {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  /* Area de toque um pouco maior que o logo, para o gesto de manutencao. */
+  padding: 0 var(--space-2) 0 0;
+  flex-shrink: 0;
+}
+
+.totem-header__fipecq {
+  display: block;
+  height: 5.6rem;
+  width: auto;
+}
+
+.totem-header__title {
+  flex: 1;
+  text-align: center;
   margin: 0;
-
-  font-family:
-    var(--font-family-heading);
-
-  color:
-    var(--color-secondary);
-
-  font-weight: 700;
-
-  line-height: 1.1;
+  font-size: var(--fs-lg);
+  font-weight: 800;
+  color: var(--c-navy);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-h1 {
-  font-size:
-    var(--font-size-title);
+.totem-header__aproxima {
+  display: block;
+  height: 5.6rem;
+  width: auto;
+  flex-shrink: 0;
 }
 
-h2 {
-  font-size:
-    var(--font-size-xl);
+/* Tela de espera: sem barra. Logo FIPECq maior, solto sobre o fundo. */
+#app[data-chrome="minimal"] .totem-header {
+  background: transparent;
+  box-shadow: none;
+  height: auto;
+  padding: var(--space-4) var(--space-4) 0;
+  align-items: flex-start;
+  pointer-events: none;
 }
 
-h3 {
-  font-size:
-    var(--font-size-lg);
+#app[data-chrome="minimal"] .totem-header::after,
+#app[data-chrome="minimal"] .totem-header__title,
+#app[data-chrome="minimal"] .totem-header__aproxima {
+  display: none;
 }
 
-p {
-  margin: 0;
-
-  color:
-    var(--text-secondary);
-
-  font-family:
-    var(--font-family-base);
-
-  line-height: 1.45;
+#app[data-chrome="minimal"] .totem-header__brand {
+  pointer-events: auto;
 }
 
+#app[data-chrome="minimal"] .totem-header__fipecq {
+  height: 9rem;
+}
 
-/* ==========================================================================
-   FUNDO GLOBAL
-   ========================================================================== */
+#app[data-chrome="none"] .totem-header {
+  display: none;
+}
+
+/* ---- Telas (uma visivel por vez, com transicao suave) -------------------- */
 
 #screen-container {
   position: fixed;
-
   inset: 0;
-
   overflow: hidden;
-
-  background:
-    linear-gradient(
-      rgba(244, 241, 234, 0.68),
-      rgba(244, 241, 234, 0.68)
-    ),
-    url("../assets/images/background.jpg");
-
-  background-size:
-    cover;
-
-  background-position:
-    center center;
-
-  background-repeat:
-    no-repeat;
-
-  background-color:
-    var(--bg-primary);
 }
-
-
-/* ==========================================================================
-   LOGO DA PÁGINA INICIAL
-   ========================================================================== */
-
-#screen-container::after {
-  content: '';
-
-  display: none;
-
-  position: absolute;
-
-  top:
-    22px;
-
-  left:
-    26px;
-
-  /*
-     Logo grande por padrão.
-     O tamanho será refinado nos breakpoints abaixo.
-  */
-  width:
-    320px;
-
-  height:
-    105px;
-
-  background-image:
-    url("../assets/logos/logo.png");
-
-  background-size:
-    contain;
-
-  background-position:
-    left center;
-
-  background-repeat:
-    no-repeat;
-
-  z-index:
-    50;
-
-  pointer-events:
-    none;
-
-  filter:
-    drop-shadow(
-      0 5px 12px
-      rgba(0, 0, 0, 0.14)
-    );
-}
-
-
-/* ==========================================================================
-   MOSTRA A LOGO SOMENTE NO MENU PRINCIPAL
-   ========================================================================== */
-
-body:has(
-  .screen[data-screen="menu"].is-active
-)
-#screen-container::after {
-  display:
-    block;
-}
-
-
-/* ==========================================================================
-   TOPBAR INSTITUCIONAL
-   ========================================================================== */
-
-.totem-topbar {
-  position: fixed;
-
-  top: 0;
-
-  left: 0;
-
-  right: 0;
-
-  height:
-    clamp(58px, 7vh, 100px);
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: space-between;
-
-  padding:
-    0
-    clamp(18px, 2.5vw, 56px);
-
-  color:
-    var(--bg-surface);
-
-  background:
-    rgba(26, 54, 93, 0.96);
-
-  border-bottom:
-    3px solid
-    var(--color-accent-1);
-
-  font-family:
-    var(--font-family-base);
-
-  font-size:
-    clamp(15px, 1.25vw, 25px);
-
-  font-weight:
-    600;
-
-  letter-spacing:
-    0.04em;
-
-  text-transform:
-    uppercase;
-
-  z-index:
-    100;
-
-  box-shadow:
-    0 4px 14px
-    rgba(43, 35, 29, 0.12);
-}
-
-.totem-topbar__mark {
-  font-weight:
-    600;
-
-  white-space:
-    nowrap;
-}
-
-
-/* ==========================================================================
-   ESCONDE TOPBAR NO MENU PRINCIPAL
-   ========================================================================== */
-
-body:has(
-  .screen[data-screen="menu"].is-active
-)
-.totem-topbar {
-  display:
-    none;
-}
-
-
-/* ==========================================================================
-   ESCONDE TOPBAR DURANTE O LOADING
-   ========================================================================== */
-
-body:has(
-  .screen[data-screen="loading"].is-active
-)
-.totem-topbar {
-  display:
-    none;
-}
-
-
-/* ==========================================================================
-   TELAS
-   ========================================================================== */
 
 .screen {
   position: absolute;
-
   inset: 0;
-
-  z-index: 1;
-
   display: flex;
-
   align-items: center;
-
   justify-content: center;
-
-  padding:
-    calc(clamp(58px, 7vh, 100px) + var(--space-3))
-    var(--space-5)
-    var(--space-5);
-
-  opacity:
-    0;
-
-  transform:
-    translateY(24px)
-    scale(0.99);
-
-  pointer-events:
-    none;
-
-  transition:
-    opacity var(--transition-screen),
-    transform var(--transition-screen);
+  /* Reserva a altura da barra fixa, para nada ficar por baixo dela. */
+  padding: calc(var(--header-h) + var(--space-3)) var(--space-4) var(--space-4);
+  opacity: 0;
+  transform: translateY(2.4rem);
+  pointer-events: none;
+  transition: opacity var(--transition-screen), transform var(--transition-screen);
 }
 
 .screen.is-active {
-  opacity:
-    1;
-
-  transform:
-    translateY(0)
-    scale(1);
-
-  pointer-events:
-    auto;
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
 }
 
-
-/* ==========================================================================
-   MENU PRINCIPAL
-   SEM TOPBAR
-   ========================================================================== */
-
-body:has(
-  .screen[data-screen="menu"].is-active
-)
-.screen {
-  padding-top:
-    var(--space-5);
+/* Conteudo alinhado ao topo (ex.: jogo: "box mais para cima"). */
+.screen--top {
+  align-items: flex-start;
 }
 
+/* ---- Painel central (placa arredondada) ---------------------------------- */
 
-/* ==========================================================================
-   PAINEL CENTRAL
-   ========================================================================== */
-
-.screen__panel {
-  width:
-    100%;
-
-  max-width:
-    clamp(900px, 76vw, 1500px);
-
-  max-height:
-    100%;
-
-  overflow:
-    hidden;
-
-  background:
-    linear-gradient(
-      145deg,
-      rgba(255, 255, 255, 0.97) 0%,
-      rgba(252, 251, 248, 0.97) 100%
-    );
-
-  border:
-    1px solid
-    rgba(26, 54, 93, 0.10);
-
-  border-radius:
-    var(--radius-lg);
-
-  box-shadow:
-    var(--shadow-card);
-
-  padding:
-    clamp(22px, 3vw, 60px)
-    clamp(26px, 4vw, 80px);
-
-  text-align:
-    center;
-
-  display:
-    flex;
-
-  flex-direction:
-    column;
-
-  align-items:
-    center;
-
-  gap:
-    clamp(14px, 1.6vw, 30px);
+.panel {
+  width: 100%;
+  max-width: 110rem;
+  max-height: 100%;
+  background: var(--c-cream-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-5) var(--space-5) var(--space-4);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  position: relative;
+  overflow: hidden;
 }
 
-
-/* ==========================================================================
-   EYEBROW
-   ========================================================================== */
-
-.screen__eyebrow {
-  color:
-    var(--color-primary);
-
-  font-family:
-    var(--font-family-heading);
-
-  font-size:
-    clamp(20px, 1.7vw, 34px);
-
-  font-weight:
-    800;
-
-  letter-spacing:
-    0.02em;
-
-  line-height:
-    1.2;
-
-  margin:
-    0;
-
-  max-width:
-    100%;
-
-  overflow-wrap:
-    break-word;
+/* Filete de 4 cores no topo do painel. */
+.panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1rem;
+  background: var(--stripe);
 }
 
-
-/* ==========================================================================
-   TÍTULO
-   ========================================================================== */
-
-.screen__title {
-  color:
-    var(--color-secondary);
-
-  font-family:
-    var(--font-family-heading);
-
-  font-size:
-    var(--font-size-title);
-
-  font-weight:
-    800;
-
-  line-height:
-    1.08;
-
-  margin:
-    0;
-
-  max-width:
-    100%;
-
-  overflow-wrap:
-    break-word;
-
-  text-wrap:
-    balance;
+.eyebrow {
+  color: var(--c-orange-strong);
+  font-size: var(--fs-eyebrow);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0;
 }
 
-
-/* ==========================================================================
-   DIVISOR
-   ========================================================================== */
-
-.screen__rule {
-  width:
-    clamp(64px, 5vw, 110px);
-
-  height:
-    clamp(3px, 0.3vw, 5px);
-
-  flex:
-    0 0 auto;
-
-  background:
-    var(--color-accent-1);
-
-  border:
-    none;
-
-  border-radius:
-    2px;
-
-  margin:
-    var(--space-1)
-    0;
+.panel__title {
+  color: var(--c-navy);
+  font-size: var(--fs-title);
+  font-weight: 800;
+  line-height: 1.12;
+  margin: 0;
+  max-width: 92rem;
 }
 
-
-/* ==========================================================================
-   TEXTO
-   ========================================================================== */
-
-.screen__text {
-  color:
-    var(--text-secondary);
-
-  font-family:
-    var(--font-family-base);
-
-  font-size:
-    var(--font-size-lg);
-
-  line-height:
-    1.4;
-
-  width:
-    100%;
-
-  max-width:
-    clamp(650px, 62vw, 1100px);
-
-  margin:
-    0;
-
-  overflow-wrap:
-    break-word;
-
-  text-wrap:
-    pretty;
+.rule {
+  width: 16rem;
+  height: 0.9rem;
+  border-radius: var(--radius-pill);
+  background: var(--stripe);
+  flex-shrink: 0;
 }
 
-
-/* ==========================================================================
-   AÇÕES
-   ========================================================================== */
-
-.screen__actions {
-  margin-top:
-    clamp(10px, 1.2vw, 24px);
-
-  width:
-    100%;
-
-  display:
-    flex;
-
-  gap:
-    clamp(12px, 1.4vw, 24px);
-
-  flex-wrap:
-    wrap;
-
-  justify-content:
-    center;
-
-  align-items:
-    stretch;
+.panel__text {
+  color: var(--c-ink-soft);
+  font-size: var(--fs-lg);
+  line-height: 1.45;
+  max-width: 84rem;
+  margin: 0;
 }
 
+.panel__text--quote {
+  color: var(--c-olive);
+  font-weight: 700;
+}
 
-/* ==========================================================================
-   BOTÕES
-   ========================================================================== */
+.actions {
+  margin-top: var(--space-2);
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.actions--start {
+  justify-content: flex-start;
+}
+
+/* Selo de "concluido" nas telas finais. */
+.done-badge {
+  width: 12rem;
+  height: 12rem;
+  border-radius: 50%;
+  background: conic-gradient(var(--c-orange) 0 25%, var(--c-mustard) 0 50%, var(--c-olive) 0 75%, var(--c-navy) 0);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.done-badge svg {
+  width: 9rem;
+  height: 9rem;
+  border-radius: 50%;
+  background: var(--c-cream-light);
+  fill: none;
+  stroke: var(--c-olive);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  padding: 1.6rem;
+}
+
+/* ---- Botoes grandes e arredondados, feedback claro ao toque -------------- */
 
 .btn {
-  min-height:
-    clamp(70px, 9vh, 120px);
-
-  min-width:
-    clamp(220px, 18vw, 340px);
-
-  max-width:
-    100%;
-
-  padding:
-    clamp(12px, 1vw, 20px)
-    clamp(20px, 2.4vw, 46px);
-
-  font-family:
-    var(--font-family-heading);
-
-  font-size:
-    var(--font-size-button);
-
-  font-weight:
-    800;
-
-  line-height:
-    1.1;
-
-  border-radius:
-    var(--radius-md);
-
-  border:
-    none;
-
-  cursor:
-    pointer;
-
-  transition:
-    transform var(--transition-ui),
-    box-shadow var(--transition-ui),
-    background-color var(--transition-ui),
-    color var(--transition-ui);
-
-  touch-action:
-    manipulation;
-
-  -webkit-tap-highlight-color:
-    transparent;
+  min-height: 9.6rem;
+  min-width: 30rem;
+  padding: var(--space-2) var(--space-5);
+  font-size: var(--fs-button);
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  border-radius: var(--radius-pill);
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
 }
 
 .btn:focus-visible {
-  outline:
-    clamp(3px, 0.3vw, 5px)
-    solid
-    var(--color-focus);
-
-  outline-offset:
-    3px;
+  outline: 0.4rem solid var(--c-focus);
+  outline-offset: 0.3rem;
 }
 
 .btn:active {
-  transform:
-    scale(0.96);
+  transform: scale(0.96);
 }
-
-
-/* ==========================================================================
-   BOTÃO PRIMÁRIO
-   ========================================================================== */
 
 .btn-primary {
-  background:
-    var(--color-primary);
-
-  color:
-    #FFFFFF;
-
-  box-shadow:
-    var(--shadow-button);
+  background: var(--c-orange-strong);
+  color: #FFFFFF;
+  box-shadow: var(--shadow-button);
 }
 
-.btn-primary:hover {
-  background:
-    var(--color-secondary);
-
-  box-shadow:
-    var(--shadow-card-hover);
+.btn-primary:active {
+  background: var(--c-orange-dark);
 }
-
-
-/* ==========================================================================
-   BOTÃO SECUNDÁRIO
-   ========================================================================== */
 
 .btn-secondary {
-  background:
-    transparent;
-
-  color:
-    var(--color-secondary);
-
-  border:
-    3px solid
-    var(--color-secondary);
+  background: var(--c-cream-light);
+  color: var(--c-navy);
+  box-shadow: inset 0 0 0 0.4rem var(--c-navy);
 }
 
-.btn-secondary:hover {
-  background:
-    var(--color-secondary);
-
-  color:
-    #FFFFFF;
+.btn-secondary:active {
+  background: var(--c-navy-soft);
 }
 
-
-/* ==========================================================================
-   BOTÃO MOSTARDA
-   ========================================================================== */
-
-.btn-gold {
-  background:
-    var(--color-accent-1);
-
-  color:
-    var(--text-main);
-
-  box-shadow:
-    var(--shadow-button);
-}
-
-.btn-gold:hover {
-  background:
-    var(--color-primary);
-
-  color:
-    #FFFFFF;
-}
-
-
-/* ==========================================================================
-   CARD GENÉRICO
-   ========================================================================== */
-
-.card {
-  background:
-    var(--bg-surface);
-
-  border:
-    1px solid
-    rgba(26, 54, 93, 0.10);
-
-  border-radius:
-    var(--radius-md);
-
-  box-shadow:
-    var(--shadow-card);
-
-  color:
-    var(--text-main);
-
-  transition:
-    transform var(--transition-ui),
-    box-shadow var(--transition-ui);
-}
-
-.card:hover {
-  box-shadow:
-    var(--shadow-card-hover);
-}
-
-
-/* ==========================================================================
-   DIVISOR DE CIRCUITO
-   ========================================================================== */
-
-.circuit-divider {
-  position:
-    relative;
-
-  width:
-    min(100%, 900px);
-
-  height:
-    2px;
-
-  margin:
-    var(--space-3)
-    auto;
-
-  background:
-    var(--color-secondary);
-
-  border-radius:
-    999px;
-}
-
-.circuit-divider::after {
-  content:
-    '';
-
-  position:
-    absolute;
-
-  right:
-    0;
-
-  top:
-    50%;
-
-  width:
-    clamp(10px, 0.8vw, 16px);
-
-  height:
-    clamp(10px, 0.8vw, 16px);
-
-  transform:
-    translateY(-50%);
-
-  background:
-    var(--color-accent-1);
-
-  border:
-    3px solid
-    var(--bg-primary);
-
-  border-radius:
-    50%;
-
-  box-shadow:
-    0 0 0 2px
-    var(--color-secondary);
-}
-
-
-/* ==========================================================================
-   VARIAÇÕES DO DIVISOR
-   ========================================================================== */
-
-.circuit-divider--primary {
-  background:
-    var(--color-primary);
-}
-
-.circuit-divider--primary::after {
-  background:
-    var(--color-secondary);
-}
-
-.circuit-divider--olive {
-  background:
-    var(--color-accent-2);
-}
-
-.circuit-divider--olive::after {
-  background:
-    var(--color-accent-1);
-}
-
-
-/* ==========================================================================
-   MENU PRINCIPAL
-   ========================================================================== */
-
-.menu-layout {
-  width:
-    100%;
-
-  max-width:
-    clamp(900px, 78vw, 1600px);
-
-  max-height:
-    100%;
-
-  overflow:
-    hidden;
-
-  display:
-    flex;
-
-  flex-direction:
-    column;
-
-  align-items:
-    center;
-
-  gap:
-    clamp(10px, 1.5vh, 24px);
-
-  text-align:
-    center;
-
-  color:
-    var(--text-main);
-}
-
-
-/* ==========================================================================
-   TÍTULO DO MENU
-   ========================================================================== */
-
-.menu-layout__title {
-  font-family:
-    var(--font-family-heading);
-
-  font-size:
-    var(--font-size-title);
-
-  font-weight:
-    800;
-
-  line-height:
-    1.05;
-
-  color:
-    var(--color-secondary);
-
-  margin:
-    0;
-
-  max-width:
-    100%;
-
-  text-wrap:
-    balance;
-}
-
-
-/* ==========================================================================
-   SUBTEXTO DO MENU
-   ========================================================================== */
-
-.menu-layout__subtitle {
-  max-width:
-    min(900px, 90vw);
-
-  color:
-    var(--text-secondary);
-
-  font-size:
-    clamp(18px, 1.5vw, 28px);
-
-  line-height:
-    1.4;
-
-  text-wrap:
-    balance;
-}
-
-
-/* ==========================================================================
-   CARDS DO MENU
-   ========================================================================== */
-
-.menu-layout__choices {
-  margin-top:
-    clamp(12px, 2vh, 32px);
-
-  width:
-    100%;
-
-  display:
-    grid;
-
-  grid-template-columns:
-    repeat(2, minmax(0, 1fr));
-
-  gap:
-    clamp(14px, 2vw, 36px);
-
-  min-width:
-    0;
-
-  min-height:
-    0;
-}
-
-
-/* ==========================================================================
-   CARD INDIVIDUAL DO MENU
-   ========================================================================== */
-
-.menu-choice {
-  position:
-    relative;
-
-  width:
-    100%;
-
-  min-height:
-    clamp(170px, 24vh, 360px);
-
-  max-height:
-    clamp(220px, 30vh, 400px);
-
-  min-width:
-    0;
-
-  background:
-    var(--bg-surface);
-
-  border:
-    2px solid
-    rgba(26, 54, 93, 0.10);
-
-  border-radius:
-    var(--radius-lg);
-
-  box-shadow:
-    var(--shadow-card);
-
-  padding:
-    clamp(20px, 2.2vw, 44px);
-
-  display:
-    flex;
-
-  flex-direction:
-    column;
-
-  align-items:
-    center;
-
-  justify-content:
-    center;
-
-  gap:
-    clamp(8px, 1vh, 18px);
-
-  cursor:
-    pointer;
-
-  font-family:
-    inherit;
-
-  overflow:
-    hidden;
-
-  text-align:
-    center;
-
-  transition:
-    transform var(--transition-ui),
-    box-shadow var(--transition-ui),
-    border-color var(--transition-ui);
-
-  touch-action:
-    manipulation;
-
-  -webkit-tap-highlight-color:
-    transparent;
-}
-
-.menu-choice::before {
-  content:
-    '';
-
-  position:
-    absolute;
-
-  top:
-    0;
-
-  left:
-    0;
-
-  right:
-    0;
-
-  height:
-    6px;
-
-  background:
-    var(--color-primary);
-
-  opacity:
-    0.95;
-}
-
-.menu-choice:hover {
-  border-color:
-    rgba(211, 84, 0, 0.45);
-
-  box-shadow:
-    var(--shadow-card-hover);
-}
-
-.menu-choice:active {
-  transform:
-    scale(0.97);
-}
-
-
-/* ==========================================================================
-   TÍTULO DO CARD
-   ========================================================================== */
-
-.menu-choice__title {
-  width:
-    100%;
-
-  color:
-    var(--color-secondary);
-
-  font-family:
-    var(--font-family-heading);
-
-  font-size:
-    clamp(27px, 2.5vw, 50px);
-
-  font-weight:
-    800;
-
-  line-height:
-    1.08;
-
-  text-align:
-    center;
-
-  overflow-wrap:
-    break-word;
-
-  word-break:
-    normal;
-
-  text-wrap:
-    balance;
-
-  display:
-    -webkit-box;
-
-  -webkit-box-orient:
-    vertical;
-
-  -webkit-line-clamp:
-    2;
-
-  overflow:
-    hidden;
-}
-
-
-/* ==========================================================================
-   SUBTÍTULO DO CARD
-   ========================================================================== */
-
-.menu-choice__subtitle {
-  width:
-    100%;
-
-  color:
-    var(--color-primary);
-
-  font-family:
-    var(--font-family-base);
-
-  font-size:
-    clamp(19px, 1.8vw, 34px);
-
-  font-weight:
-    700;
-
-  line-height:
-    1.15;
-
-  text-align:
-    center;
-
-  overflow-wrap:
-    break-word;
-
-  word-break:
-    normal;
-
-  text-wrap:
-    balance;
-
-  display:
-    -webkit-box;
-
-  -webkit-box-orient:
-    vertical;
-
-  -webkit-line-clamp:
-    3;
-
-  overflow:
-    hidden;
-}
-
-
-/* ==========================================================================
-   DETALHE OLIVA
-   ========================================================================== */
-
-.menu-choice:nth-child(2)::before {
-  background:
-    var(--color-accent-2);
-}
-
-
-/* ==========================================================================
-   LOADING
-   ========================================================================== */
+/* ---- Tela de carregamento -------------------------------------------------- */
 
 .loading-mark {
-  color:
-    var(--color-secondary);
-
-  font-family:
-    var(--font-family-heading);
-
-  font-size:
-    var(--font-size-lg);
-
-  font-weight:
-    700;
-
-  letter-spacing:
-    0.04em;
-
-  text-align:
-    center;
+  color: var(--c-navy);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  letter-spacing: 0.04em;
 }
 
-
-/* ==========================================================================
-   KIOSK / MANUTENÇÃO
-   ========================================================================== */
+/* ---- Manutencao do kiosk (nao visivel ao publico) ------------------------- */
+/* O gesto (5 toques) acontece no proprio logo FIPECq do cabecalho
+   (#kiosk-exit-hitzone em index.html) - nao ha area extra ou indicacao
+   visual, para nao chamar atencao do publico. */
 
 .kiosk-overlay {
-  position:
-    fixed;
-
-  inset:
-    0;
-
-  z-index:
-    1000;
-
-  background:
-    rgba(18, 40, 67, 0.94);
-
-  display:
-    flex;
-
-  align-items:
-    center;
-
-  justify-content:
-    center;
-
-  padding:
-    var(--space-3);
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(14, 58, 92, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3);
 }
 
 .kiosk-overlay__panel {
-  width:
-    min(92vw, 420px);
-
-  max-height:
-    90vh;
-
-  background:
-    var(--bg-surface);
-
-  border:
-    1px solid
-    rgba(26, 54, 93, 0.14);
-
-  border-radius:
-    var(--radius-lg);
-
-  padding:
-    clamp(24px, 3vw, 40px);
-
-  text-align:
-    center;
-
-  display:
-    flex;
-
-  flex-direction:
-    column;
-
-  align-items:
-    center;
-
-  gap:
-    var(--space-2);
-
-  overflow:
-    hidden;
-
-  box-shadow:
-    0 20px 60px
-    rgba(0, 0, 0, 0.25);
+  width: 40rem;
+  max-width: 100%;
+  max-height: 100%;
+  overflow-y: auto;
+  background: var(--c-cream-light);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
 }
 
 .kiosk-overlay__title {
-  font-family:
-    var(--font-family-heading);
-
-  font-size:
-    clamp(20px, 1.8vw, 28px);
-
-  font-weight:
-    800;
-
-  color:
-    var(--color-secondary);
-
-  margin:
-    0;
+  font-size: 2.6rem;
+  font-weight: 700;
+  color: var(--c-navy-deep);
+  margin: 0;
 }
 
 .kiosk-overlay__display {
-  font-family:
-    var(--font-family-heading);
-
-  font-size:
-    clamp(28px, 2.6vw, 42px);
-
-  font-weight:
-    700;
-
-  letter-spacing:
-    0.3em;
-
-  color:
-    var(--color-secondary);
-
-  min-height:
-    clamp(38px, 5vh, 52px);
-
-  margin:
-    0;
+  font-size: 4rem;
+  letter-spacing: 0.3em;
+  color: var(--c-navy-deep);
+  min-height: 5rem;
+  margin: 0;
 }
 
 .kiosk-overlay__error {
-  color:
-    var(--color-error);
-
-  font-size:
-    clamp(14px, 1.3vw, 20px);
-
-  line-height:
-    1.2;
-
-  margin:
-    0;
+  color: var(--c-error);
+  font-size: 2rem;
+  margin: 0;
 }
 
 .kiosk-overlay__keypad {
-  display:
-    grid;
-
-  grid-template-columns:
-    repeat(3, minmax(0, 1fr));
-
-  gap:
-    var(--space-1);
-
-  width:
-    100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-1);
+  width: 100%;
 }
 
-.kiosk-overlay__keypad button {
-  min-height:
-    clamp(54px, 7vh, 78px);
-
-  font-size:
-    clamp(19px, 1.6vw, 27px);
-
-  font-weight:
-    700;
-
-  border-radius:
-    var(--radius-md);
-
-  border:
-    2px solid
-    var(--color-secondary);
-
-  background:
-    var(--bg-surface);
-
-  color:
-    var(--color-secondary);
-
-  cursor:
-    pointer;
-
-  touch-action:
-    manipulation;
+.kiosk-overlay__keypad button,
+.maintenance button {
+  min-height: 7rem;
+  font-size: 2.6rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  border: 0.25rem solid var(--c-navy);
+  background: var(--c-cream-light);
+  color: var(--c-navy-deep);
+  cursor: pointer;
 }
 
-.kiosk-overlay__keypad button:active {
-  background:
-    var(--color-secondary);
-
-  color:
-    #FFFFFF;
+.kiosk-overlay__keypad button:active,
+.maintenance button:active {
+  background: var(--c-navy);
+  color: var(--c-cream-light);
 }
 
 .kiosk-overlay__keypad #kiosk-exit-cancel {
-  grid-column:
-    span 3;
-
-  border-color:
-    var(--color-error);
-
-  color:
-    var(--color-error);
+  grid-column: span 3;
+  border-color: var(--c-error);
+  color: var(--c-error);
 }
 
-
-/* ==========================================================================
-   NOTEBOOK / ALTURA MENOR
-   ========================================================================== */
-
-@media (max-height: 850px) {
-
-  .screen {
-    padding:
-      calc(clamp(54px, 7vh, 80px) + 12px)
-      24px
-      24px;
-  }
-
-  body:has(
-    .screen[data-screen="menu"].is-active
-  )
-  .screen {
-    padding-top:
-      24px;
-  }
-
-  .screen__panel {
-    padding:
-      22px
-      28px;
-
-    gap:
-      12px;
-  }
-
-  .screen__title {
-    font-size:
-      clamp(34px, 5vw, 56px);
-  }
-
-  .screen__text {
-    font-size:
-      clamp(19px, 2.2vw, 26px);
-
-    line-height:
-      1.3;
-  }
-
-  .menu-layout {
-    gap:
-      8px;
-  }
-
-  .menu-layout__title {
-    font-size:
-      clamp(34px, 5vw, 56px);
-  }
-
-  .menu-layout__choices {
-    margin-top:
-      10px;
-
-    gap:
-      16px;
-  }
-
-  .menu-choice {
-    min-height:
-      160px;
-
-    max-height:
-      220px;
-
-    padding:
-      18px;
-  }
-
-  .menu-choice__title {
-    font-size:
-      clamp(24px, 3vw, 34px);
-  }
-
-  .menu-choice__subtitle {
-    font-size:
-      clamp(17px, 2vw, 24px);
-  }
-
-  .btn {
-    min-height:
-      72px;
-
-    min-width:
-      clamp(200px, 25vw, 300px);
-  }
-
-
-  /* ------------------------------------------------------------------------
-     LOGO - NOTEBOOK / ALTURA MENOR
-     ------------------------------------------------------------------------ */
-
-  #screen-container::after {
-    top:
-      18px;
-
-    left:
-      22px;
-
-    width:
-      320px;
-
-    height:
-      105px;
-  }
+/* Menu de manutencao da votacao. */
+.maintenance {
+  width: 110rem;
+  text-align: left;
+  align-items: stretch;
 }
 
-
-/* ==========================================================================
-   NOTEBOOK PEQUENO
-   ========================================================================== */
-
-@media (max-height: 700px) {
-
-  .screen {
-    padding:
-      64px
-      18px
-      18px;
-  }
-
-  body:has(
-    .screen[data-screen="menu"].is-active
-  )
-  .screen {
-    padding-top:
-      18px;
-  }
-
-  .screen__panel {
-    padding:
-      18px
-      22px;
-
-    gap:
-      9px;
-
-    border-radius:
-      18px;
-  }
-
-  .screen__eyebrow {
-    font-size:
-      18px;
-  }
-
-  .screen__title {
-    font-size:
-      clamp(30px, 5vw, 48px);
-  }
-
-  .screen__text {
-    font-size:
-      clamp(17px, 2vw, 22px);
-
-    line-height:
-      1.25;
-  }
-
-  .screen__actions {
-    margin-top:
-      8px;
-
-    gap:
-      10px;
-  }
-
-  .btn {
-    min-height:
-      62px;
-
-    padding:
-      10px
-      22px;
-
-    font-size:
-      clamp(18px, 2vw, 23px);
-  }
-
-  .menu-layout {
-    gap:
-      6px;
-  }
-
-  .menu-layout__title {
-    font-size:
-      clamp(30px, 5vw, 46px);
-  }
-
-  .menu-layout__choices {
-    margin-top:
-      8px;
-
-    gap:
-      12px;
-  }
-
-  .menu-choice {
-    min-height:
-      145px;
-
-    max-height:
-      180px;
-
-    padding:
-      14px;
-  }
-
-  .menu-choice__title {
-    font-size:
-      clamp(22px, 3vw, 30px);
-  }
-
-  .menu-choice__subtitle {
-    font-size:
-      clamp(16px, 2vw, 21px);
-  }
-
-
-  /* ------------------------------------------------------------------------
-     LOGO - NOTEBOOK PEQUENO
-     ------------------------------------------------------------------------ */
-
-  #screen-container::after {
-    top:
-      12px;
-
-    left:
-      16px;
-
-    width:
-      320px;
-
-    height:
-      105px;
-  }
+.maintenance .kiosk-overlay__title {
+  text-align: center;
 }
 
-
-/* ==========================================================================
-   TV FULL HD
-   1920x1080
-   ========================================================================== */
-
-@media (min-width: 1600px) and (min-height: 900px) {
-
-  /* ------------------------------------------------------------------------
-     LOGO GRANDE - FULL HD
-     ------------------------------------------------------------------------ */
-
-  #screen-container::after {
-    top:
-      28px;
-
-    left:
-      44px;
-
-    width:
-      520px;
-
-    height:
-      170px;
-  }
-
-
-  /* ------------------------------------------------------------------------
-     TELAS
-     ------------------------------------------------------------------------ */
-
-  .screen {
-    padding:
-      116px
-      60px
-      50px;
-  }
-
-  body:has(
-    .screen[data-screen="menu"].is-active
-  )
-  .screen {
-    padding-top:
-      50px;
-  }
-
-
-  /* ------------------------------------------------------------------------
-     PAINEL
-     ------------------------------------------------------------------------ */
-
-  .screen__panel {
-    max-width:
-      1450px;
-
-    padding:
-      48px
-      64px;
-
-    gap:
-      24px;
-  }
-
-
-  /* ------------------------------------------------------------------------
-     TEXTOS
-     ------------------------------------------------------------------------ */
-
-  .screen__eyebrow {
-    font-size:
-      28px;
-  }
-
-  .screen__title {
-    font-size:
-      64px;
-  }
-
-  .screen__text {
-    font-size:
-      30px;
-
-    max-width:
-      1000px;
-
-    line-height:
-      1.4;
-  }
-
-
-  /* ------------------------------------------------------------------------
-     BOTÕES
-     ------------------------------------------------------------------------ */
-
-  .screen__actions {
-    gap:
-      24px;
-
-    margin-top:
-      18px;
-  }
-
-  .btn {
-    min-height:
-      96px;
-
-    min-width:
-      310px;
-
-    font-size:
-      30px;
-  }
-
-
-  /* ------------------------------------------------------------------------
-     MENU
-     ------------------------------------------------------------------------ */
-
-  .menu-layout {
-    max-width:
-      1500px;
-
-    gap:
-      16px;
-  }
-
-  .menu-layout__title {
-    font-size:
-      64px;
-  }
-
-  .menu-layout__choices {
-    margin-top:
-      22px;
-
-    gap:
-      28px;
-  }
-
-  .menu-choice {
-    min-height:
-      250px;
-
-    max-height:
-      320px;
-
-    padding:
-      36px
-      40px;
-
-    gap:
-      16px;
-  }
-
-  .menu-choice__title {
-    font-size:
-      42px;
-  }
-
-  .menu-choice__subtitle {
-    font-size:
-      27px;
-  }
+.maintenance__status {
+  margin: 0;
+  font-size: 2.2rem;
+  color: var(--c-ink-soft);
+  text-align: center;
 }
 
-
-/* ==========================================================================
-   TV 4K
-   ========================================================================== */
-
-@media (min-width: 2500px) and (min-height: 1400px) {
-
-  /* ------------------------------------------------------------------------
-     LOGO EXTRA GRANDE - 4K
-     ------------------------------------------------------------------------ */
-
-  #screen-container::after {
-    top:
-      38px;
-
-    left:
-      60px;
-
-    width:
-      650px;
-
-    height:
-      210px;
-  }
-
-
-  /* ------------------------------------------------------------------------
-     TELAS
-     ------------------------------------------------------------------------ */
-
-  .screen {
-    padding:
-      136px
-      90px
-      70px;
-  }
-
-  body:has(
-    .screen[data-screen="menu"].is-active
-  )
-  .screen {
-    padding-top:
-      70px;
-  }
-
-
-  /* ------------------------------------------------------------------------
-     PAINEL
-     ------------------------------------------------------------------------ */
-
-  .screen__panel {
-    max-width:
-      1800px;
-
-    padding:
-      66px
-      90px;
-
-    gap:
-      34px;
-  }
-
-
-  /* ------------------------------------------------------------------------
-     TEXTOS
-     ------------------------------------------------------------------------ */
-
-  .screen__eyebrow {
-    font-size:
-      34px;
-  }
-
-  .screen__title {
-    font-size:
-      78px;
-  }
-
-  .screen__text {
-    font-size:
-      36px;
-
-    max-width:
-      1250px;
-  }
-
-
-  /* ------------------------------------------------------------------------
-     BOTÕES
-     ------------------------------------------------------------------------ */
-
-  .btn {
-    min-height:
-      116px;
-
-    min-width:
-      360px;
-
-    font-size:
-      34px;
-  }
-
-
-  /* ------------------------------------------------------------------------
-     MENU
-     ------------------------------------------------------------------------ */
-
-  .menu-layout {
-    max-width:
-      1800px;
-  }
-
-  .menu-layout__title {
-    font-size:
-      78px;
-  }
-
-  .menu-layout__choices {
-    gap:
-      36px;
-
-    margin-top:
-      30px;
-  }
-
-  .menu-choice {
-    min-height:
-      320px;
-
-    max-height:
-      390px;
-
-    padding:
-      50px
-      56px;
-
-    gap:
-      22px;
-  }
-
-  .menu-choice__title {
-    font-size:
-      52px;
-  }
-
-  .menu-choice__subtitle {
-    font-size:
-      34px;
-  }
+.maintenance__label {
+  margin: var(--space-1) 0 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--c-orange-strong);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-
-/* ==========================================================================
-   TELA MUITO ESTREITA
-   ========================================================================== */
-
-@media (max-width: 800px) {
-
-  .screen {
-    padding-left:
-      16px;
-
-    padding-right:
-      16px;
-  }
-
-  body:has(
-    .screen[data-screen="menu"].is-active
-  )
-  .screen {
-    padding-top:
-      16px;
-  }
-
-  .screen__panel {
-    padding:
-      20px
-      18px;
-  }
-
-  .menu-layout {
-    width:
-      100%;
-  }
-
-  .menu-layout__choices {
-    gap:
-      12px;
-  }
-
-  .menu-choice {
-    padding:
-      14px
-      12px;
-  }
-
-
-  /* ------------------------------------------------------------------------
-     LOGO GRANDE - TELA ESTREITA
-     ------------------------------------------------------------------------ */
-
-  #screen-container::after {
-    top:
-      12px;
-
-    left:
-      14px;
-
-    width:
-      270px;
-
-    height:
-      90px;
-  }
+.maintenance__phases,
+.maintenance__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
 }
 
-
-/* ==========================================================================
-   TELA EXTREMAMENTE ESTREITA
-   ========================================================================== */
-
-@media (max-width: 600px) {
-
-  #screen-container::after {
-    top:
-      10px;
-
-    left:
-      10px;
-
-    width:
-      230px;
-
-    height:
-      76px;
-  }
-
-  .menu-layout__choices {
-    grid-template-columns:
-      1fr;
-  }
-
-  .menu-choice {
-    min-height:
-      140px;
-
-    max-height:
-      190px;
-  }
-
-  .screen__actions {
-    flex-direction:
-      column;
-
-    width:
-      100%;
-  }
-
-  .btn {
-    width:
-      100%;
-
-    min-width:
-      0;
-  }
+.maintenance__phases button,
+.maintenance__row button {
+  flex: 1 1 18rem;
+  padding: 0 var(--space-2);
+  font-size: 2.2rem;
 }
 
-
-/* ==========================================================================
-   PORTRAIT
-   ========================================================================== */
-
-@media (orientation: portrait) {
-
-  .menu-layout__choices {
-    gap:
-      14px;
-  }
-
-  .menu-choice {
-    min-height:
-      clamp(140px, 20vh, 230px);
-  }
+.maintenance button.is-current {
+  background: var(--c-navy);
+  color: var(--c-cream-light);
 }
 
-
-/* ==========================================================================
-   REDUÇÃO DE MOVIMENTO
-   ========================================================================== */
-
-@media (prefers-reduced-motion: reduce) {
-
-  *,
-  *::before,
-  *::after {
-    scroll-behavior:
-      auto !important;
-
-    animation-duration:
-      0.01ms !important;
-
-    animation-iteration-count:
-      1 !important;
-
-    transition-duration:
-      0.01ms !important;
-  }
+.maintenance button.is-danger {
+  border-color: var(--c-error);
+  color: var(--c-error);
 }
 
-/* ==========================================================================
-   LOGO - TAMANHO EXTRA GRANDE
-   ========================================================================== */
-
-#screen-container::after {
-  display: none;
-
-  position: absolute;
-
-  top: 20px;
-  left: 25px;
-
-  width: 600px;
-  height: 220px;
-
-  background-image:
-    url("../assets/logos/logo.png");
-
-  background-size:
-    contain;
-
-  background-position:
-    left center;
-
-  background-repeat:
-    no-repeat;
-
-  z-index: 50;
-
-  pointer-events: none;
-
-  filter:
-    drop-shadow(
-      0 6px 14px
-      rgba(0, 0, 0, 0.16)
-    );
-
-  transform:
-    scale(1.20);
-
-  transform-origin:
-    top left;
+.maintenance__report {
+  max-height: 34vh;
+  overflow-y: auto;
 }
 
-
-/* --------------------------------------------------------------------------
-   MOSTRA SOMENTE NO MENU
-   -------------------------------------------------------------------------- */
-
-body:has(
-  .screen[data-screen="menu"].is-active
-)
-#screen-container::after {
-  display: block;
+.maintenance__confirm {
+  background: var(--c-error-bg);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
 }
 
-
-/* ==========================================================================
-   NOTEBOOK
-   ========================================================================== */
-
-@media (max-width: 1599px) {
-
-  #screen-container::after {
-    width: 600px;
-
-    height: 220px;
-
-    top: 18px;
-
-    left: 22px;
-
-    transform:
-      scale(1.20);
-
-    transform-origin:
-      top left;
-  }
+.maintenance__confirm p {
+  margin: 0;
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--c-error);
 }
 
-
-/* ==========================================================================
-   NOTEBOOK COM POUCA ALTURA
-   ========================================================================== */
-
-@media (max-height: 850px) {
-
-  #screen-container::after {
-    width: 600px;
-
-    height: 220px;
-
-    top: 12px;
-
-    left: 18px;
-
-    transform:
-      scale(1.20);
-
-    transform-origin:
-      top left;
-  }
-}
-
-
-/* ==========================================================================
-   NOTEBOOK PEQUENO
-   ========================================================================== */
-
-@media (max-height: 700px) {
-
-  #screen-container::after {
-    width: 560px;
-
-    height: 205px;
-
-    top: 8px;
-
-    left: 14px;
-
-    transform:
-      scale(1.15);
-
-    transform-origin:
-      top left;
-  }
-}
-
-
-/* ==========================================================================
-   FULL HD
-   ========================================================================== */
-
-@media (min-width: 1600px) and (min-height: 900px) {
-
-  #screen-container::after {
-    width: 720px;
-
-    height: 260px;
-
-    top: 22px;
-
-    left: 35px;
-
-    transform:
-      scale(1.20);
-
-    transform-origin:
-      top left;
-  }
-}
-
-
-/* ==========================================================================
-   4K
-   ========================================================================== */
-
-@media (min-width: 2500px) and (min-height: 1400px) {
-
-  #screen-container::after {
-    width: 900px;
-
-    height: 320px;
-
-    top: 32px;
-
-    left: 50px;
-
-    transform:
-      scale(1.20);
-
-    transform-origin:
-      top left;
-  }
-}
-
-
-/* ==========================================================================
-   TELAS PEQUENAS
-   ========================================================================== */
-
-@media (max-width: 800px) {
-
-  #screen-container::after {
-    width: 500px;
-
-    height: 190px;
-
-    top: 10px;
-
-    left: 10px;
-
-    transform:
-      scale(1.10);
-
-    transform-origin:
-      top left;
-  }
-}
-
-
-/* ==========================================================================
-   CELULAR / TELA EXTREMAMENTE ESTREITA
-   ========================================================================== */
-
-@media (max-width: 600px) {
-
-  #screen-container::after {
-    width: 430px;
-
-    height: 165px;
-
-    top: 8px;
-
-    left: 8px;
-
-    transform:
-      scale(1.05);
-
-    transform-origin:
-      top left;
-  }
+.maintenance__message {
+  margin: 0;
+  min-height: 2.6rem;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--c-success);
+  text-align: center;
 }

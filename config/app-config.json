@@ -1,13 +1,20 @@
 {
-  "_comment": "Configuracao deste totem. Um unico app: o visitante escolhe no menu se quer jogar o Jogo das Transformacoes ou votar. Editar aqui na instalacao da maquina, sem precisar alterar codigo.",
+  "_comment": "Configuracao deste totem. Sao 3 totens fisicos separados, todos com o mesmo aplicativo: cada um abre DIRETAMENTE a sua experiencia, definida em totemMode (sem menu de escolha). Editar aqui na instalacao da maquina (arquivo resources/app-config.json ao lado do .exe), sem precisar alterar codigo.",
+
+  "totemMode": "transformations",
+  "_totemMode_info": "Valores aceitos: \"transformations\" (Jogo das Transformacoes), \"contest\" (Concurso Cultural) ou \"voting\" (Votacao). Tambem pode ser definido pelo atalho do Windows com o argumento --totem-mode=voting (o argumento tem prioridade sobre este arquivo).",
 
   "idleTimeoutMs": 60000,
+  "_idleTimeoutMs_info": "Tempo sem nenhum toque, durante a experiencia, para voltar sozinho a tela de espera.",
+
+  "idleAfterFinishMs": 20000,
+  "_idleAfterFinishMs_info": "Tempo sem toque nas telas finais (ex.: conclusao do jogo) para voltar a tela de espera. Menor que idleTimeoutMs porque a experiencia ja terminou.",
 
   "kiosk": {
     "enabled": true,
     "exitPin": "0000",
     "_exitPin_todo": "TODO: definir PIN oficial de saida antes do evento e nao deixar o padrao.",
-    "_exitGesture_info": "Gesto: 5 toques no logo 'FIPECq Previdencia' da barra superior, em ate windowMs.",
+    "_exitGesture_info": "Gesto: 5 toques no logo da FIPECq Previdencia (canto superior esquerdo, presente em todas as telas), em ate windowMs. No totem de votacao, o PIN abre o menu de manutencao (zeresima, fases, resultado, sair).",
     "exitGesture": {
       "taps": 5,
       "windowMs": 3000

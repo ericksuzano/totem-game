@@ -43,8 +43,19 @@ async function init(app) {
   }
 
   const schema = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf-8');
-  db.run(schema);
+  db.exec(schema);
   persist();
+}
+
+function queryAll(sql, params) {
+  const stmt = db.prepare(sql);
+  if (params) stmt.bind(params);
+  const rows = [];
+  while (stmt.step()) {
+    rows.push(stmt.getAsObject());
+  }
+  stmt.free();
+  return rows;
 }
 
 function registerVote(workId, workTitle, sessionId) {
@@ -57,19 +68,69 @@ function registerVote(workId, workTitle, sessionId) {
 }
 
 function listVotes() {
-  const result = db.exec(
+  return queryAll(
     'SELECT id, work_id, work_title, session_id, created_at FROM votes ORDER BY id DESC'
   );
-  if (result.length === 0) return [];
+}
 
-  const { columns, values } = result[0];
-  return values.map((row) =>
-    Object.fromEntries(row.map((value, i) => [columns[i], value]))
+// Contagem de votos por trabalho (usada na zeresima e no resultado).
+function countVotesByWork() {
+  return queryAll(
+    'SELECT work_id, MAX(work_title) AS work_title, COUNT(*) AS votes FROM votes GROUP BY work_id'
   );
+}
+
+function countVotes() {
+  const [row] = queryAll('SELECT COUNT(*) AS total FROM votes');
+  return row ? row.total : 0;
+}
+
+function getSetting(key, fallback) {
+  const [row] = queryAll('SELECT value FROM settings WHERE key = ?', [key]);
+  return row ? row.value : fallback;
+}
+
+function setSetting(key, value) {
+  const stmt = db.prepare(
+    `INSERT INTO settings (key, value, updated_at) VALUES (?, ?, datetime('now'))
+     ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at`
+  );
+  stmt.run([key, String(value)]);
+  stmt.free();
+  persist();
+}
+
+function logEvent(event, details) {
+  const stmt = db.prepare('INSERT INTO voting_log (event, details) VALUES (?, ?)');
+  stmt.run([event, details ? JSON.stringify(details) : null]);
+  stmt.free();
+  persist();
+}
+
+// Zera os votos. Antes de apagar, salva uma copia completa do banco ao lado do
+// arquivo principal (votes-backup-AAAAMMDD-HHMMSS.sqlite), para que nenhum voto
+// seja perdido de forma irreversivel por um toque errado. Retorna quantos votos
+// foram removidos e onde ficou o backup.
+function resetVotes() {
+  const removed = countVotes();
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').replace('T', '-').slice(0, 15);
+  const backupPath = path.join(path.dirname(dbFilePath), `votes-backup-${stamp}.sqlite`);
+  fs.writeFileSync(backupPath, Buffer.from(db.export()));
+
+  db.run('DELETE FROM votes');
+  persist();
+  logEvent('reset', { removed, backup: path.basename(backupPath) });
+  return { removed, backupPath };
 }
 
 module.exports = {
   init,
   registerVote,
-  listVotes
+  listVotes,
+  countVotesByWork,
+  countVotes,
+  getSetting,
+  setSetting,
+  logEvent,
+  resetVotes
 };

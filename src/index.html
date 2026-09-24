@@ -1,151 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
 <meta charset="UTF-8">
 <title>APROXIMA 2026 - Totens FIPECq Previdencia</title>
 <link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/attract.css">
 <link rel="stylesheet" href="css/transformations.css">
+<link rel="stylesheet" href="css/works.css">
 <link rel="stylesheet" href="css/voting.css">
+</head>
+<body>
 
-<div id="app">
-  <header class="totem-topbar">
-    <span class="totem-topbar__mark" id="kiosk-exit-hitzone">FIPECq Previdência</span>
-    <span class="totem-topbar__mark">APROXIMA 2026</span>
+<!-- Cada totem fisico abre uma unica experiencia (config "totemMode"), sem
+     menu de escolha. #app recebe data-totem-mode e data-chrome (estilo do
+     cabecalho da tela atual) via js/app.js. -->
+<div id="app" data-chrome="none">
+
+  <!-- Cabecalho institucional. Na tela de espera (data-chrome="minimal") vira
+       so o logo FIPECq solto no canto; nas telas internas, uma barra fina. -->
+  <header class="totem-header">
+    <!-- Area do gesto oculto de manutencao (5 toques no logo FIPECq). Esta
+         presente em todas as telas, sempre no canto superior esquerdo. -->
+    <div class="totem-header__brand" id="kiosk-exit-hitzone">
+      <img class="totem-header__fipecq" src="assets/logos/logo-fipecq.svg" alt="FIPECq Previdência">
+    </div>
+    <p class="totem-header__title" id="totem-header-title"></p>
+    <img class="totem-header__aproxima" src="assets/logos/logo-aproxima.svg" alt="APROXIMA de Impacto">
   </header>
 
   <main id="screen-container">
 
-    <section class="screen is-active" data-screen="loading">
+    <section class="screen is-active" data-screen="loading" data-chrome="none" data-idle="none">
       <p class="loading-mark">Carregando...</p>
     </section>
 
-    <!-- Menu principal: um unico totem, o visitante escolhe a experiencia. -->
-    <section class="screen" data-screen="menu">
-      <div class="menu-layout">
-        <h1 class="menu-layout__title">O que você quer fazer?</h1>
-        <p class="screen__text">Escolha uma das opções abaixo para participar.</p>
-        <div class="menu-layout__choices">
-          <button class="menu-choice" id="menu-choice-transformations">
-            <span class="menu-choice__title">Jogo das Transformações</span>
-            <span class="menu-choice__subtitle">A tecnologia mudou as ferramentas. As pessoas continuam mudando o mundo.</span>
-          </button>
-          <button class="menu-choice" id="menu-choice-voting">
-            <span class="menu-choice__title">Totem de Votação</span>
-            <span class="menu-choice__subtitle">Sua voz faz história</span>
-          </button>
-        </div>
+    <!-- Exibida so se totemMode estiver ausente/invalido (erro de instalacao). -->
+    <section class="screen" data-screen="config-error" data-idle="none">
+      <div class="panel">
+        <p class="eyebrow">Configuração do totem</p>
+        <h1 class="panel__title">Experiência não definida</h1>
+        <div class="rule"></div>
+        <p class="panel__text" id="config-error-text"></p>
       </div>
     </section>
 
-    <!-- Jogo das Transformacoes - Tela 1 (Instrucao/Jogo/Conclusao: Etapa 5) -->
+    <!-- ================================================================
+         TELA DE ESPERA / ATRACAO (comum aos 3 totens; textos por modo em
+         js/experiences.js). Qualquer toque inicia a experiencia do totem.
+         ================================================================ -->
+    <section class="screen screen--attract" data-screen="attract" data-chrome="minimal" data-idle="none">
+      <div class="attract">
+        <img class="attract__logo" src="assets/logos/logo-aproxima-completa.svg"
+             alt="APROXIMA de Impacto - Entre os fios da história e a inteligência do amanhã">
+        <p class="attract__cta" id="attract-cta"></p>
+        <h1 class="attract__title" id="attract-title"></h1>
+        <p class="attract__subtitle" id="attract-subtitle"></p>
+        <span class="attract__hint" id="attract-hint"></span>
+      </div>
+
+      <!-- Faixa decorativa: fios (historia) que viram circuitos (inteligencia),
+           nas cores da identidade APROXIMA. -->
+      <svg class="attract-band" viewBox="0 0 2400 300" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+        <g class="attract-band__wires">
+          <path class="wire wire--orange" d="M-30 90 C225 10 390 230 645 140 S1020 60 1200 118 L1440 118 L1545 48 L1905 48"/>
+          <path class="wire wire--mustard" d="M-30 170 C210 250 420 40 675 130 S1035 200 1200 138 L1560 138 L1635 88 L2130 88"/>
+          <path class="wire wire--olive" d="M-30 250 C255 180 450 300 705 190 S1050 120 1200 158 L1770 158"/>
+          <path class="wire wire--navy" d="M-30 40 C240 120 375 280 630 200 S990 150 1200 178 L1650 178 L1725 228 L2250 228"/>
+          <path class="wire wire--blue" d="M-30 210 C195 120 450 120 660 230 S1020 250 1200 198 L1470 198 L1560 258 L1995 258"/>
+        </g>
+        <g class="attract-band__pulses">
+          <path class="pulse" pathLength="100" d="M-30 90 C225 10 390 230 645 140 S1020 60 1200 118 L1440 118 L1545 48 L1905 48"/>
+          <path class="pulse" pathLength="100" d="M-30 170 C210 250 420 40 675 130 S1035 200 1200 138 L1560 138 L1635 88 L2130 88"/>
+          <path class="pulse" pathLength="100" d="M-30 250 C255 180 450 300 705 190 S1050 120 1200 158 L1770 158"/>
+          <path class="pulse" pathLength="100" d="M-30 40 C240 120 375 280 630 200 S990 150 1200 178 L1650 178 L1725 228 L2250 228"/>
+          <path class="pulse" pathLength="100" d="M-30 210 C195 120 450 120 660 230 S1020 250 1200 198 L1470 198 L1560 258 L1995 258"/>
+        </g>
+        <g class="attract-band__nodes">
+          <circle class="node node--orange" cx="1905" cy="48" r="12"/>
+          <circle class="node node--mustard" cx="2130" cy="88" r="12"/>
+          <circle class="node node--olive" cx="1770" cy="158" r="12"/>
+          <circle class="node node--navy" cx="2250" cy="228" r="12"/>
+          <circle class="node node--blue" cx="1995" cy="258" r="12"/>
+        </g>
+      </svg>
+    </section>
+
+    <!-- ================================================================
+         TOTEM 1 - JOGO DAS TRANSFORMACOES (totemMode "transformations")
+         ================================================================ -->
+
+    <!-- Tela inicial da experiencia (destino de "VOLTAR AO INICIO"). -->
     <section class="screen" data-screen="transformations-start">
-      <div class="screen__panel">
-        <p class="screen__eyebrow">Jogo das Transformações</p>
-        <h1 class="screen__title">A tecnologia mudou as ferramentas. As pessoas continuam mudando o mundo.</h1>
-        <hr class="screen__rule">
-        <p class="screen__text">
-          Relacione cada tecnologia do passado à tecnologia correspondente que utilizamos atualmente.
+      <div class="panel panel--hero">
+        <p class="eyebrow">Jogo das Transformações</p>
+        <h1 class="panel__title">Relacione os objetos antigos com os objetos modernos</h1>
+        <div class="rule"></div>
+        <p class="panel__text">
+          Toque em objeto antigo e, em seguida toque no objeto moderno para formar o par correto.
         </p>
-        <div class="screen__actions">
+        <div class="actions">
           <button class="btn btn-primary" id="btn-transformations-start">COMEÇAR</button>
         </div>
       </div>
     </section>
 
-    <!-- Jogo das Transformacoes - Tela 2 (instrucao) -->
-    <section class="screen" data-screen="transformations-instruction">
-      <div class="screen__panel">
-        <p class="screen__eyebrow">Jogo das Transformações</p>
-        <h1 class="screen__title">Como jogar</h1>
-        <hr class="screen__rule">
-        <p class="screen__text">
-          Toque em uma tecnologia antiga e, em seguida, toque na tecnologia atual correspondente para formar o par correto.
-        </p>
-        <div class="screen__actions">
-          <button class="btn btn-primary" id="btn-transformations-instruction-ok">ENTENDI</button>
+    <!-- Jogo de associacao (montado por js/games/transformations.js). -->
+    <section class="screen screen--top" data-screen="transformations-game">
+      <div class="game-board" id="transformations-game-layout"></div>
+    </section>
+
+    <!-- Conclusao: sem "jogar novamente" (pedido do cliente). -->
+    <section class="screen" data-screen="transformations-complete" data-idle="finished">
+      <div class="panel panel--hero">
+        <div class="done-badge" aria-hidden="true">
+          <svg viewBox="0 0 48 48"><path d="M13 25l7 7 15-16"/></svg>
         </div>
-      </div>
-    </section>
-
-    <!-- Jogo das Transformacoes - Tela 3 (jogo de associacao) -->
-    <section class="screen" data-screen="transformations-game">
-      <div class="game-layout" id="transformations-game-layout"></div>
-    </section>
-
-    <!-- Jogo das Transformacoes - Tela 4 (conclusao) -->
-    <section class="screen" data-screen="transformations-complete">
-      <div class="screen__panel">
-        <p class="screen__eyebrow">Jogo das Transformações</p>
-        <h1 class="screen__title">Você completou o Jogo das Transformações!</h1>
-        <hr class="screen__rule">
-        <p class="screen__text">
+        <p class="eyebrow">Jogo das Transformações</p>
+        <h1 class="panel__title">Você completou o Jogo das Transformações!</h1>
+        <div class="rule"></div>
+        <p class="panel__text panel__text--quote">
           A tecnologia mudou as ferramentas.<br>
           As pessoas continuam mudando o mundo.
         </p>
-        <div class="screen__actions">
-          <button class="btn btn-primary" id="btn-transformations-play-again">JOGAR NOVAMENTE</button>
+        <div class="actions">
+          <button class="btn btn-primary" id="btn-transformations-finish">FINALIZAR</button>
+          <button class="btn btn-secondary" id="btn-transformations-home">VOLTAR AO INÍCIO</button>
         </div>
       </div>
     </section>
 
-    <!-- Totem de Votacao - Tela 1 (Trabalhos/Confirmacao/Registrado: Etapa 7) -->
-    <section class="screen" data-screen="voting-start">
-      <div class="screen__panel">
-        <p class="screen__eyebrow">Totem de Votação</p>
-        <h1 class="screen__title">Sua voz faz história</h1>
-        <hr class="screen__rule">
-        <p class="screen__text">
-          Conheça os trabalhos e escolha o seu favorito.
-        </p>
-        <div class="screen__actions">
-          <button class="btn btn-gold" id="btn-voting-start">VOTAR</button>
+    <!-- ================================================================
+         TOTEM 2 - CONCURSO CULTURAL (totemMode "contest")
+         Trabalhos lidos de content/trabalhos/trabalhos.json.
+         ================================================================ -->
+    <section class="screen" data-screen="contest-gallery">
+      <div class="works-layout">
+        <div class="works-header">
+          <p class="eyebrow">Concurso Cultural</p>
+          <h1 class="works-header__title">O que a FIPECq representa na sua trajetória de vida</h1>
+          <p class="works-header__text" id="contest-intro" hidden></p>
+          <p class="works-header__hint">Toque em um trabalho para ver em detalhe</p>
+        </div>
+        <div class="works-grid" id="contest-grid"></div>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="contest-detail">
+      <div class="work-detail">
+        <div class="work-frame work-frame--large" id="contest-detail-image"></div>
+        <div class="work-detail__info">
+          <span class="work-chip" id="contest-detail-category"></span>
+          <h1 class="work-detail__title" id="contest-detail-title"></h1>
+          <p class="work-detail__author" id="contest-detail-author"></p>
+          <p class="work-detail__description" id="contest-detail-description" hidden></p>
+          <div class="actions actions--start">
+            <button class="btn btn-secondary" id="btn-contest-back">VOLTAR</button>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- Totem de Votacao - Tela 2 (trabalhos) -->
+    <!-- ================================================================
+         TOTEM 3 - VOTACAO (totemMode "voting")
+         ================================================================ -->
     <section class="screen" data-screen="voting-works">
-      <div class="voting-layout">
-        <div class="voting-header">
-          <p class="screen__eyebrow">Totem de Votação</p>
-          <h1 class="voting-header__title">Escolha um trabalho</h1>
+      <div class="works-layout">
+        <div class="works-header">
+          <p class="eyebrow">Sua voz faz história</p>
+          <h1 class="works-header__title">Vote no seu trabalho favorito</h1>
+          <p class="works-header__hint">Toque no trabalho escolhido</p>
         </div>
-        <div class="voting-grid" id="voting-grid"></div>
+        <div class="works-grid" id="voting-grid"></div>
       </div>
     </section>
 
-    <!-- Totem de Votacao - Tela 3 (confirmacao) -->
     <section class="screen" data-screen="voting-confirm">
-      <div class="screen__panel">
-        <p class="screen__eyebrow">Totem de Votação</p>
-        <h1 class="screen__title">Você escolheu:</h1>
-        <div class="voting-confirm__image" id="voting-confirm-image">
-          <span class="voting-confirm__image-fallback">Imagem do trabalho</span>
-        </div>
+      <div class="panel panel--confirm">
+        <p class="eyebrow">Você escolheu:</p>
+        <div class="work-frame work-frame--confirm" id="voting-confirm-image"></div>
         <p class="voting-confirm__title" id="voting-confirm-title"></p>
-        <p class="screen__text">Tem certeza de que deseja confirmar seu voto?</p>
-        <div class="screen__actions">
+        <p class="voting-confirm__author" id="voting-confirm-author"></p>
+        <p class="panel__text">Tem certeza de que deseja confirmar seu voto?</p>
+        <div class="actions">
           <button class="btn btn-secondary" id="btn-voting-back">VOLTAR</button>
-          <button class="btn btn-gold" id="btn-voting-confirm">CONFIRMAR VOTO</button>
+          <button class="btn btn-primary" id="btn-voting-confirm">CONFIRMAR VOTO</button>
         </div>
       </div>
     </section>
 
-    <!-- Totem de Votacao - Tela 4 (voto registrado) -->
-    <section class="screen" data-screen="voting-registered">
-      <div class="screen__panel">
-        <p class="screen__eyebrow">Totem de Votação</p>
-        <h1 class="screen__title">Voto registrado!</h1>
-        <hr class="screen__rule">
-        <p class="screen__text">Obrigado por participar do APROXIMA 2026.</p>
+    <section class="screen" data-screen="voting-registered" data-idle="finished">
+      <div class="panel panel--hero">
+        <div class="done-badge" aria-hidden="true">
+          <svg viewBox="0 0 48 48"><path d="M13 25l7 7 15-16"/></svg>
+        </div>
+        <h1 class="panel__title">Voto registrado!</h1>
+        <div class="rule"></div>
+        <p class="panel__text">Obrigado por participar do APROXIMA 2026.</p>
+      </div>
+    </section>
+
+    <!-- Zeresima (fase "pre") ou resultado (fase "results"). So aparece para o
+         publico se a fase for escolhida no menu de manutencao. -->
+    <section class="screen" data-screen="voting-report" data-idle="none">
+      <div class="panel panel--report">
+        <p class="eyebrow" id="voting-report-eyebrow">Votação</p>
+        <h1 class="panel__title" id="voting-report-title"></h1>
+        <p class="report__meta" id="voting-report-meta"></p>
+        <div class="report" id="voting-report-body"></div>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="voting-closed" data-idle="none">
+      <div class="panel panel--hero">
+        <p class="eyebrow">Vote no seu trabalho favorito</p>
+        <h1 class="panel__title">Votação encerrada</h1>
+        <div class="rule"></div>
+        <p class="panel__text">Obrigado por participar do APROXIMA 2026.</p>
       </div>
     </section>
 
   </main>
 
-  <!-- Gesto oculto de manutencao: 5 toques no logo "FIPECq Previdência" da
-       topbar (ver #kiosk-exit-hitzone acima). Nao ha nenhuma indicacao visual
-       disso para o publico - so parece parte da marca institucional. -->
-
+  <!-- Manutencao: 5 toques no logo FIPECq (#kiosk-exit-hitzone) abrem o PIN.
+       Nao ha nenhuma indicacao visual disso para o publico. -->
   <div id="kiosk-exit-overlay" class="kiosk-overlay" hidden>
-    <div class="kiosk-overlay__panel">
+    <div class="kiosk-overlay__panel" id="kiosk-pin-panel">
       <p class="kiosk-overlay__title">Acesso de manutenção</p>
       <p class="kiosk-overlay__display" id="kiosk-exit-display">&nbsp;</p>
       <p class="kiosk-overlay__error" id="kiosk-exit-error" hidden>PIN incorreto.</p>
@@ -164,13 +243,53 @@
         <button type="button" id="kiosk-exit-cancel">Cancelar</button>
       </div>
     </div>
+
+    <!-- Menu de manutencao do totem de votacao (so abre com PIN correto e
+         totemMode "voting"; nos outros totens o PIN fecha o app direto). -->
+    <div class="kiosk-overlay__panel maintenance" id="maintenance-menu" hidden>
+      <p class="kiosk-overlay__title">Manutenção - Votação</p>
+      <p class="maintenance__status" id="maintenance-status"></p>
+
+      <p class="maintenance__label">Fase da votação (o que o público vê)</p>
+      <div class="maintenance__phases" id="maintenance-phases">
+        <button type="button" data-phase="pre">Zerésima</button>
+        <button type="button" data-phase="open">Votação aberta</button>
+        <button type="button" data-phase="closed">Encerrada</button>
+        <button type="button" data-phase="results">Resultado</button>
+      </div>
+
+      <p class="maintenance__label">Relatório atual (visível só aqui)</p>
+      <div class="maintenance__report report report--compact" id="maintenance-report"></div>
+
+      <div class="maintenance__confirm" id="maintenance-confirm" hidden>
+        <p>Apagar todos os votos? Um backup do banco será salvo antes.</p>
+        <div class="maintenance__row">
+          <button type="button" class="is-danger" id="maintenance-confirm-yes">Sim, zerar votos</button>
+          <button type="button" id="maintenance-confirm-no">Cancelar</button>
+        </div>
+      </div>
+
+      <p class="maintenance__message" id="maintenance-message"></p>
+
+      <div class="maintenance__row">
+        <button type="button" id="maintenance-refresh">Atualizar</button>
+        <button type="button" class="is-danger" id="maintenance-reset">Zerar votos</button>
+        <button type="button" id="maintenance-exit">Sair do app</button>
+        <button type="button" id="maintenance-close">Fechar</button>
+      </div>
+    </div>
   </div>
 </div>
 
 <script src="js/utils/shuffle.js"></script>
+<script src="js/utils/icons.js"></script>
 <script src="js/data/transformations-data.js"></script>
-<script src="js/data/voting-data.js"></script>
+<script src="js/experiences.js"></script>
+<script src="js/works/works.js"></script>
 <script src="js/games/transformations.js"></script>
+<script src="js/contest/contest.js"></script>
 <script src="js/voting/voting.js"></script>
 <script src="js/kiosk.js"></script>
 <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 {
   "name": "aproxima-2026-totems",
-  "version": "0.1.0",
-  "description": "Totens interativos do evento APROXIMA 2026 - FIPECq Previdencia (Jogo das Transformacoes e Votacao)",
+  "version": "0.2.0",
+  "description": "Totens interativos do evento APROXIMA 2026 - FIPECq Previdencia (Jogo das Transformacoes, Concurso Cultural e Votacao)",
   "main": "main.js",
   "author": "FIPECq Previdencia",
   "license": "UNLICENSED",
@@ -10,7 +10,13 @@
     "start": "electron .",
     "dev": "electron . --dev",
     "start:kiosk": "electron . --kiosk",
-    "build:win": "electron-builder --win"
+    "start:transformations": "electron . --totem-mode=transformations",
+    "start:contest": "electron . --totem-mode=contest",
+    "start:voting": "electron . --totem-mode=voting",
+    "build:win": "electron-builder --win",
+    "build:win:transformations": "node scripts/build-totem.js transformations",
+    "build:win:contest": "node scripts/build-totem.js contest",
+    "build:win:voting": "node scripts/build-totem.js voting"
   },
   "devDependencies": {
     "electron": "^44.3.0",
@@ -28,12 +34,22 @@
     "files": [
       "**/*",
       "!database/*.sqlite",
-      "!database/*.sqlite3"
+      "!database/*.sqlite3",
+      "!content/**",
+      "!scripts/**",
+      "!build/**",
+      "!dist/**",
+      "!*.pdf",
+      "!*.docx"
     ],
     "extraResources": [
       {
         "from": "config/app-config.json",
         "to": "app-config.json"
+      },
+      {
+        "from": "content",
+        "to": "content"
       }
     ],
     "win": {

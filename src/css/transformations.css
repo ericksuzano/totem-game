@@ -1,1778 +1,371 @@
 /* ==========================================================================
-   JOGO DAS TRANSFORMAÇÕES
-   APROXIMA 2026 | FIPECq Previdência
-
-   Identidade:
-   - Papel / artesanato
-   - Tecnologia / futuro
-   - Laranja terroso
-   - Azul petróleo
-   - Mostarda
-   - Verde oliva
-
-   Público:
-   - Maioria 60+
-   - Touchscreen
-   - Alta legibilidade
-   - Poucos elementos por vez
-   - Sem rolagem desnecessária
-
-   Responsivo para:
-   - Notebook
-   - Full HD 1920x1080
-   - TV 50"
-   - 4K
+   Jogo das Transformacoes.
+   O jogo fica num painel arredondado mais compacto e alinhado ao topo. Os
+   objetos antigos ficam na fileira de cima e os modernos na de baixo. Cada
+   cartao mostra [imagem] + [nome] juntos. Os fios coloridos (cores da
+   identidade) ligam os pares acertados pelo espaco entre as fileiras e
+   ficam visiveis ate o fim da rodada.
+   Tamanhos em rem (ver escala em base.css).
    ========================================================================== */
 
-
-/* ==========================================================================
-   CONTAINER PRINCIPAL
-   ========================================================================== */
-
-.game-layout {
-  width: min(1800px, 94vw);
-  height: 100%;
-
-  max-width: 1800px;
-  max-height: 100%;
-
-  display: flex;
-  flex-direction: column;
-
-  gap: clamp(8px, 1.2vh, 18px);
-
-  min-width: 0;
-  min-height: 0;
-
-  overflow: hidden;
-
-  margin: 0 auto;
-}
-
-
-/* ==========================================================================
-   CABEÇALHO
-   ========================================================================== */
-
-.game-header {
-  flex: 0 0 auto;
+.game-board {
+  --card-media-h: 13rem;
+  --wire-gap: 10rem;
 
   width: 100%;
-
-  text-align: center;
-
-  min-width: 0;
-
+  max-width: 168rem;
+  background: var(--c-cream-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-3) 3.2rem;
   position: relative;
+  overflow: hidden;
 }
 
-
-/* --------------------------------------------------------------------------
-   Detalhe visual de circuito
-   -------------------------------------------------------------------------- */
-
-.game-header::after {
+/* Filete de 4 cores no topo, igual aos demais paineis. */
+.game-board::before {
   content: '';
-
-  display: block;
-
-  width:
-    clamp(70px, 6vw, 120px);
-
-  height: 3px;
-
-  margin:
-    clamp(8px, 0.8vh, 12px)
-    auto
-    0;
-
-  background:
-    var(--color-accent-1);
-
-  border-radius: 999px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 0.8rem;
+  background: var(--stripe);
 }
 
+/* ---- Cabecalho do jogo: titulo, instrucao/feedback e progresso ---------- */
 
-/* ==========================================================================
-   RODADA
-   ========================================================================== */
-
-.game-header__round {
-  margin:
-    0 0
-    clamp(8px, 1vh, 14px);
-
-  font-family:
-    var(--font-family-heading);
-
-  font-size:
-    clamp(22px, 3vh, 34px);
-
-  font-weight: 800;
-
-  line-height: 1.1;
-
-  letter-spacing: 0.04em;
-
-  text-transform: uppercase;
-
-  color:
-    var(--color-primary);
-}
-
-
-/* ==========================================================================
-   STATUS DA RODADA
-   ==========================================================================
-
-   Criado para substituir o antigo:
-   "Acertos: 0 de 2 • Tentativas: 0 de 3"
-
-   Agora os indicadores ficam em blocos grandes e independentes.
-   ========================================================================== */
-
-.game-status {
-  width: 100%;
-
+.game-head {
   display: flex;
-
-  justify-content: center;
-
-  align-items: stretch;
-
-  gap:
-    clamp(10px, 1.5vw, 24px);
-
-  margin:
-    0 auto;
-
-  min-width: 0;
-}
-
-
-.game-status__item {
-  flex:
-    0 1 300px;
-
-  min-width:
-    min(230px, 40vw);
-
-  min-height:
-    clamp(72px, 9vh, 112px);
-
-  padding:
-    clamp(9px, 1.2vh, 16px)
-    clamp(18px, 2vw, 32px);
-
-  display: flex;
-
-  flex-direction: column;
-
   align-items: center;
-
-  justify-content: center;
-
-  text-align: center;
-
-  border-radius:
-    var(--radius-md);
-
-  background:
-    var(--bg-surface);
-
-  border:
-    3px solid
-    rgba(43, 35, 29, 0.10);
-
-  box-shadow:
-    var(--shadow-card);
-
-  box-sizing: border-box;
+  gap: var(--space-3);
 }
 
-
-/* --------------------------------------------------------------------------
-   Rótulo ACERTOS / TENTATIVAS
-   -------------------------------------------------------------------------- */
-
-.game-status__label {
-  display: block;
-
-  margin: 0 0 2px;
-
-  font-family:
-    var(--font-family-heading);
-
-  font-size:
-    clamp(17px, 2vh, 24px);
-
-  font-weight: 800;
-
-  line-height: 1;
-
-  letter-spacing: 0.05em;
-
-  text-transform: uppercase;
-
-  color:
-    var(--color-secondary);
-}
-
-
-/* --------------------------------------------------------------------------
-   Número do status
-   -------------------------------------------------------------------------- */
-
-.game-status__value {
-  display: block;
-
-  margin: 0;
-
-  font-family:
-    var(--font-family-heading);
-
-  font-size:
-    clamp(32px, 4vh, 48px);
-
-  font-weight: 900;
-
-  line-height: 1;
-
-  letter-spacing: 0.02em;
-
-  color:
-    var(--color-secondary);
-}
-
-
-/* --------------------------------------------------------------------------
-   Bloco de ACERTOS
-   -------------------------------------------------------------------------- */
-
-.game-status__item--correct {
-  border-color:
-    rgba(92, 107, 70, 0.35);
-
-  background:
-    rgba(92, 107, 70, 0.08);
-}
-
-
-.game-status__item--correct
-.game-status__label,
-.game-status__item--correct
-.game-status__value {
-  color:
-    var(--color-success);
-}
-
-
-/* --------------------------------------------------------------------------
-   Bloco de TENTATIVAS
-   -------------------------------------------------------------------------- */
-
-.game-status__item--attempts {
-  border-color:
-    rgba(211, 84, 0, 0.28);
-
-  background:
-    rgba(211, 84, 0, 0.07);
-}
-
-
-.game-status__item--attempts
-.game-status__label,
-.game-status__item--attempts
-.game-status__value {
-  color:
-    var(--color-primary);
-}
-
-
-/* ==========================================================================
-   COLUNAS
-   ========================================================================== */
-
-.game-columns {
-  position: relative;
-
-  flex:
-    1 1 auto;
-
-  width: 100%;
-
+.game-head__text {
+  flex: 1;
   min-width: 0;
-  min-height: 0;
-
-  display: grid;
-
-  grid-template-columns:
-    minmax(0, 1fr)
-    minmax(0, 1fr);
-
-  gap:
-    clamp(10px, 1.6vw, 30px);
-
-  overflow: hidden;
-}
-
-
-/* ==========================================================================
-   COLUNA
-   ========================================================================== */
-
-.game-column {
-  min-width: 0;
-  min-height: 0;
-
   display: flex;
-
   flex-direction: column;
-
-  gap:
-    clamp(5px, 0.8vh, 12px);
-
-  overflow: hidden;
+  gap: 0.6rem;
 }
 
-
-/* ==========================================================================
-   TÍTULO DAS COLUNAS
-   ========================================================================== */
-
-.game-column__title {
-  position: relative;
-
-  flex: 0 0 auto;
-
+.game-head__title {
   margin: 0;
-
-  padding:
-    clamp(7px, 0.8vh, 12px)
-    clamp(10px, 1vw, 18px);
-
-  text-align: center;
-
-  color:
-    var(--color-secondary);
-
-  background:
-    rgba(26, 54, 93, 0.06);
-
-  border:
-    2px solid
-    rgba(26, 54, 93, 0.12);
-
-  border-radius:
-    var(--radius-md);
-
-  font-family:
-    var(--font-family-heading);
-
-  font-size:
-    clamp(17px, 2.4vh, 28px);
-
+  font-size: 3.8rem;
+  line-height: 1.15;
   font-weight: 800;
+  color: var(--c-navy);
+}
 
+/* Mostra a instrucao; por alguns segundos, a frase de apoio (acerto) ou o
+   aviso de erro. Altura fixa de 2 linhas para o painel nao "pular". */
+.game-message {
+  margin: 0;
+  min-height: calc(2 * 1.3em + 1.2rem);
+  display: flex;
+  align-items: center;
+  padding: 0.6rem 1.6rem;
+  margin-left: -1.6rem;
+  border-radius: var(--radius-sm);
+  font-size: 2.5rem;
+  line-height: 1.3;
+  font-weight: 600;
+  color: var(--c-ink-soft);
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+.game-message.is-success {
+  background: var(--c-success-bg);
+  color: var(--c-success);
+  font-weight: 800;
+}
+
+.game-message.is-error {
+  background: var(--c-error-bg);
+  color: var(--c-error);
+  font-weight: 800;
+}
+
+.game-progress {
+  flex-shrink: 0;
+  min-width: 17rem;
+  padding: 1.4rem 2rem;
+  border-radius: var(--radius-md);
+  background: var(--c-navy);
+  color: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   line-height: 1.1;
+}
 
-  letter-spacing: 0.03em;
-
+.game-progress__round {
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: var(--c-mustard);
   text-transform: uppercase;
-
-  white-space: nowrap;
+  letter-spacing: 0.04em;
 }
 
-
-/* --------------------------------------------------------------------------
-   Coluna antiga
-   -------------------------------------------------------------------------- */
-
-.game-column:first-child
-.game-column__title {
-  border-color:
-    rgba(211, 84, 0, 0.25);
-
-  background:
-    rgba(211, 84, 0, 0.07);
-
-  color:
-    var(--color-primary);
+.game-progress__count {
+  font-size: 5.2rem;
+  font-weight: 900;
 }
 
-
-/* --------------------------------------------------------------------------
-   Coluna moderna
-   -------------------------------------------------------------------------- */
-
-.game-column:last-child
-.game-column__title {
-  border-color:
-    rgba(26, 54, 93, 0.20);
-
-  background:
-    rgba(26, 54, 93, 0.07);
-
-  color:
-    var(--color-secondary);
+.game-progress__label {
+  font-size: 2rem;
+  font-weight: 600;
 }
 
+/* ---- Campo: duas fileiras e os fios entre elas -------------------------- */
 
-/* ==========================================================================
-   LISTA DOS CARDS
-   ==========================================================================
+.game-field {
+  position: relative;
+  margin-top: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--wire-gap);
+}
 
-   Agora cada rodada possui:
-   - 3 cards antigos
-   - 3 cards modernos
+.game-wires {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 1;
+}
 
-   Por isso usamos 3 linhas.
-   ========================================================================== */
+.game-row {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
 
-.game-column__list {
-  flex:
-    1 1 auto;
+.game-row__label {
+  align-self: flex-start;
+  margin: 0;
+  padding: 0.5rem 2rem;
+  border-radius: var(--radius-pill);
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #FFFFFF;
+}
 
-  min-width: 0;
-  min-height: 0;
+.game-row--old .game-row__label {
+  background: var(--c-orange-strong);
+}
 
+.game-row--new .game-row__label {
+  background: var(--c-navy);
+}
+
+.game-row__cards {
   display: grid;
-
-  grid-template-rows:
-    repeat(3, minmax(0, 1fr));
-
-  gap:
-    clamp(7px, 1vh, 14px);
-
-  overflow: hidden;
-
-  padding: 2px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 2.4rem;
 }
 
-
-/* ==========================================================================
-   CARD
-   ========================================================================== */
+/* ---- Cartao: imagem + nome ---------------------------------------------- */
 
 .game-card {
   position: relative;
-
-  width: 100%;
-  height: 100%;
-
-  min-width: 0;
-  min-height: 0;
-
-  display: grid;
-
-  grid-template-columns:
-    minmax(105px, 38%)
-    minmax(0, 1fr);
-
+  display: flex;
+  flex-direction: column;
   align-items: center;
-
-  gap:
-    clamp(10px, 1vw, 20px);
-
-  padding:
-    clamp(8px, 1vh, 14px)
-    clamp(10px, 1vw, 18px);
-
-  background:
-    var(--bg-surface);
-
-  color:
-    var(--text-main);
-
-  border:
-    3px solid
-    rgba(26, 54, 93, 0.10);
-
-  border-radius:
-    var(--radius-md);
-
-  box-shadow:
-    var(--shadow-card);
-
+  gap: 0.8rem;
+  padding: 1.2rem 1.2rem 1.4rem;
+  background: #FFFFFF;
+  border: 0.5rem solid var(--c-sand);
+  border-radius: 2.8rem;
+  box-shadow: var(--shadow-card);
   cursor: pointer;
-
-  overflow: hidden;
-
-  text-align: left;
-
-  transition:
-    transform 150ms ease,
-    border-color 150ms ease,
-    background-color 150ms ease,
-    box-shadow 150ms ease;
-
-  touch-action:
-    manipulation;
-
-  -webkit-tap-highlight-color:
-    transparent;
+  color: var(--c-ink);
+  /* Sem transicao de transform: a posicao dos nos precisa estar exata no
+     momento em que o fio e desenhado. */
+  transition: border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease;
 }
-
-
-/* ==========================================================================
-   DETALHE LATERAL DO CARD
-   ========================================================================== */
-
-.game-card::before {
-  content: '';
-
-  position: absolute;
-
-  top: 0;
-  bottom: 0;
-  left: 0;
-
-  width: 5px;
-
-  background:
-    var(--color-primary);
-
-  opacity: 0.9;
-}
-
-
-/* --------------------------------------------------------------------------
-   Cards modernos
-   -------------------------------------------------------------------------- */
-
-.game-card[data-side="new"]::before {
-  background:
-    var(--color-secondary);
-}
-
-
-/* ==========================================================================
-   HOVER / INTERAÇÃO
-   ========================================================================== */
-
-.game-card:hover {
-  border-color:
-    rgba(211, 84, 0, 0.30);
-
-  box-shadow:
-    var(--shadow-card-hover);
-}
-
-
-.game-card[data-side="new"]:hover {
-  border-color:
-    rgba(26, 54, 93, 0.30);
-}
-
 
 .game-card:active {
-  transform:
-    scale(0.97);
+  background: var(--c-cream);
 }
 
-
-/* ==========================================================================
-   IMAGEM DOS CARDS
-   ========================================================================== */
-
-.game-card__image {
-  display: block;
-
+.game-card__media {
   width: 100%;
-  height: 100%;
-
-  min-width: 0;
-  min-height: 0;
-
-  max-width:
-    250px;
-
-  max-height:
-    150px;
-
-  object-fit:
-    contain;
-
-  object-position:
-    center;
-
-  justify-self:
-    center;
-
-  align-self:
-    center;
-
-  user-select:
-    none;
-
-  -webkit-user-drag:
-    none;
-
-  pointer-events:
-    none;
+  height: var(--card-media-h);
+  border-radius: 2rem;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: 0.8rem;
 }
 
+.game-card--old .game-card__media {
+  background: var(--c-mustard-soft);
+}
 
-/* ==========================================================================
-   TEXTO DOS CARDS
-   ========================================================================== */
+.game-card--new .game-card__media {
+  background: var(--c-navy-soft);
+}
 
-.game-card__label {
+.game-card__media img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.game-card__media.is-empty svg {
+  width: 6.4rem;
+  height: 6.4rem;
+  color: rgba(59, 36, 24, 0.35);
+}
+
+.game-card__name {
+  min-height: calc(2 * 1.15em);
   display: flex;
-
-  width: 100%;
-  height: 100%;
-
-  min-width: 0;
-  min-height: 0;
-
   align-items: center;
   justify-content: center;
-
-  padding:
-    4px 8px;
-
-  font-family:
-    var(--font-family-heading);
-
-  font-size:
-    clamp(21px, 3vh, 34px);
-
-  font-weight:
-    800;
-
-  line-height:
-    1.15;
-
-  text-align:
-    center;
-
-  color:
-    var(--color-secondary);
-
-  overflow-wrap:
-    break-word;
-
-  word-break:
-    normal;
-
-  overflow:
-    hidden;
-
-  text-wrap:
-    balance;
+  text-align: center;
+  font-size: 2.6rem;
+  line-height: 1.15;
+  font-weight: 800;
 }
 
-
-/* --------------------------------------------------------------------------
-   Evita textos enormes ultrapassarem o card.
-   -------------------------------------------------------------------------- */
-
-.game-card__label {
-  display: -webkit-box;
-
-  -webkit-box-orient:
-    vertical;
-
-  -webkit-line-clamp:
-    3;
+/* No de conexao do fio (como os circuitos da identidade). */
+.game-card__node {
+  position: absolute;
+  left: 50%;
+  width: 3.4rem;
+  height: 3.4rem;
+  margin-left: -1.7rem;
+  border-radius: 50%;
+  background: var(--c-cream-light);
+  border: 0.7rem solid var(--c-sand);
+  z-index: 3;
+  transition: border-color 150ms ease, background-color 150ms ease;
 }
 
-
-/* ==========================================================================
-   IMAGEM COM ERRO
-   ========================================================================== */
-
-.game-card__image.is-image-error {
-  visibility:
-    hidden;
+.game-card--old .game-card__node {
+  bottom: -2rem;
 }
 
+.game-card--new .game-card__node {
+  top: -2rem;
+}
 
-/* ==========================================================================
-   CARD SELECIONADO
-   ========================================================================== */
-
+/* Objeto antigo selecionado: aguardando o toque no moderno. */
 .game-card.is-selected {
-  border-color:
-    var(--color-primary);
-
-  background:
-    #FFF9F4;
-
-  box-shadow:
-    0 0 0 3px
-    rgba(211, 84, 0, 0.16),
-    var(--shadow-card-hover);
+  border-color: var(--c-orange-strong);
+  box-shadow: 0 0 0 0.8rem rgba(228, 87, 28, 0.25), var(--shadow-card);
 }
 
-
-.game-card.is-selected::before {
-  background:
-    var(--color-accent-1);
+.game-card.is-selected .game-card__node {
+  border-color: var(--c-orange-strong);
+  background: var(--c-orange);
+  animation: node-pulse 1.2s ease-in-out infinite;
 }
 
+@keyframes node-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(228, 87, 28, 0.5); }
+  50% { box-shadow: 0 0 0 1.2rem rgba(228, 87, 28, 0); }
+}
 
-/* ==========================================================================
-   CARD CORRETO
-   ========================================================================== */
+/* Com um antigo selecionado, os modernos ainda livres ganham destaque. */
+.game-board.has-selection .game-card--new:not(.is-matched) {
+  border-color: var(--c-navy);
+}
 
 .game-card.is-matched {
-  background:
-    var(--color-success-bg);
-
-  border-color:
-    var(--color-success);
-
-  color:
-    var(--color-success);
-
-  cursor:
-    default;
-
-  pointer-events:
-    none;
+  cursor: default;
+  pointer-events: none;
 }
-
-
-.game-card.is-matched::before {
-  background:
-    var(--color-success);
-}
-
-
-.game-card.is-matched
-.game-card__label {
-  color:
-    var(--color-success);
-}
-
-
-/* ==========================================================================
-   CARD ERRADO
-   ========================================================================== */
 
 .game-card.is-error {
-  border-color:
-    var(--color-error);
-
-  background:
-    var(--color-error-bg);
-
-  animation:
-    card-shake 380ms ease;
+  border-color: var(--c-error);
+  background: var(--c-error-bg);
+  animation: card-shake 380ms ease;
 }
-
-
-.game-card.is-error::before {
-  background:
-    var(--color-error);
-}
-
-
-/* ==========================================================================
-   ANIMAÇÃO DE ERRO
-   ========================================================================== */
 
 @keyframes card-shake {
-
-  0%,
-  100% {
-    transform:
-      translateX(0);
-  }
-
-  25% {
-    transform:
-      translateX(-8px);
-  }
-
-  75% {
-    transform:
-      translateX(8px);
-  }
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-0.8rem); }
+  75% { transform: translateX(0.8rem); }
 }
 
+/* ---- Fios: 5 cores da identidade, uma por par acertado na rodada -------- */
 
-/* ==========================================================================
-   LINHA DE CONEXÃO
-   ========================================================================== */
-
-.connection-line {
-  position: absolute;
-
-  height:
-    clamp(5px, 0.35vw, 8px);
-
-  background:
-    var(--color-primary);
-
-  border-radius:
-    999px;
-
-  transform-origin:
-    left center;
-
-  box-shadow:
-    0 0 12px
-    rgba(211, 84, 0, 0.30);
-
-  pointer-events:
-    none;
-
-  transition:
-    width 450ms ease-out;
-
-  z-index:
-    3;
+.game-wire-halo {
+  fill: none;
+  stroke: var(--c-cream-light);
+  stroke-width: 2rem;
+  stroke-linecap: round;
 }
 
-
-.connection-line::after {
-  content: '';
-
-  position: absolute;
-
-  right: -5px;
-
-  top: 50%;
-
-  width:
-    clamp(8px, 0.6vw, 14px);
-
-  height:
-    clamp(8px, 0.6vw, 14px);
-
-  transform:
-    translateY(-50%);
-
-  background:
-    var(--color-accent-1);
-
-  border-radius:
-    50%;
-
-  box-shadow:
-    0 0 0 2px
-    var(--color-primary);
+.game-wire {
+  fill: none;
+  stroke-width: 1rem;
+  stroke-linecap: round;
 }
 
-
-/* ==========================================================================
-   FEEDBACK
-   ========================================================================== */
-
-.game-feedback {
-  position: fixed;
-
-  left: 50%;
-
-  bottom:
-    clamp(20px, 4vh, 60px);
-
-  width:
-    min(
-      calc(100vw - 40px),
-      1200px
-    );
-
-  max-width:
-    1200px;
-
-  transform:
-    translate(-50%, 24px);
-
-  padding:
-    clamp(12px, 1.2vh, 18px)
-    clamp(18px, 2vw, 32px);
-
-  border-radius:
-    var(--radius-md);
-
-  font-family:
-    var(--font-family-heading);
-
-  font-size:
-    clamp(19px, 2.4vh, 30px);
-
-  font-weight:
-    800;
-
-  line-height:
-    1.25;
-
-  text-align:
-    center;
-
-  box-shadow:
-    var(--shadow-card);
-
-  border:
-    1px solid
-    rgba(43, 35, 29, 0.08);
-
-  opacity:
-    0;
-
-  pointer-events:
-    none;
-
-  transition:
-    opacity 220ms ease,
-    transform 220ms ease;
-
-  z-index:
-    10;
+.game-wire.is-drawing {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: wire-draw 550ms ease-out forwards;
 }
 
-
-.game-feedback.is-visible {
-  opacity:
-    1;
-
-  transform:
-    translate(-50%, 0);
+@keyframes wire-draw {
+  to { stroke-dashoffset: 0; }
 }
 
-
-.game-feedback.is-success {
-  background:
-    var(--color-success-bg);
-
-  color:
-    var(--color-success);
-
-  border-color:
-    rgba(71, 112, 82, 0.20);
-}
-
-
-.game-feedback.is-error {
-  background:
-    var(--color-error-bg);
-
-  color:
-    var(--color-error);
-
-  border-color:
-    rgba(168, 69, 47, 0.20);
-}
-
-
-/* ==========================================================================
-   TELA DE "TENTE DAQUI A POUCO"
-   ========================================================================== */
-
-.game-round-failure {
-  width: 100%;
-  height: 100%;
-
-  min-height: 360px;
-
-  display: flex;
-
-  flex-direction: column;
-
-  align-items: center;
-
-  justify-content: center;
-
-  text-align: center;
-
-  gap:
-    clamp(18px, 2vh, 28px);
-
-  padding:
-    clamp(24px, 4vw, 60px);
-
-  box-sizing: border-box;
-}
-
-
-.game-round-failure p:first-child {
-  margin: 0;
-
-  font-family:
-    var(--font-family-heading);
-
-  font-size:
-    clamp(36px, 5vh, 64px);
-
-  font-weight:
-    900;
-
-  line-height:
-    1.1;
-
-  color:
-    var(--color-primary);
-}
-
-
-.game-round-failure p:nth-child(2) {
-  margin: 0;
-
-  max-width:
-    850px;
-
-  font-family:
-    var(--font-family-base);
-
-  font-size:
-    clamp(22px, 2.5vh, 32px);
-
-  line-height:
-    1.4;
-
-  color:
-    var(--text-main);
-}
-
-
-.game-round-failure .btn {
-  min-width:
-    280px;
-
-  min-height:
-    72px;
-
-  font-size:
-    24px;
-}
-
-
-/* ==========================================================================
-   FULL HD / TV 1920x1080
-   ========================================================================== */
-
-@media (min-width: 1600px) and (min-height: 900px) {
-
-  .game-layout {
-    width:
-      min(1800px, 94vw);
-
-    gap:
-      14px;
-  }
-
-
-  .game-header__round {
-    font-size:
-      28px;
-
-    margin-bottom:
-      12px;
-  }
-
-
-  .game-status {
-    gap:
-      18px;
-  }
-
-
-  .game-status__item {
-    flex-basis:
-      280px;
-
-    min-height:
-      88px;
-
-    padding:
-      12px
-      24px;
-  }
-
-
-  .game-status__label {
-    font-size:
-      20px;
-  }
-
-
-  .game-status__value {
-    font-size:
-      38px;
-  }
-
-
-  .game-columns {
-    gap:
-      26px;
-  }
-
-
-  .game-column {
-    gap:
-      10px;
-  }
-
-
-  .game-column__title {
-    font-size:
-      24px;
-
-    padding:
-      8px
-      14px;
-  }
-
-
-  .game-column__list {
-    grid-template-rows:
-      repeat(3, minmax(0, 1fr));
-
-    gap:
-      10px;
-
-    padding:
-      3px;
-  }
-
-
-  .game-card {
-    grid-template-columns:
-      minmax(150px, 37%)
-      minmax(0, 1fr);
-
-    gap:
-      16px;
-
-    padding:
-      10px
-      16px;
-
-    border-width:
-      4px;
-  }
-
-
-  .game-card::before {
-    width:
-      6px;
-  }
-
-
-  .game-card__image {
-    max-width:
-      250px;
-
-    max-height:
-      145px;
-  }
-
-
-  .game-card__label {
-    font-size:
-      28px;
-
-    line-height:
-      1.15;
-  }
-
-
-  .game-feedback {
-    bottom:
-      50px;
-
-    font-size:
-      25px;
-  }
-
-
-  .connection-line {
-    height:
-      7px;
-  }
-}
-
-
-/* ==========================================================================
-   TV 4K
-   ========================================================================== */
-
-@media (min-width: 2500px) and (min-height: 1400px) {
-
-  .game-layout {
-    width:
-      min(2200px, 92vw);
-
-    gap:
-      20px;
-  }
-
-
-  .game-header__round {
-    font-size:
-      34px;
-
-    margin-bottom:
-      16px;
-  }
-
-
-  .game-status {
-    gap:
-      26px;
-  }
-
-
-  .game-status__item {
-    flex-basis:
-      360px;
-
-    min-height:
-      115px;
-
-    padding:
-      16px
-      32px;
-  }
-
-
-  .game-status__label {
-    font-size:
-      26px;
-  }
-
-
-  .game-status__value {
-    font-size:
-      48px;
-  }
-
-
-  .game-columns {
-    gap:
-      36px;
-  }
-
-
-  .game-column {
-    gap:
-      14px;
-  }
-
-
-  .game-column__title {
-    font-size:
-      30px;
-
-    padding:
-      10px
-      18px;
-  }
-
-
-  .game-column__list {
-    grid-template-rows:
-      repeat(3, minmax(0, 1fr));
-
-    gap:
-      14px;
-
-    padding:
-      4px;
-  }
-
-
-  .game-card {
-    grid-template-columns:
-      minmax(190px, 38%)
-      minmax(0, 1fr);
-
-    gap:
-      20px;
-
-    padding:
-      14px
-      22px;
-
-    border-width:
-      5px;
-  }
-
-
-  .game-card::before {
-    width:
-      8px;
-  }
-
-
-  .game-card__image {
-    max-width:
-      320px;
-
-    max-height:
-      190px;
-  }
-
-
-  .game-card__label {
-    font-size:
-      36px;
-
-    line-height:
-      1.15;
-  }
-
-
-  .game-feedback {
-    bottom:
-      70px;
-
-    max-width:
-      1500px;
-
-    font-size:
-      32px;
-  }
-
-
-  .connection-line {
-    height:
-      9px;
-  }
-}
-
-
-/* ==========================================================================
-   NOTEBOOK / TELAS MENORES
-   ========================================================================== */
-
-@media (max-height: 800px) {
-
-  .game-layout {
-    gap:
-      7px;
-  }
-
-
-  .game-header__round {
-    font-size:
-      21px;
-
-    margin-bottom:
-      7px;
-  }
-
-
-  .game-status {
-    gap:
-      10px;
-  }
-
-
-  .game-status__item {
-    flex-basis:
-      210px;
-
-    min-height:
-      62px;
-
-    padding:
-      7px
-      14px;
-
-    border-width:
-      2px;
-  }
-
-
-  .game-status__label {
-    font-size:
-      15px;
-  }
-
-
-  .game-status__value {
-    font-size:
-      28px;
-  }
-
-
-  .game-header::after {
-    margin-top:
-      6px;
-
-    height:
-      2px;
-  }
-
-
-  .game-columns {
-    gap:
-      10px;
-  }
-
-
-  .game-column {
-    gap:
-      5px;
-  }
-
-
-  .game-column__title {
-    font-size:
-      16px;
-
-    padding:
-      5px
-      8px;
-  }
-
-
-  .game-column__list {
-    grid-template-rows:
-      repeat(3, minmax(0, 1fr));
-
-    gap:
-      5px;
-  }
-
-
-  .game-card {
-    grid-template-columns:
-      minmax(75px, 35%)
-      minmax(0, 1fr);
-
-    gap:
-      7px;
-
-    padding:
-      5px
-      8px;
-
-    border-width:
-      3px;
-  }
-
-
-  .game-card::before {
-    width:
-      4px;
-  }
-
-
-  .game-card__image {
-    max-width:
-      135px;
-
-    max-height:
-      82px;
-  }
-
-
-  .game-card__label {
-    font-size:
-      clamp(17px, 2.6vh, 22px);
-
-    line-height:
-      1.1;
-
-    -webkit-line-clamp:
-      3;
-  }
-
-
-  .game-feedback {
-    bottom:
-      20px;
-  }
-}
-
-
-/* ==========================================================================
-   NOTEBOOK MENOR
-   ========================================================================== */
-
-@media (max-height: 680px) {
-
-  .game-layout {
-    gap:
-      5px;
-  }
-
-
-  .game-header__round {
-    font-size:
-      17px;
-
-    margin-bottom:
-      5px;
-  }
-
-
-  .game-status {
-    gap:
-      7px;
-  }
-
-
-  .game-status__item {
-    flex-basis:
-      175px;
-
-    min-height:
-      52px;
-
-    padding:
-      5px
-      10px;
-  }
-
-
-  .game-status__label {
-    font-size:
-      13px;
-  }
-
-
-  .game-status__value {
-    font-size:
-      23px;
-  }
-
-
-  .game-header::after {
-    display:
-      none;
-  }
-
-
-  .game-column__title {
-    font-size:
-      14px;
-
-    padding:
-      4px
-      6px;
-  }
-
-
-  .game-column__list {
-    gap:
-      4px;
-  }
-
-
-  .game-card {
-    grid-template-columns:
-      minmax(60px, 33%)
-      minmax(0, 1fr);
-
-    gap:
-      6px;
-
-    padding:
-      4px
-      6px;
-  }
-
-
-  .game-card__image {
-    max-width:
-      110px;
-
-    max-height:
-      66px;
-  }
-
-
-  .game-card__label {
-    font-size:
-      16px;
-
-    line-height:
-      1.08;
-  }
-}
-
-
-/* ==========================================================================
-   TELAS ESTREITAS
-   ========================================================================== */
-
-@media (max-width: 900px) {
-
-  .game-layout {
-    width:
-      96vw;
-  }
-
-
-  .game-status__item {
-    flex-basis:
-      min(260px, 42vw);
-  }
-
-
-  .game-columns {
-    gap:
-      8px;
-  }
-
-
-  .game-card {
-    grid-template-columns:
-      minmax(68px, 35%)
-      minmax(0, 1fr);
-  }
-
-
-  .game-card__image {
-    max-width:
-      125px;
-  }
-}
-
-
-/* ==========================================================================
-   TELAS MUITO ESTREITAS
-   ========================================================================== */
-
-@media (max-width: 700px) {
-
-  .game-layout {
-    width:
-      97vw;
-  }
-
-
-  .game-status {
-    gap:
-      6px;
-  }
-
-
-  .game-status__item {
-    min-width:
-      0;
-
-    flex:
-      1 1 0;
-
-    padding:
-      6px
-      8px;
-  }
-
-
-  .game-status__label {
-    font-size:
-      12px;
-  }
-
-
-  .game-status__value {
-    font-size:
-      22px;
-  }
-
-
-  .game-columns {
-    gap:
-      6px;
-  }
-
-
-  .game-column__title {
-    font-size:
-      13px;
-  }
-
-
-  .game-card {
-    grid-template-columns:
-      minmax(52px, 34%)
-      minmax(0, 1fr);
-
-    gap:
-      5px;
-
-    padding:
-      4px;
-
-    border-width:
-      3px;
-  }
-
-
-  .game-card__image {
-    max-width:
-      95px;
-  }
-
-
-  .game-card__label {
-    font-size:
-      14px;
-  }
-}
-
-
-/* ==========================================================================
-   PORTRAIT
-   ========================================================================== */
-
+.game-wire--1 { stroke: var(--c-orange); }
+.game-wire--2 { stroke: var(--c-mustard); }
+.game-wire--3 { stroke: var(--c-navy); }
+.game-wire--4 { stroke: var(--c-olive); }
+.game-wire--5 { stroke: var(--c-blue); }
+
+/* Cartoes do par acertado assumem a cor do seu fio. */
+.game-card.is-matched[data-color="1"] { border-color: var(--c-orange); }
+.game-card.is-matched[data-color="2"] { border-color: var(--c-mustard); }
+.game-card.is-matched[data-color="3"] { border-color: var(--c-navy); }
+.game-card.is-matched[data-color="4"] { border-color: var(--c-olive); }
+.game-card.is-matched[data-color="5"] { border-color: var(--c-blue); }
+
+.game-card.is-matched[data-color="1"] .game-card__node { border-color: var(--c-orange); background: var(--c-orange); }
+.game-card.is-matched[data-color="2"] .game-card__node { border-color: var(--c-mustard); background: var(--c-mustard); }
+.game-card.is-matched[data-color="3"] .game-card__node { border-color: var(--c-navy); background: var(--c-navy); }
+.game-card.is-matched[data-color="4"] .game-card__node { border-color: var(--c-olive); background: var(--c-olive); }
+.game-card.is-matched[data-color="5"] .game-card__node { border-color: var(--c-blue); background: var(--c-blue); }
+
+/* Retrato: sobra altura, entao as imagens e o espaco dos fios crescem.
+   (So variaveis de disposicao - fontes nao mudam.) */
 @media (orientation: portrait) {
-
-  .game-status {
-    gap:
-      6px;
+  .game-board {
+    --card-media-h: 22rem;
+    --wire-gap: 16rem;
+    padding: var(--space-3) 2rem;
   }
 
-
-  .game-status__item {
-    min-width:
-      0;
-
-    flex:
-      1 1 0;
+  .game-row__cards {
+    gap: 1.4rem;
   }
 
-
-  .game-columns {
-    gap:
-      6px;
+  .game-head {
+    flex-direction: column-reverse;
+    align-items: stretch;
   }
 
-
-  .game-card {
-    grid-template-columns:
-      minmax(55px, 35%)
-      minmax(0, 1fr);
+  .game-progress {
+    flex-direction: row;
+    justify-content: center;
+    gap: 1.6rem;
   }
 
-
-  .game-card__image {
-    max-width:
-      110px;
-  }
-
-
-  .game-card__label {
-    font-size:
-      clamp(14px, 2vw, 19px);
-  }
-}
-
-
-/* ==========================================================================
-   REDUÇÃO DE MOVIMENTO
-   ========================================================================== */
-
-@media (prefers-reduced-motion: reduce) {
-
-  .game-card,
-  .game-feedback,
-  .connection-line {
-    transition:
-      none !important;
-  }
-
-  .game-card.is-error {
-    animation:
-      none !important;
+  .game-progress__count {
+    font-size: 3.6rem;
   }
 }

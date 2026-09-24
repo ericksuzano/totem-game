@@ -1,115 +1,156 @@
-# Aproxima 2026 - Totem (FIPECq Previdencia)
+# Aproxima 2026 - Totens (FIPECq Previdencia)
 
-Aplicativo Electron para o totem interativo do evento APROXIMA 2026
-(30/09/2026, Prodigy Santos Dumont by Wish, Rio de Janeiro). Um unico totem
-com duas experiencias — o visitante escolhe no menu inicial o que quer
-fazer:
+Aplicativo Electron para os totens interativos do evento APROXIMA 2026
+(30/09/2026, Prodigy Santos Dumont by Wish, Rio de Janeiro).
 
-1. **Jogo das Transformacoes** — associacao entre tecnologias antigas e modernas.
-2. **Totem de Votacao** — "Sua voz faz historia", votacao dos trabalhos do
-   Espaco Cultural.
+Sao **3 totens fisicos separados**, todos com o mesmo codigo-base. Cada um
+abre **direto a sua experiencia** (nao existe mais menu de escolha):
 
-Funciona 100% offline (sem camera, sem login, sem backend externo neste MVP).
+| Totem | `totemMode` | Experiencia |
+|---|---|---|
+| 1 | `transformations` | Jogo das Transformacoes (objetos antigos x modernos) |
+| 2 | `contest` | Concurso Cultural - "O que a FIPECq representa na sua trajetoria de vida" |
+| 3 | `voting` | Votacao - "Vote no seu trabalho favorito" |
 
-## Status do projeto
+Funciona 100% offline (sem camera, sem login, sem backend externo).
 
-**Projeto completo (Etapas 1 a 10) e pronto para instalacao de teste no
-totem.** Faltam apenas os itens listados em "Pendencias conhecidas" abaixo,
-que dependem de definicoes da producao (nao de codigo).
+## Fluxo de cada totem
 
-Resumo do que existe:
+- **Tela de espera** (comum aos 3): logo APROXIMA grande, chamada
+  "Participe!"/"Venha!", nome da experiencia e fios animados nas cores da
+  identidade. Qualquer toque inicia a experiencia. O totem volta sozinho para
+  ela apos inatividade (`idleTimeoutMs`; nas telas finais, `idleAfterFinishMs`).
+- **Jogo das Transformacoes**: tela inicial -> jogo (10 pares, 2 rodadas de 5,
+  imagem + nome em cada cartao, fios coloridos ligando os pares) -> conclusao
+  com **FINALIZAR** (volta a tela de espera) e **VOLTAR AO INICIO** (volta a
+  tela inicial do jogo). Nao ha "jogar novamente".
+- **Concurso Cultural**: galeria dos trabalhos -> detalhe do trabalho. Sem
+  votacao.
+- **Votacao**: trabalhos -> confirmacao -> voto registrado -> volta a tela de
+  espera.
 
-- Menu inicial unico: o visitante escolhe entre as duas experiencias; volta
-  para esse menu (nao para uma tela fixa) apos terminar qualquer uma delas
-  ou apos um periodo de inatividade.
-- Jogo das Transformacoes completo: instrucao, os 10 pares oficiais em 2
-  rodadas de 5 (embaralhados a cada partida), animacao de conexao, feedback
-  de acerto/erro, tela de conclusao.
-- Totem de Votacao completo: trabalhos (cadastro documentado em
-  `voting-data.js`), confirmacao, voto registrado, retorno automatico.
-- Armazenamento local dos votos em SQLite (`sql.js`), sem qualquer dado que
-  identifique o eleitor.
-- Design pensado para publico 60+: fontes e botoes grandes, alto contraste,
-  poucas informacoes por tela, sem depender de teclado ou mouse.
-- Endurecido para touchscreen (sem pinch-zoom, sem bounce de scroll) e
-  testado em resolucoes diferentes (a medida real do totem ainda e um TODO).
-- **Modo kiosk**: o executavel final abre automaticamente em tela cheia, sem
-  moldura, sem menu, sempre à frente de outras janelas. Saida para
-  manutencao por um gesto oculto (toques num canto invisivel da tela) + PIN
-  numerico — nada disso e visivel ou descobrivel pelo publico. O PIN e as
-  demais configuracoes do kiosk sao editaveis no arquivo
-  `resources/app-config.json` ao lado do `.exe` instalado, sem precisar
-  gerar um novo instalador.
+## Como definir a experiencia de cada totem
 
-## Pendencias conhecidas (vindas dos documentos oficiais)
+Tres formas (use a que for mais pratica na instalacao):
 
-- Medidas fisicas dos totens (aguardando producao) — impacta a arte final.
-  O layout ja tem rolagem interna como rede de seguranca para qualquer
-  tamanho de tela.
-- Confirmacao se havera Totem de Votacao no evento.
-- Confirmacao de internet disponivel no local (nao bloqueante — o app
-  funciona offline).
-- Trabalhos do Totem de Votacao ainda nao definidos pela Comissao
-  Organizadora — ver instrucoes de cadastro em `src/js/data/voting-data.js`.
-- Identidade visual (logos, imagens oficiais) ainda nao fornecida — ver
-  pastas `src/assets/*` e os arquivos `PLACEHOLDER.md`. O icone do
-  instalador tambem esta pendente (usa o padrao do Electron por enquanto —
-  ver `build/PLACEHOLDER.md`).
-- **PIN de saida do kiosk**: o padrao `0000` em `config/app-config.json`
-  precisa ser trocado por um PIN real antes do evento (`_exitPin_todo` no
-  proprio arquivo).
+1. **Arquivo de configuracao** (recomendado com o instalador generico):
+   editar `resources/app-config.json` ao lado do `.exe` instalado (no codigo:
+   `config/app-config.json`) e trocar `"totemMode"`. Reabrir o app.
+2. **Instalador especifico por totem** (o `.exe` ja sai com o modo definido):
+   ```
+   npm run build:win:transformations   -> dist/transformations/
+   npm run build:win:contest           -> dist/contest/
+   npm run build:win:voting            -> dist/voting/
+   ```
+   Cada um tem nome proprio ("Aproxima 2026 Totens - Votacao" etc.) e
+   instala separado dos outros.
+3. **Argumento no atalho do Windows**: `--totem-mode=voting` no campo
+   "Destino" do atalho. Tem prioridade sobre o arquivo (util para testar os
+   3 modos na mesma maquina). No desenvolvimento: `npm run start:voting`,
+   `npm run start:contest`, `npm run start:transformations`.
 
-## Antes de instalar no totem definitivo
+Se o valor for invalido, o totem mostra uma tela "Experiencia nao definida"
+com os valores aceitos (o gesto de manutencao continua funcionando).
+
+## Trabalhos e fotos (Votacao e Concurso Cultural)
+
+O cadastro fica **fora do codigo**, em `content/trabalhos/` (no totem
+instalado: `resources/content/trabalhos/`), editavel sem gerar novo
+instalador. Instrucoes completas em `content/trabalhos/LEIA-ME.md`.
+
+- **Fotos**: salvar como `trabalho-1.jpg`, `trabalho-2.jpg`... (tambem
+  `.jpeg`, `.png`, `.webp`) nessa pasta. Sem foto, aparece um quadro neutro.
+- **3o e 4o trabalho**: copiar o bloco `_modelo_novo_trabalho` para a lista
+  `works` de `trabalhos.json`, com `id` `trabalho-3` / `trabalho-4`. A grade
+  se ajusta sozinha a 2, 3 ou 4 trabalhos (maximo 4).
+
+## Zeresima e resultado da votacao
+
+O sistema suporta 4 fases, guardadas no banco local e trocadas pelo **menu de
+manutencao** (so no totem de votacao):
+
+| Fase | O que o publico ve | Aceita votos? |
+|---|---|---|
+| Zeresima (`pre`) | Relatorio com a contagem real do banco (tudo 0) e data/hora | Nao |
+| Votacao aberta (`open`, padrao) | Fluxo normal de votacao | Sim |
+| Encerrada (`closed`) | "Votacao encerrada" | Nao |
+| Resultado (`results`) | Votos por trabalho, em ordem, com percentuais | Nao |
+
+O menu tambem mostra o relatorio atual **so para o operador** e tem
+**Zerar votos** (com confirmacao; antes de apagar, salva uma copia do banco
+como `votes-backup-AAAAMMDD-HHMMSS.sqlite` na mesma pasta). Toda troca de
+fase, emissao de relatorio e zeramento fica registrada na tabela
+`voting_log`. O processo principal recusa votos fora da fase "aberta".
+
+**QUANDO** mostrar a zeresima e o resultado (e se o resultado sera publico)
+e decisao do cliente - ver "Pendencias".
+
+## Manutencao / saida do kiosk
+
+Tocar 5 vezes, em menos de 3 segundos, no **logo FIPECq Previdencia** (canto
+superior esquerdo, presente em todas as telas) abre o teclado do PIN
+(`kiosk.exitPin`). Nao ha nenhuma indicacao visual disso para o publico.
+
+- Totens do Jogo e do Concurso: o PIN correto fecha o aplicativo (como antes).
+- Totem de Votacao: o PIN correto abre o menu de manutencao (fases,
+  relatorio, zerar votos, **Sair do app**, Fechar).
+
+"Cancelar" ou alguns segundos sem digitar fecham o teclado sem sair do kiosk.
+Numero de toques, janela de tempo e PIN sao configuraveis em
+`config/app-config.json`.
+
+## Identidade visual
+
+- Logos em `src/assets/logos/` (SVG vetorial), extraidos dos vetores do PDF
+  oficial do evento, com as cores originais. Se a agencia enviar os arquivos
+  oficiais, basta substituir mantendo os nomes.
+- Paleta em `src/css/base.css` (`:root`): laranja, mostarda, oliva e azul
+  petroleo do APROXIMA + azul FIPECq, em versao mais viva.
+- **Escala responsiva unica**: `1rem = 1/108 da menor dimensao da tela` (10px
+  em Full HD, 20px em 4K, ~7px em notebook 1366x768). Nao existem media
+  queries de tamanho - so de orientacao (retrato/paisagem), que mudam a
+  disposicao, nunca fontes ou logos.
+
+## Pendencias conhecidas
+
+- Decisoes do cliente listadas em "Zeresima e resultado" e no final da
+  entrega (conteudo do Concurso Cultural, quando exibir zeresima/resultado).
+- Fotos dos trabalhos (previstas para o dia 29) e imagens dos objetos do jogo
+  (`src/assets/images/antigos` e `modernos`, nomes em
+  `src/js/data/transformations-data.js`).
+- Medidas/orientacao fisica das telas dos totens (o layout ja se adapta a
+  paisagem e retrato).
+- Icone do instalador (`build/PLACEHOLDER.md`).
+- **PIN de saida do kiosk**: trocar o padrao `0000` antes do evento.
+
+## Antes de instalar nos totens definitivos
 
 1. Trocar `kiosk.exitPin` para um PIN que so a equipe tecnica conheca.
-2. Cadastrar os trabalhos reais em `src/js/data/voting-data.js` (se o totem
-   de votacao for confirmado) e colocar as fotos em
-   `src/assets/images/trabalhos/`.
-3. Gerar o instalador (`npm run build:win`) e testar no proprio touchscreen
-   antes do evento.
+2. Gerar os instaladores (`npm run build:win:<modo>`) ou o generico e ajustar
+   `totemMode` em cada maquina.
+3. Colocar as fotos em `resources/content/trabalhos/`.
+4. No totem de votacao: apos os testes de montagem, usar **Zerar votos** no
+   menu de manutencao, para comecar o evento com o banco zerado.
+5. Testar no proprio touchscreen antes do evento.
 
 ## Desenvolvimento
 
 ```
 npm install
-npm start          # janela normal, para desenvolvimento
-npm run dev        # janela normal + DevTools abertas
-npm run start:kiosk  # forca o modo kiosk a partir do codigo-fonte, para testar
+npm start                 # janela normal, modo do app-config.json
+npm run start:voting      # idem, forcando um modo
+npm run dev               # janela normal + DevTools abertas
+npm run start:kiosk       # forca o modo kiosk a partir do codigo-fonte
 ```
 
-O executavel gerado pelo build (`npm run build:win`) sempre abre em modo
-kiosk automaticamente — não é preciso nenhuma flag nesse caso.
-
-## Build (Windows)
-
-```
-npm run build:win
-```
-
-Gera o instalador NSIS em `dist/` (nao versionado, gerado sob demanda).
-
-## Saida do modo kiosk (manutencao)
-
-Tocar 5 vezes, em menos de 3 segundos, no logo **"FIPECq Previdência"** da
-barra superior (canto superior esquerdo) abre um teclado numerico. Nao ha
-nenhuma indicacao visual disso — parece so o logo institucional. Digitar o
-PIN configurado em `kiosk.exitPin` fecha o aplicativo por completo — a
-equipe tecnica volta ao Windows e pode reabrir o totem quando quiser. Um PIN
-errado mostra um aviso e permite tentar de novo; tocar em "Cancelar" ou
-esperar alguns segundos sem digitar fecha o teclado sem sair do kiosk.
-Numero de toques, janela de tempo e PIN sao configuraveis em
-`config/app-config.json` sem alterar codigo.
+O executavel gerado pelo build sempre abre em modo kiosk automaticamente.
 
 ## Notas tecnicas
 
 - Banco de dados local em **sql.js** (SQLite compilado em WASM), e nao
-  `better-sqlite3`: esta maquina de desenvolvimento nao tem o Visual Studio
-  Build Tools necessario para compilar modulos nativos, e depender disso
-  tornaria o build fragil em qualquer outra maquina que nao tenha o mesmo
-  ambiente. sql.js atende ao mesmo requisito (SQLite local) sem compilacao
-  nativa.
-- O totem real deve rodar so este aplicativo (sem outros programas em
-  segundo plano). Isso evita qualquer disputa por foco de tela — o kiosk ja
-  fica sempre à frente e recupera o foco automaticamente se algo tentar
-  aparecer por cima, mas um PC dedicado, sem outros softwares, e o cenario
-  para o qual o modo kiosk foi desenhado.
+  `better-sqlite3`, para nao depender de compilacao nativa. Tabelas:
+  `votes` (inalterada), `settings` (fase da votacao) e `voting_log`
+  (auditoria). O esquema usa `IF NOT EXISTS`, entao bancos antigos sao
+  atualizados sem perder votos.
+- O totem real deve rodar so este aplicativo. O kiosk fica sempre a frente e
+  recupera o foco se algo tentar aparecer por cima.

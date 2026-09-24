@@ -1,0 +1,162 @@
+/* ==========================================================================
+   Tela de espera / atracao (comum aos 3 totens).
+   Logo APROXIMA grande no centro, chamada "Participe!"/"Venha!" e uma faixa
+   de fios coloridos que viram circuitos (conceito da identidade: "Entre os
+   fios da historia e a inteligencia do amanha").
+   Tamanhos em rem (ver escala em base.css).
+   ========================================================================== */
+
+.screen--attract {
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 0;
+  cursor: pointer;
+}
+
+.attract {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 3rem var(--space-4) 1rem;
+  text-align: center;
+}
+
+/* Logo oficial completo (APROXIMA de IMPACTO + assinatura). Largura limitada
+   pela largura E pela altura da tela, para caber em qualquer proporcao. */
+.attract__logo {
+  display: block;
+  width: min(82vw, 72vh);
+  height: auto;
+  flex-shrink: 0;
+}
+
+.attract__cta {
+  margin: 0;
+  font-size: 11rem;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  color: var(--c-orange);
+  text-shadow: 0 0.6rem 0 rgba(156, 54, 11, 0.16);
+}
+
+.attract__title {
+  margin: 0;
+  font-size: 5.6rem;
+  line-height: 1.1;
+  font-weight: 800;
+  color: var(--c-navy);
+}
+
+.attract__subtitle {
+  margin: 0;
+  max-width: 120rem;
+  font-size: 3.6rem;
+  line-height: 1.2;
+  font-weight: 700;
+  color: var(--c-olive);
+}
+
+.attract__hint {
+  margin-top: 1rem;
+  min-height: 8rem;
+  padding: 0 var(--space-5);
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--radius-pill);
+  background: var(--c-orange-strong);
+  color: #FFFFFF;
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  box-shadow: var(--shadow-button);
+  animation: attract-hint-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes attract-hint-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* ---- Faixa decorativa de fios -------------------------------------------- */
+
+.attract-band {
+  display: block;
+  width: 100%;
+  height: 22vh;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.attract-band .wire {
+  fill: none;
+  stroke-width: 9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.attract-band .pulse {
+  fill: none;
+  stroke: #FFFFFF;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 5 95;
+  opacity: 0.85;
+  animation: attract-pulse 5s linear infinite;
+}
+
+.attract-band .pulse:nth-child(2) { animation-delay: -1s; }
+.attract-band .pulse:nth-child(3) { animation-delay: -2.2s; }
+.attract-band .pulse:nth-child(4) { animation-delay: -3.1s; }
+.attract-band .pulse:nth-child(5) { animation-delay: -4.2s; }
+
+@keyframes attract-pulse {
+  from { stroke-dashoffset: 100; }
+  to { stroke-dashoffset: 0; }
+}
+
+.attract-band .node {
+  fill: var(--c-cream-light);
+  stroke-width: 7;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: attract-node 2.4s ease-in-out infinite;
+}
+
+.attract-band .node:nth-child(2) { animation-delay: 0.5s; }
+.attract-band .node:nth-child(3) { animation-delay: 1s; }
+.attract-band .node:nth-child(4) { animation-delay: 1.5s; }
+.attract-band .node:nth-child(5) { animation-delay: 2s; }
+
+@keyframes attract-node {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+}
+
+.wire--orange { stroke: var(--c-orange); }
+.wire--mustard { stroke: var(--c-mustard); }
+.wire--olive { stroke: var(--c-olive); }
+.wire--navy { stroke: var(--c-navy); }
+.wire--blue { stroke: var(--c-blue); }
+.node--orange { stroke: var(--c-orange); }
+.node--mustard { stroke: var(--c-mustard); }
+.node--olive { stroke: var(--c-olive); }
+.node--navy { stroke: var(--c-navy); }
+.node--blue { stroke: var(--c-blue); }
+
+/* Retrato: mais respiro no topo para o logo FIPECq do canto. */
+@media (orientation: portrait) {
+  .attract {
+    padding-top: 14rem;
+    gap: 3rem;
+  }
+
+  .attract-band {
+    height: 16vh;
+  }
+}

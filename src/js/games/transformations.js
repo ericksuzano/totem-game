@@ -1,1244 +1,329 @@
-// ==========================================================================
-// JOGO DAS TRANSFORMACOES
+// Logica do Jogo das Transformacoes: tela inicial, associacao dos 10 pares
+// (divididos em 2 rodadas de 5 para caber confortavelmente na tela), feedback
+// de acerto/erro, "fios" coloridos ligando cada par acertado (ficam visiveis
+// ate o fim da rodada) e tela de conclusao (FINALIZAR / VOLTAR AO INICIO).
 //
-// Regras:
-// - 10 pares oficiais em TRANSFORMATIONS_DATA
-// - 2 rodadas
-// - Cada rodada apresenta 3 cards antigos e 3 cards modernos
-// - 2 combinacoes corretas
-// - 1 distrator de cada lado
-// - 3 tentativas por rodada
-// - Necessarios 2 acertos para passar
-// - Menos de 2 acertos apos 3 tentativas:
-//   "Tente daqui a pouco."
-// - As partidas sao embaralhadas
-// - Historico recente evita repetir a mesma configuracao
-//
-// Alteracao visual:
-// - Acertos e tentativas agora possuem uma area propria
-// - Os valores ficam separados e com IDs proprios
-// - O CSS sera responsavel por definir tamanho, espacamento e destaque
-// ==========================================================================
+// Layout: objetos antigos na fileira de cima, modernos na de baixo; cada
+// cartao mostra [imagem] + [nome] juntos. Os fios passam pelo espaco entre as
+// duas fileiras, sem cobrir nenhum cartao.
 
 (function () {
-  'use strict';
-
-  // ==========================================================================
-  // CONFIGURACOES
-  // ==========================================================================
-
-  const TOTAL_ROUNDS = 2;
-  const SOURCE_PAIRS_PER_ROUND = 4;
-  const CARDS_PER_SIDE = 3;
-
-  const CORRECT_PAIRS_PER_ROUND = 2;
-  const ATTEMPTS_PER_ROUND = 3;
-
-  const RECENT_GAMES_LIMIT = 30;
-
-  const GAME_HISTORY_STORAGE_KEY =
-    'aproxima2026_transformations_game_history';
-
+  const PAIRS_PER_ROUND = 5;
   const CORRECT_FEEDBACK_MS = 2600;
   const ERROR_FEEDBACK_MS = 1800;
   const ROUND_ADVANCE_DELAY_MS = 1300;
+  // Quantidade de cores de fio definidas em css/transformations.css
+  // (.game-wire--1 ... --5), todas da identidade APROXIMA.
+  const WIRE_COLORS = 5;
 
-  // ==========================================================================
-  // ELEMENTOS
-  // ==========================================================================
+  const INSTRUCTION_TEXT =
+    'Toque em objeto antigo e, em seguida toque no objeto moderno para formar o par correto.';
 
-  const layout = document.getElementById(
-    'transformations-game-layout'
-  );
+  const layout = document.getElementById('transformations-game-layout');
+  const startBtn = document.getElementById('btn-transformations-start');
+  const finishBtn = document.getElementById('btn-transformations-finish');
+  const homeBtn = document.getElementById('btn-transformations-home');
 
-  const instructionOkBtn = document.getElementById(
-    'btn-transformations-instruction-ok'
-  );
-
-  const playAgainBtn = document.getElementById(
-    'btn-transformations-play-again'
-  );
-
-  // ==========================================================================
-  // ESTADO
-  // ==========================================================================
+  const SVG_NS = 'http://www.w3.org/2000/svg';
 
   const state = {
     rounds: [],
     roundIndex: 0,
-
     oldCards: [],
     newCards: [],
-
     matchedIds: new Set(),
-
+    // Fios desta rodada, na ordem dos acertos: { pairId, color }
+    wires: [],
     selectedOldId: null,
-
-    attempts: 0,
-    correctAnswers: 0,
-
     locked: false
   };
 
-  // ==========================================================================
-  // HISTORICO
-  // ==========================================================================
+  let messageTimer = null;
 
-  function loadGameHistory() {
-    try {
-      const stored =
-        window.localStorage.getItem(
-          GAME_HISTORY_STORAGE_KEY
-        );
-
-      if (!stored) {
-        return [];
-      }
-
-      const parsed = JSON.parse(stored);
-
-      if (!Array.isArray(parsed)) {
-        return [];
-      }
-
-      return parsed.filter(
-        (item) => typeof item === 'string'
-      );
-    } catch (error) {
-      console.warn(
-        '[TRANSFORMATIONS] Erro ao ler historico:',
-        error
-      );
-
-      return [];
-    }
-  }
-
-  function saveGameToHistory(signature) {
-    if (!signature) {
-      return;
-    }
-
-    try {
-      const history = loadGameHistory();
-
-      const filtered = history.filter(
-        (item) => item !== signature
-      );
-
-      filtered.push(signature);
-
-      const limited = filtered.slice(
-        -RECENT_GAMES_LIMIT
-      );
-
-      window.localStorage.setItem(
-        GAME_HISTORY_STORAGE_KEY,
-        JSON.stringify(limited)
-      );
-    } catch (error) {
-      console.warn(
-        '[TRANSFORMATIONS] Erro ao salvar historico:',
-        error
-      );
-    }
-  }
-
-  // ==========================================================================
-  // ASSINATURAS
-  // ==========================================================================
-
-  function createRoundSignature(round) {
-    const oldIds = round.oldCards.map(
-      (pair) => pair.id
-    );
-
-    const newIds = round.newCards.map(
-      (pair) => pair.id
-    );
-
-    return [
-      oldIds.join(','),
-      newIds.join(',')
-    ].join('|');
-  }
-
-  function createGameSignature(rounds) {
-    return rounds
-      .map((round) =>
-        createRoundSignature(round)
-      )
-      .join('||');
-  }
-
-  // ==========================================================================
-  // CRIA UMA RODADA
-  //
-  // 4 pares sao escolhidos:
-  //
-  // A = correto
-  // B = correto
-  // C = distrator
-  // D = distrator
-  //
-  // De C e D:
-  // - um fornece o card antigo
-  // - outro fornece o card moderno
-  //
-  // Resultado:
-  // 3 cards antigos
-  // 3 cards modernos
-  // 2 combinacoes corretas
-  // ==========================================================================
-
-  function createRound(sourcePairs) {
-    if (
-      !Array.isArray(sourcePairs) ||
-      sourcePairs.length !==
-        SOURCE_PAIRS_PER_ROUND
-    ) {
-      return null;
-    }
-
-    const shuffledSources =
-      shuffleArray(sourcePairs);
-
-    const correctA =
-      shuffledSources[0];
-
-    const correctB =
-      shuffledSources[1];
-
-    const decoyA =
-      shuffledSources[2];
-
-    const decoyB =
-      shuffledSources[3];
-
-    const decoys = shuffleArray([
-      decoyA,
-      decoyB
-    ]);
-
-    const oldDecoy = decoys[0];
-    const newDecoy = decoys[1];
-
-    const oldCards = shuffleArray([
-      correctA,
-      correctB,
-      oldDecoy
-    ]);
-
-    const newCards = shuffleArray([
-      correctA,
-      correctB,
-      newDecoy
-    ]);
-
-    if (
-      oldCards.length !== CARDS_PER_SIDE ||
-      newCards.length !== CARDS_PER_SIDE
-    ) {
-      return null;
-    }
-
-    return {
-      correctPairs: [
-        correctA,
-        correctB
-      ],
-      oldCards,
-      newCards
-    };
-  }
-
-  // ==========================================================================
-  // GERA UMA PARTIDA
-  // ==========================================================================
-
-  function generateCandidateGame() {
-    if (
-      typeof TRANSFORMATIONS_DATA ===
-      'undefined'
-    ) {
-      console.error(
-        '[TRANSFORMATIONS] TRANSFORMATIONS_DATA nao foi carregado.'
-      );
-
-      return null;
-    }
-
-    if (
-      !Array.isArray(
-        TRANSFORMATIONS_DATA
-      )
-    ) {
-      console.error(
-        '[TRANSFORMATIONS] TRANSFORMATIONS_DATA nao e um array.'
-      );
-
-      return null;
-    }
-
-    const shuffled = shuffleArray(
-      TRANSFORMATIONS_DATA
-    );
-
-    const pairsNeeded =
-      TOTAL_ROUNDS *
-      SOURCE_PAIRS_PER_ROUND;
-
-    if (
-      shuffled.length < pairsNeeded
-    ) {
-      console.error(
-        `[TRANSFORMATIONS] Sao necessarios pelo menos ${pairsNeeded} pares.`
-      );
-
-      return null;
-    }
-
+  function buildRounds() {
+    const shuffled = shuffleArray(TRANSFORMATIONS_DATA);
     const rounds = [];
-
-    for (
-      let roundIndex = 0;
-      roundIndex < TOTAL_ROUNDS;
-      roundIndex += 1
-    ) {
-      const start =
-        roundIndex *
-        SOURCE_PAIRS_PER_ROUND;
-
-      const sourcePairs =
-        shuffled.slice(
-          start,
-          start +
-            SOURCE_PAIRS_PER_ROUND
-        );
-
-      const round =
-        createRound(sourcePairs);
-
-      if (!round) {
-        return null;
-      }
-
-      rounds.push(round);
+    for (let i = 0; i < shuffled.length; i += PAIRS_PER_ROUND) {
+      rounds.push(shuffled.slice(i, i + PAIRS_PER_ROUND));
     }
-
     return rounds;
   }
 
-  // ==========================================================================
-  // GERA PARTIDA SEM REPETIR CONFIGURACOES RECENTES
-  // ==========================================================================
-
-  function buildRounds() {
-    const history =
-      loadGameHistory();
-
-    const MAX_GENERATION_ATTEMPTS = 100;
-
-    let fallback = null;
-
-    for (
-      let attempt = 0;
-      attempt < MAX_GENERATION_ATTEMPTS;
-      attempt += 1
-    ) {
-      const candidate =
-        generateCandidateGame();
-
-      if (!candidate) {
-        break;
-      }
-
-      fallback = candidate;
-
-      const signature =
-        createGameSignature(
-          candidate
-        );
-
-      if (
-        !history.includes(signature)
-      ) {
-        saveGameToHistory(
-          signature
-        );
-
-        return candidate;
-      }
-    }
-
-    // Caso extremo:
-    // usa a ultima configuracao gerada para evitar travamento.
-
-    if (fallback) {
-      const signature =
-        createGameSignature(
-          fallback
-        );
-
-      saveGameToHistory(
-        signature
-      );
-
-      return fallback;
-    }
-
-    return [];
+  function totalPairs() {
+    return TRANSFORMATIONS_DATA.length;
   }
 
-  // ==========================================================================
-  // RESET
-  // ==========================================================================
+  function matchedSoFar() {
+    return state.roundIndex * PAIRS_PER_ROUND + state.matchedIds.size;
+  }
 
   function resetGame() {
-    state.rounds =
-      buildRounds();
-
+    state.rounds = buildRounds();
     state.roundIndex = 0;
-
-    state.oldCards = [];
-    state.newCards = [];
-
-    state.matchedIds = new Set();
-
-    state.selectedOldId = null;
-
-    state.attempts = 0;
-    state.correctAnswers = 0;
-
-    state.locked = false;
-
-    if (
-      !state.rounds ||
-      state.rounds.length !== TOTAL_ROUNDS
-    ) {
-      console.error(
-        '[TRANSFORMATIONS] Nao foi possivel gerar as rodadas.'
-      );
-
-      return;
-    }
-
     startRound(0);
   }
 
-  // ==========================================================================
-  // INICIA RODADA
-  // ==========================================================================
-
   function startRound(index) {
-    const round =
-      state.rounds[index];
-
-    if (!round) {
-      return;
-    }
-
     state.roundIndex = index;
-
-    state.oldCards =
-      round.oldCards;
-
-    state.newCards =
-      round.newCards;
-
+    const pairs = state.rounds[index];
+    state.oldCards = shuffleArray(pairs);
+    state.newCards = shuffleArray(pairs);
     state.matchedIds = new Set();
-
+    state.wires = [];
     state.selectedOldId = null;
-
-    state.attempts = 0;
-    state.correctAnswers = 0;
-
     state.locked = false;
 
     renderRound();
-
-    window.Totem.showScreen(
-      'transformations-game'
-    );
+    window.Totem.showScreen('transformations-game');
   }
 
-  // ==========================================================================
-  // RENDER DA RODADA
-  // ==========================================================================
-
   function renderRound() {
-    if (!layout) {
-      console.error(
-        '[TRANSFORMATIONS] Layout do jogo nao encontrado.'
-      );
-
-      return;
-    }
-
+    clearTimeout(messageTimer);
     layout.innerHTML = `
-      <div class="game-header">
-
-        <p class="game-header__round">
-          Rodada ${state.roundIndex + 1} de ${state.rounds.length}
-        </p>
-
-        <div class="game-status">
-
-          <div class="game-status__item game-status__item--correct">
-            <span class="game-status__label">
-              Acertos
-            </span>
-
-            <strong
-              class="game-status__value"
-              id="game-correct-count"
-            >
-              ${state.correctAnswers} / ${CORRECT_PAIRS_PER_ROUND}
-            </strong>
-          </div>
-
-          <div class="game-status__item game-status__item--attempts">
-            <span class="game-status__label">
-              Tentativas
-            </span>
-
-            <strong
-              class="game-status__value"
-              id="game-attempt-count"
-            >
-              ${state.attempts} / ${ATTEMPTS_PER_ROUND}
-            </strong>
-          </div>
-
+      <div class="game-head">
+        <div class="game-head__text">
+          <p class="eyebrow">Jogo das Transformações</p>
+          <h1 class="game-head__title">Relacione os objetos antigos com os objetos modernos</h1>
+          <p class="game-message" id="game-message"></p>
         </div>
-
+        <div class="game-progress">
+          <span class="game-progress__round">Rodada ${state.roundIndex + 1} de ${state.rounds.length}</span>
+          <span class="game-progress__count" id="game-progress-count"></span>
+          <span class="game-progress__label">pares</span>
+        </div>
       </div>
-
-      <div
-        class="game-columns"
-        id="game-columns"
-      >
-
-        <div class="game-column">
-
-          <p class="game-column__title">
-            Tecnologias de antigamente
-          </p>
-
-          <div
-            class="game-column__list"
-            id="game-column-old"
-          ></div>
-
+      <div class="game-field" id="game-field">
+        <svg class="game-wires" id="game-wires" aria-hidden="true"></svg>
+        <div class="game-row game-row--old">
+          <p class="game-row__label">Objetos antigos</p>
+          <div class="game-row__cards" id="game-row-old"></div>
         </div>
-
-        <div class="game-column">
-
-          <p class="game-column__title">
-            Tecnologias de hoje
-          </p>
-
-          <div
-            class="game-column__list"
-            id="game-column-new"
-          ></div>
-
+        <div class="game-row game-row--new">
+          <div class="game-row__cards" id="game-row-new"></div>
+          <p class="game-row__label">Objetos modernos</p>
         </div>
-
       </div>
     `;
 
-    const oldList =
-      document.getElementById(
-        'game-column-old'
-      );
+    const oldRow = document.getElementById('game-row-old');
+    const newRow = document.getElementById('game-row-new');
+    state.oldCards.forEach((pair) => oldRow.appendChild(createCard(pair, 'old')));
+    state.newCards.forEach((pair) => newRow.appendChild(createCard(pair, 'new')));
 
-    const newList =
-      document.getElementById(
-        'game-column-new'
-      );
-
-    if (!oldList || !newList) {
-      console.error(
-        '[TRANSFORMATIONS] Colunas do jogo nao encontradas.'
-      );
-
-      return;
-    }
-
-    state.oldCards.forEach(
-      (pair) => {
-        oldList.appendChild(
-          createCard(pair, 'old')
-        );
-      }
-    );
-
-    state.newCards.forEach(
-      (pair) => {
-        newList.appendChild(
-          createCard(pair, 'new')
-        );
-      }
-    );
-
-    ensureFeedbackEl();
+    setMessage(INSTRUCTION_TEXT, null);
+    updateProgress();
   }
 
-  // ==========================================================================
-  // CARD
-  // ==========================================================================
-
   function createCard(pair, side) {
-    const card =
-      document.createElement('button');
+    const label = side === 'old' ? pair.oldLabel : pair.newLabel;
+    const imageSrc = side === 'old' ? pair.oldImage : pair.newImage;
 
-    card.className = 'game-card';
+    const card = document.createElement('button');
+    card.className = `game-card game-card--${side}`;
     card.type = 'button';
-
     card.dataset.pairId = pair.id;
     card.dataset.side = side;
 
-    const image =
-      document.createElement('img');
+    // Imagem e nome no mesmo cartao, um logo abaixo do outro.
+    const media = document.createElement('span');
+    media.className = 'game-card__media';
+    const img = document.createElement('img');
+    img.src = imageSrc;
+    img.alt = '';
+    img.addEventListener('error', () => {
+      // Imagem ainda nao fornecida: mostra um marcador neutro no lugar.
+      media.classList.add('is-empty');
+      media.innerHTML = TOTEM_ICONS.image;
+    });
+    media.appendChild(img);
 
-    image.className =
-      'game-card__image';
+    const name = document.createElement('span');
+    name.className = 'game-card__name';
+    name.textContent = label;
 
-    image.src =
-      side === 'old'
-        ? pair.oldImage
-        : pair.newImage;
+    // "No" onde o fio se conecta (embaixo nos antigos, em cima nos modernos).
+    const node = document.createElement('span');
+    node.className = 'game-card__node';
 
-    image.alt = '';
-    image.draggable = false;
-
-    image.addEventListener(
-      'error',
-      () => {
-        image.classList.add(
-          'is-image-error'
-        );
-      }
-    );
-
-    const label =
-      document.createElement('span');
-
-    label.className =
-      'game-card__label';
-
-    label.textContent =
-      side === 'old'
-        ? pair.oldLabel
-        : pair.newLabel;
-
-    card.appendChild(image);
-    card.appendChild(label);
-
-    card.addEventListener(
-      'click',
-      (event) => {
-        event.preventDefault();
-
-        handleCardClick(
-          pair.id,
-          side,
-          card
-        );
-      }
-    );
-
+    card.append(media, name, node);
+    card.addEventListener('click', () => handleCardClick(pair.id, side, card));
     return card;
   }
 
-  // ==========================================================================
-  // FEEDBACK
-  // ==========================================================================
-
-  function ensureFeedbackEl() {
-    if (
-      document.getElementById(
-        'game-feedback'
-      )
-    ) {
-      return;
-    }
-
-    const app =
-      document.getElementById('app');
-
-    if (!app) {
-      return;
-    }
-
-    const feedback =
-      document.createElement('div');
-
-    feedback.id =
-      'game-feedback';
-
-    feedback.className =
-      'game-feedback';
-
-    app.appendChild(feedback);
+  function updateProgress() {
+    const el = document.getElementById('game-progress-count');
+    if (el) el.textContent = `${matchedSoFar()}/${totalPairs()}`;
   }
 
-  function showFeedback(
-    text,
-    success,
-    durationMs
-  ) {
-    const feedback =
-      document.getElementById(
-        'game-feedback'
-      );
-
-    if (!feedback) {
-      return;
-    }
-
-    feedback.textContent = text;
-
-    feedback.classList.remove(
-      'is-success',
-      'is-error'
-    );
-
-    feedback.classList.add(
-      success
-        ? 'is-success'
-        : 'is-error',
-      'is-visible'
-    );
-
-    setTimeout(
-      () => {
-        feedback.classList.remove(
-          'is-visible'
-        );
-      },
-      durationMs
-    );
+  // Linha de mensagem do cabecalho: mostra a instrucao e, por alguns
+  // segundos, a frase de apoio (acerto) ou o aviso de erro.
+  function setMessage(text, kind) {
+    const el = document.getElementById('game-message');
+    if (!el) return;
+    el.textContent = text;
+    el.classList.remove('is-success', 'is-error');
+    if (kind) el.classList.add(`is-${kind}`);
   }
 
-  // ==========================================================================
-  // ATUALIZA STATUS VISUAL
-  // ==========================================================================
-
-  function updateRoundProgress() {
-    const correctCount =
-      document.getElementById(
-        'game-correct-count'
-      );
-
-    const attemptCount =
-      document.getElementById(
-        'game-attempt-count'
-      );
-
-    if (correctCount) {
-      correctCount.textContent =
-        `${state.correctAnswers} / ${CORRECT_PAIRS_PER_ROUND}`;
-    }
-
-    if (attemptCount) {
-      attemptCount.textContent =
-        `${state.attempts} / ${ATTEMPTS_PER_ROUND}`;
-    }
+  function showFeedback(text, success, durationMs) {
+    clearTimeout(messageTimer);
+    setMessage(text, success ? 'success' : 'error');
+    messageTimer = setTimeout(() => setMessage(INSTRUCTION_TEXT, null), durationMs);
   }
 
-  // ==========================================================================
-  // LINHA DE CONEXAO
-  // ==========================================================================
+  // ---- Fios (SVG). Guardados em state.wires e redesenhados se a janela
+  // mudar de tamanho, para continuarem ligando os nos certos. ----
 
-  function drawConnectionLine(
-    cardA,
-    cardB
-  ) {
-    if (!cardA || !cardB) {
-      return;
-    }
-
-    const container =
-      document.getElementById(
-        'game-columns'
-      );
-
-    if (!container) {
-      return;
-    }
-
-    const containerRect =
-      container.getBoundingClientRect();
-
-    const rectA =
-      cardA.getBoundingClientRect();
-
-    const rectB =
-      cardB.getBoundingClientRect();
-
-    const x1 =
-      rectA.left +
-      rectA.width / 2 -
-      containerRect.left;
-
-    const y1 =
-      rectA.top +
-      rectA.height / 2 -
-      containerRect.top;
-
-    const x2 =
-      rectB.left +
-      rectB.width / 2 -
-      containerRect.left;
-
-    const y2 =
-      rectB.top +
-      rectB.height / 2 -
-      containerRect.top;
-
-    const dx = x2 - x1;
-    const dy = y2 - y1;
-
-    const length =
-      Math.sqrt(
-        dx * dx +
-        dy * dy
-      );
-
-    const angle =
-      (Math.atan2(dy, dx) * 180) /
-      Math.PI;
-
-    const line =
-      document.createElement('div');
-
-    line.className =
-      'connection-line';
-
-    line.style.left =
-      `${x1}px`;
-
-    line.style.top =
-      `${y1}px`;
-
-    line.style.width =
-      '0px';
-
-    line.style.transform =
-      `rotate(${angle}deg)`;
-
-    container.appendChild(line);
-
-    requestAnimationFrame(
-      () => {
-        line.style.width =
-          `${length}px`;
-      }
-    );
-
-    setTimeout(
-      () => {
-        line.remove();
-      },
-      900
-    );
+  function nodeCenter(card, fieldRect) {
+    const r = card.querySelector('.game-card__node').getBoundingClientRect();
+    return {
+      x: r.left + r.width / 2 - fieldRect.left,
+      y: r.top + r.height / 2 - fieldRect.top
+    };
   }
 
-  // ==========================================================================
-  // CLIQUE
-  // ==========================================================================
+  function wirePath(a, b) {
+    const dy = b.y - a.y;
+    return `M ${a.x} ${a.y} C ${a.x} ${a.y + dy * 0.55}, ${b.x} ${b.y - dy * 0.55}, ${b.x} ${b.y}`;
+  }
 
-  function handleCardClick(
-    pairId,
-    side,
-    cardEl
-  ) {
-    if (state.locked) {
-      return;
-    }
+  function drawWire(wire, animate) {
+    const field = document.getElementById('game-field');
+    const svg = document.getElementById('game-wires');
+    if (!field || !svg) return;
+    const fieldRect = field.getBoundingClientRect();
+    const oldCard = field.querySelector(`.game-card--old[data-pair-id="${wire.pairId}"]`);
+    const newCard = field.querySelector(`.game-card--new[data-pair-id="${wire.pairId}"]`);
+    if (!oldCard || !newCard) return;
 
-    // ------------------------------------------------------------------------
-    // ANTIGO
-    // ------------------------------------------------------------------------
+    const d = wirePath(nodeCenter(oldCard, fieldRect), nodeCenter(newCard, fieldRect));
+
+    const halo = document.createElementNS(SVG_NS, 'path');
+    halo.setAttribute('class', 'game-wire-halo');
+    halo.setAttribute('d', d);
+
+    const path = document.createElementNS(SVG_NS, 'path');
+    path.setAttribute('class', `game-wire game-wire--${wire.color}`);
+    path.setAttribute('d', d);
+    path.setAttribute('pathLength', '1');
+    if (animate) path.classList.add('is-drawing');
+
+    svg.append(halo, path);
+  }
+
+  function redrawWires() {
+    const svg = document.getElementById('game-wires');
+    if (!svg) return;
+    svg.innerHTML = '';
+    state.wires.forEach((wire) => drawWire(wire, false));
+  }
+
+  window.addEventListener('resize', redrawWires);
+
+  function handleCardClick(pairId, side, cardEl) {
+    if (state.locked) return;
 
     if (side === 'old') {
-      if (
-        state.matchedIds.has(
-          pairId
-        )
-      ) {
-        return;
-      }
-
-      state.selectedOldId =
-        pairId;
-
-      document
-        .querySelectorAll(
-          '#game-column-old .game-card'
-        )
-        .forEach((el) => {
-          el.classList.toggle(
-            'is-selected',
-            String(
-              el.dataset.pairId
-            ) ===
-              String(pairId)
-          );
-        });
-
+      if (state.matchedIds.has(pairId)) return;
+      state.selectedOldId = pairId;
+      layout.querySelectorAll('.game-card--old').forEach((el) => {
+        el.classList.toggle('is-selected', Number(el.dataset.pairId) === pairId);
+      });
+      layout.classList.add('has-selection');
       return;
     }
 
-    // ------------------------------------------------------------------------
-    // MODERNO
-    // ------------------------------------------------------------------------
+    // side === 'new'
+    if (state.matchedIds.has(pairId)) return;
+    if (state.selectedOldId === null) return;
 
-    if (
-      state.matchedIds.has(
-        pairId
-      )
-    ) {
-      return;
-    }
-
-    if (
-      state.selectedOldId ===
-      null
-    ) {
-      return;
-    }
-
-    const oldCardEl =
-      document.querySelector(
-        `#game-column-old .game-card[data-pair-id="${state.selectedOldId}"]`
-      );
-
-    state.attempts += 1;
-
-    updateRoundProgress();
-
-    // ------------------------------------------------------------------------
-    // ACERTO
-    // ------------------------------------------------------------------------
-
-    if (
-      String(
-        state.selectedOldId
-      ) ===
-      String(pairId)
-    ) {
-      handleCorrectMatch(
-        pairId,
-        oldCardEl,
-        cardEl
-      );
-
-      return;
-    }
-
-    // ------------------------------------------------------------------------
-    // ERRO
-    // ------------------------------------------------------------------------
-
-    handleIncorrectMatch(
-      oldCardEl,
-      cardEl
+    const oldCardEl = layout.querySelector(
+      `.game-card--old[data-pair-id="${state.selectedOldId}"]`
     );
+
+    if (state.selectedOldId === pairId) {
+      handleCorrectMatch(pairId, oldCardEl, cardEl);
+    } else {
+      handleIncorrectMatch(oldCardEl, cardEl);
+    }
   }
 
-  // ==========================================================================
-  // ACERTO
-  // ==========================================================================
-
-  function handleCorrectMatch(
-    pairId,
-    oldCardEl,
-    newCardEl
-  ) {
+  function handleCorrectMatch(pairId, oldCardEl, newCardEl) {
     state.locked = true;
+    state.matchedIds.add(pairId);
+    layout.classList.remove('has-selection');
 
-    state.correctAnswers += 1;
+    const color = (state.wires.length % WIRE_COLORS) + 1;
+    const wire = { pairId, color };
+    state.wires.push(wire);
 
-    state.matchedIds.add(
-      pairId
-    );
+    [oldCardEl, newCardEl].forEach((el) => {
+      el.classList.remove('is-selected');
+      el.classList.add('is-matched');
+      el.dataset.color = String(color);
+    });
 
-    if (oldCardEl) {
-      oldCardEl.classList.remove(
-        'is-selected'
-      );
+    drawWire(wire, true);
 
-      oldCardEl.classList.add(
-        'is-matched'
-      );
-    }
+    const pair = TRANSFORMATIONS_DATA.find((p) => p.id === pairId);
+    showFeedback(pair.phrase, true, CORRECT_FEEDBACK_MS);
+    updateProgress();
 
-    if (newCardEl) {
-      newCardEl.classList.add(
-        'is-matched'
-      );
-    }
+    setTimeout(() => {
+      state.selectedOldId = null;
+      state.locked = false;
 
-    drawConnectionLine(
-      oldCardEl,
-      newCardEl
-    );
-
-    const pair =
-      TRANSFORMATIONS_DATA.find(
-        (item) =>
-          String(item.id) ===
-          String(pairId)
-      );
-
-    if (pair) {
-      showFeedback(
-        pair.phrase,
-        true,
-        CORRECT_FEEDBACK_MS
-      );
-    }
-
-    updateRoundProgress();
-
-    setTimeout(
-      () => {
-        state.selectedOldId =
-          null;
-
-        // ---------------------------------------------------
-        // 2 ACERTOS = AVANCA
-        // ---------------------------------------------------
-
-        if (
-          state.correctAnswers >=
-          CORRECT_PAIRS_PER_ROUND
-        ) {
-          state.locked = false;
-
-          advanceRound();
-
-          return;
-        }
-
-        // ---------------------------------------------------
-        // 3 TENTATIVAS SEM 2 ACERTOS
-        // ---------------------------------------------------
-
-        if (
-          state.attempts >=
-          ATTEMPTS_PER_ROUND
-        ) {
-          state.locked = false;
-
-          showTryLater();
-
-          return;
-        }
-
-        state.locked = false;
-      },
-      ROUND_ADVANCE_DELAY_MS
-    );
-  }
-
-  // ==========================================================================
-  // ERRO
-  // ==========================================================================
-
-  function handleIncorrectMatch(
-    oldCardEl,
-    newCardEl
-  ) {
-    state.locked = true;
-
-    showFeedback(
-      'Ops, essa combinação não corresponde. Tente novamente.',
-      false,
-      ERROR_FEEDBACK_MS
-    );
-
-    [
-      oldCardEl,
-      newCardEl
-    ].forEach(
-      (el) => {
-        if (el) {
-          el.classList.add(
-            'is-error'
-          );
-        }
+      if (state.matchedIds.size === state.oldCards.length) {
+        advanceRound();
       }
-    );
-
-    setTimeout(
-      () => {
-        [
-          oldCardEl,
-          newCardEl
-        ].forEach(
-          (el) => {
-            if (!el) {
-              return;
-            }
-
-            el.classList.remove(
-              'is-error'
-            );
-
-            el.classList.remove(
-              'is-selected'
-            );
-          }
-        );
-
-        state.selectedOldId =
-          null;
-
-        // ---------------------------------------------------
-        // 3 TENTATIVAS SEM 2 ACERTOS
-        // ---------------------------------------------------
-
-        if (
-          state.attempts >=
-            ATTEMPTS_PER_ROUND &&
-          state.correctAnswers <
-            CORRECT_PAIRS_PER_ROUND
-        ) {
-          state.locked = false;
-
-          showTryLater();
-
-          return;
-        }
-
-        state.locked = false;
-
-        updateRoundProgress();
-      },
-      ERROR_FEEDBACK_MS
-    );
+    }, ROUND_ADVANCE_DELAY_MS);
   }
 
-  // ==========================================================================
-  // PROXIMA RODADA
-  // ==========================================================================
+  function handleIncorrectMatch(oldCardEl, newCardEl) {
+    state.locked = true;
+    showFeedback('Ops, essa combinação não corresponde. Tente novamente.', false, ERROR_FEEDBACK_MS);
+    [oldCardEl, newCardEl].forEach((el) => el && el.classList.add('is-error'));
+
+    setTimeout(() => {
+      [oldCardEl, newCardEl].forEach((el) => {
+        if (!el) return;
+        el.classList.remove('is-error');
+        el.classList.remove('is-selected');
+      });
+      layout.classList.remove('has-selection');
+      state.selectedOldId = null;
+      state.locked = false;
+    }, ERROR_FEEDBACK_MS);
+  }
 
   function advanceRound() {
-    const nextIndex =
-      state.roundIndex + 1;
-
-    setTimeout(
-      () => {
-        if (
-          nextIndex <
-          state.rounds.length
-        ) {
-          startRound(
-            nextIndex
-          );
-
-          return;
-        }
-
-        window.Totem.showScreen(
-          'transformations-complete'
-        );
-      },
-      ROUND_ADVANCE_DELAY_MS
-    );
-  }
-
-  // ==========================================================================
-  // TENTE DAQUI A POUCO
-  // ==========================================================================
-
-  function showTryLater() {
-    state.locked = true;
-
-    if (!layout) {
-      return;
-    }
-
-    layout.innerHTML = `
-      <div
-        class="game-round-failure"
-      >
-
-        <p>
-          Tente daqui a pouco.
-        </p>
-
-        <p>
-          Obrigado por participar!
-        </p>
-
-        <button
-          type="button"
-          id="btn-transformations-try-later-home"
-          class="btn btn-primary"
-        >
-          Voltar ao início
-        </button>
-
-      </div>
-    `;
-
-    const homeBtn =
-      document.getElementById(
-        'btn-transformations-try-later-home'
-      );
-
-    if (homeBtn) {
-      homeBtn.addEventListener(
-        'click',
-        (event) => {
-          event.preventDefault();
-
-          window.Totem.goHome();
-        }
-      );
-    }
-  }
-
-  // ==========================================================================
-  // EVENTOS
-  // ==========================================================================
-
-  if (instructionOkBtn) {
-    instructionOkBtn.addEventListener(
-      'click',
-      (event) => {
-        event.preventDefault();
-
-        resetGame();
+    const nextIndex = state.roundIndex + 1;
+    setTimeout(() => {
+      if (nextIndex < state.rounds.length) {
+        startRound(nextIndex);
+      } else {
+        window.Totem.showScreen('transformations-complete');
       }
-    );
+    }, ROUND_ADVANCE_DELAY_MS);
   }
 
-  if (playAgainBtn) {
-    playAgainBtn.addEventListener(
-      'click',
-      (event) => {
-        event.preventDefault();
+  startBtn.addEventListener('click', () => {
+    resetGame();
+  });
 
-        window.Totem.goHome();
-      }
-    );
-  }
+  // FINALIZAR: encerra a experiencia e volta para a tela de espera.
+  finishBtn.addEventListener('click', () => {
+    window.Totem.goHome();
+  });
 
-  // ==========================================================================
-  // API PUBLICA
-  // ==========================================================================
+  // VOLTAR AO INICIO: volta para a tela inicial do jogo.
+  homeBtn.addEventListener('click', () => {
+    window.TransformationsGame.start();
+  });
 
   window.TransformationsGame = {
     start() {
-      window.Totem.showScreen(
-        'transformations-instruction'
-      );
+      window.Totem.showScreen('transformations-start');
     }
   };
 })();
