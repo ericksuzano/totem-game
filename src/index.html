@@ -19,14 +19,21 @@
   <!-- Cabecalho institucional. Na tela de espera (data-chrome="minimal") vira
        so o logo FIPECq solto no canto; nas telas internas, uma barra fina. -->
   <header class="totem-header">
+    <img class="totem-header__aproxima" src="assets/logos/logo-aproxima.svg" alt="APROXIMA de Impacto">
+    <p class="totem-header__title" id="totem-header-title"></p>
     <!-- Area do gesto oculto de manutencao (5 toques no logo FIPECq). Esta
-         presente em todas as telas, sempre no canto superior esquerdo. -->
+         presente em todas as telas, sempre no canto superior direito. -->
     <div class="totem-header__brand" id="kiosk-exit-hitzone">
       <img class="totem-header__fipecq" src="assets/logos/logo-fipecq.svg" alt="FIPECq Previdência">
     </div>
-    <p class="totem-header__title" id="totem-header-title"></p>
-    <img class="totem-header__aproxima" src="assets/logos/logo-aproxima.svg" alt="APROXIMA de Impacto">
   </header>
+
+  <!-- Faixa decorativa animada: fios (historia) que nascem no canto inferior
+       esquerdo, cruzam a base e sobem pela borda direita como circuitos
+       (inteligencia), nas cores APROXIMA. Tracado gerado por
+       js/utils/brand-wires.js. Fica ATRAS das telas internas (nunca cobre
+       conteudo); escondida na tela de espera. -->
+  <svg class="brand-wires" preserveAspectRatio="none" aria-hidden="true"></svg>
 
   <main id="screen-container">
 
@@ -57,39 +64,13 @@
         <p class="attract__subtitle" id="attract-subtitle"></p>
         <span class="attract__hint" id="attract-hint"></span>
       </div>
-
-      <!-- Faixa decorativa: fios (historia) que viram circuitos (inteligencia),
-           nas cores da identidade APROXIMA. -->
-      <svg class="attract-band" viewBox="0 0 2400 300" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-        <g class="attract-band__wires">
-          <path class="wire wire--orange" d="M-30 90 C225 10 390 230 645 140 S1020 60 1200 118 L1440 118 L1545 48 L1905 48"/>
-          <path class="wire wire--mustard" d="M-30 170 C210 250 420 40 675 130 S1035 200 1200 138 L1560 138 L1635 88 L2130 88"/>
-          <path class="wire wire--olive" d="M-30 250 C255 180 450 300 705 190 S1050 120 1200 158 L1770 158"/>
-          <path class="wire wire--navy" d="M-30 40 C240 120 375 280 630 200 S990 150 1200 178 L1650 178 L1725 228 L2250 228"/>
-          <path class="wire wire--blue" d="M-30 210 C195 120 450 120 660 230 S1020 250 1200 198 L1470 198 L1560 258 L1995 258"/>
-        </g>
-        <g class="attract-band__pulses">
-          <path class="pulse" pathLength="100" d="M-30 90 C225 10 390 230 645 140 S1020 60 1200 118 L1440 118 L1545 48 L1905 48"/>
-          <path class="pulse" pathLength="100" d="M-30 170 C210 250 420 40 675 130 S1035 200 1200 138 L1560 138 L1635 88 L2130 88"/>
-          <path class="pulse" pathLength="100" d="M-30 250 C255 180 450 300 705 190 S1050 120 1200 158 L1770 158"/>
-          <path class="pulse" pathLength="100" d="M-30 40 C240 120 375 280 630 200 S990 150 1200 178 L1650 178 L1725 228 L2250 228"/>
-          <path class="pulse" pathLength="100" d="M-30 210 C195 120 450 120 660 230 S1020 250 1200 198 L1470 198 L1560 258 L1995 258"/>
-        </g>
-        <g class="attract-band__nodes">
-          <circle class="node node--orange" cx="1905" cy="48" r="12"/>
-          <circle class="node node--mustard" cx="2130" cy="88" r="12"/>
-          <circle class="node node--olive" cx="1770" cy="158" r="12"/>
-          <circle class="node node--navy" cx="2250" cy="228" r="12"/>
-          <circle class="node node--blue" cx="1995" cy="258" r="12"/>
-        </g>
-      </svg>
     </section>
 
     <!-- ================================================================
          TOTEM 1 - JOGO DAS TRANSFORMACOES (totemMode "transformations")
          ================================================================ -->
 
-    <!-- Tela inicial da experiencia (destino de "VOLTAR AO INICIO"). -->
+    <!-- Tela inicial da experiencia (aberta ao tocar na tela de espera). -->
     <section class="screen" data-screen="transformations-start">
       <div class="panel panel--hero">
         <p class="eyebrow">Jogo das Transformações</p>
@@ -97,6 +78,9 @@
         <div class="rule"></div>
         <p class="panel__text">
           Toque em objeto antigo e, em seguida toque no objeto moderno para formar o par correto.
+        </p>
+        <p class="panel__text panel__text--rules">
+          São 2 rodadas. Em cada uma, você tem 3 tentativas para formar 2 pares corretos.
         </p>
         <div class="actions">
           <button class="btn btn-primary" id="btn-transformations-start">COMEÇAR</button>
@@ -124,8 +108,17 @@
         </p>
         <div class="actions">
           <button class="btn btn-primary" id="btn-transformations-finish">FINALIZAR</button>
-          <button class="btn btn-secondary" id="btn-transformations-home">VOLTAR AO INÍCIO</button>
         </div>
+      </div>
+    </section>
+
+    <!-- 3 tentativas sem 2 acertos. Volta sozinha para a tela de espera
+         (js/games/transformations.js). -->
+    <section class="screen" data-screen="transformations-retry" data-idle="finished">
+      <div class="panel panel--hero">
+        <p class="eyebrow">Jogo das Transformações</p>
+        <h1 class="panel__title">Tente daqui a pouco.</h1>
+        <div class="rule"></div>
       </div>
     </section>
 
@@ -163,39 +156,63 @@
     <!-- ================================================================
          TOTEM 3 - VOTACAO (totemMode "voting")
          ================================================================ -->
+    <!-- Escolha da obra: cada cartao e uma "peca de exposicao" (moldura com a
+         foto inteira + etiqueta com categoria, titulo e autor). O cartao todo
+         e clicavel. Visual em css/voting.css (escopo .works-grid--voting). -->
     <section class="screen" data-screen="voting-works">
-      <div class="works-layout">
-        <div class="works-header">
+      <div class="works-layout voting-layout">
+        <div class="works-header voting-header">
           <p class="eyebrow">Sua voz faz história</p>
           <h1 class="works-header__title">Vote no seu trabalho favorito</h1>
-          <p class="works-header__hint">Toque no trabalho escolhido</p>
+          <p class="voting-header__hint">
+            <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M19 22V10a3.5 3.5 0 0 1 7 0v10l8.6 1.9a5 5 0 0 1 3.9 5.6L37 38a6 6 0 0 1-6 5H23.5a6 6 0 0 1-4.9-2.6L11 29.6a3.4 3.4 0 0 1 5.2-4.3L19 28"/></svg>
+            Toque na obra escolhida
+          </p>
         </div>
-        <div class="works-grid" id="voting-grid"></div>
+        <div class="works-grid works-grid--voting" id="voting-grid"></div>
       </div>
     </section>
 
+    <!-- Confirmacao: a obra escolhida em destaque + botao grande de confirmar.
+         Os botoes so respondem depois de um instante (voting.js), para um
+         toque duplo na obra nao virar voto sem querer. -->
     <section class="screen" data-screen="voting-confirm">
-      <div class="panel panel--confirm">
-        <p class="eyebrow">Você escolheu:</p>
-        <div class="work-frame work-frame--confirm" id="voting-confirm-image"></div>
-        <p class="voting-confirm__title" id="voting-confirm-title"></p>
-        <p class="voting-confirm__author" id="voting-confirm-author"></p>
-        <p class="panel__text">Tem certeza de que deseja confirmar seu voto?</p>
-        <div class="actions">
-          <button class="btn btn-secondary" id="btn-voting-back">VOLTAR</button>
-          <button class="btn btn-primary" id="btn-voting-confirm">CONFIRMAR VOTO</button>
+      <div class="voting-confirm">
+        <div class="voting-confirm__media">
+          <div class="work-frame work-frame--confirm" id="voting-confirm-image"></div>
+        </div>
+        <div class="voting-confirm__info">
+          <p class="eyebrow">Você escolheu</p>
+          <span class="voting-confirm__category" id="voting-confirm-category"></span>
+          <h1 class="voting-confirm__title" id="voting-confirm-title"></h1>
+          <p class="voting-confirm__author" id="voting-confirm-author"></p>
+          <div class="rule"></div>
+          <p class="voting-confirm__question">Deseja confirmar seu voto nesta obra?</p>
+          <div class="voting-confirm__actions">
+            <button class="btn btn-primary voting-confirm__confirm" id="btn-voting-confirm">
+              <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M12 25l8 8 16-17"/></svg>
+              CONFIRMAR VOTO
+            </button>
+            <button class="btn btn-secondary voting-confirm__back" id="btn-voting-back">
+              <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M28 12L16 24l12 12"/></svg>
+              VOLTAR
+            </button>
+          </div>
         </div>
       </div>
     </section>
 
     <section class="screen" data-screen="voting-registered" data-idle="finished">
-      <div class="panel panel--hero">
-        <div class="done-badge" aria-hidden="true">
+      <div class="panel panel--hero voting-done">
+        <div class="voting-done__badge" aria-hidden="true">
           <svg viewBox="0 0 48 48"><path d="M13 25l7 7 15-16"/></svg>
         </div>
-        <h1 class="panel__title">Voto registrado!</h1>
+        <h1 class="voting-done__title">Voto registrado!</h1>
+        <p class="voting-done__work" id="voting-done-work"></p>
         <div class="rule"></div>
         <p class="panel__text">Obrigado por participar do APROXIMA 2026.</p>
+        <!-- Barra do retorno automatico (mesmo tempo de voting.js). -->
+        <div class="voting-done__return" aria-hidden="true"><span></span></div>
       </div>
     </section>
 
@@ -283,6 +300,7 @@
 
 <script src="js/utils/shuffle.js"></script>
 <script src="js/utils/icons.js"></script>
+<script src="js/utils/brand-wires.js"></script>
 <script src="js/data/transformations-data.js"></script>
 <script src="js/experiences.js"></script>
 <script src="js/works/works.js"></script>

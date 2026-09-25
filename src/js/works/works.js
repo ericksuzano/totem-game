@@ -59,7 +59,8 @@
     body.appendChild(el('span', 'btn btn-primary work-card__action', actionLabel));
     card.appendChild(body);
 
-    card.addEventListener('click', () => onSelect(work));
+    // O cartao vai junto para quem quiser dar feedback visual nele (votacao).
+    card.addEventListener('click', () => onSelect(work, card));
     return card;
   }
 

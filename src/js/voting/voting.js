@@ -12,6 +12,11 @@
 
 (function () {
   const REGISTERED_AUTO_RETURN_MS = 6000;
+  // Tempo em que a obra tocada fica em destaque antes da confirmacao abrir.
+  const CHOICE_FEEDBACK_MS = 450;
+  // Ao abrir a confirmacao, os botoes ignoram toques por um instante: um
+  // toque duplo na obra nao pode cair em "CONFIRMAR VOTO" sem querer.
+  const CONFIRM_GUARD_MS = 800;
 
   const PHASE_LABELS = {
     pre: 'Zerésima (votação ainda não aberta)',
@@ -24,27 +29,56 @@
   const confirmImage = document.getElementById('voting-confirm-image');
   const confirmTitle = document.getElementById('voting-confirm-title');
   const confirmAuthor = document.getElementById('voting-confirm-author');
+  const confirmCategory = document.getElementById('voting-confirm-category');
   const backBtn = document.getElementById('btn-voting-back');
   const confirmBtn = document.getElementById('btn-voting-confirm');
+  const doneWork = document.getElementById('voting-done-work');
+  const doneScreen = document.querySelector('.screen[data-screen="voting-registered"]');
 
   let selectedWork = null;
   let autoReturnTimer = null;
   let submitting = false;
+  // true entre o toque numa obra e a abertura da confirmacao (ignora outros).
+  let choosing = false;
+  let confirmReadyAt = 0;
 
-  function selectWork(work) {
+  function clearChoice() {
+    choosing = false;
+    grid.classList.remove('has-choice');
+    grid.querySelectorAll('.work-card.is-chosen').forEach((el) => el.classList.remove('is-chosen'));
+  }
+
+  function selectWork(work, card) {
+    if (choosing) return;
+    choosing = true;
     selectedWork = work;
+    if (card) card.classList.add('is-chosen');
+    grid.classList.add('has-choice');
+
     window.Works.renderFrame(confirmImage, work);
+    confirmCategory.textContent = work.category || '';
+    confirmCategory.hidden = !work.category;
     confirmTitle.textContent = work.title;
-    confirmAuthor.textContent = work.author;
-    window.Totem.showScreen('voting-confirm');
+    confirmAuthor.textContent = work.author || '';
+
+    setTimeout(() => {
+      confirmReadyAt = performance.now() + CONFIRM_GUARD_MS;
+      window.Totem.showScreen('voting-confirm');
+    }, CHOICE_FEEDBACK_MS);
+  }
+
+  function confirmReady() {
+    return performance.now() >= confirmReadyAt;
   }
 
   backBtn.addEventListener('click', () => {
+    if (!confirmReady() || submitting) return;
+    clearChoice();
     window.Totem.showScreen('voting-works');
   });
 
   confirmBtn.addEventListener('click', async () => {
-    if (!selectedWork || submitting) return;
+    if (!selectedWork || submitting || !confirmReady()) return;
     submitting = true;
     try {
       const result = await window.totemAPI.registerVote(selectedWork.id, selectedWork.title);
@@ -58,6 +92,12 @@
       submitting = false;
     }
 
+    doneWork.textContent = `Seu voto em “${selectedWork.title}” foi computado.`;
+    // Reinicia a barra do retorno automatico (animacao CSS com o mesmo tempo).
+    doneScreen.style.setProperty('--return-ms', `${REGISTERED_AUTO_RETURN_MS}ms`);
+    doneScreen.classList.remove('is-counting');
+    void doneScreen.offsetWidth;
+    doneScreen.classList.add('is-counting');
     window.Totem.showScreen('voting-registered');
 
     if (autoReturnTimer) clearTimeout(autoReturnTimer);
@@ -151,7 +191,8 @@
 
     start() {
       selectedWork = null;
-      window.Works.renderGrid(grid, { actionLabel: 'ESCOLHER ESTE', onSelect: selectWork });
+      clearChoice();
+      window.Works.renderGrid(grid, { actionLabel: 'ESCOLHER', onSelect: selectWork });
       window.Totem.showScreen('voting-works');
     },
 

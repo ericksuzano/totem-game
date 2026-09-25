@@ -74,7 +74,9 @@
 .works-grid[data-count="4"] { --card-w: 38rem; }
 
 @media (orientation: portrait) {
-  /* Retrato: 3 ou 4 trabalhos em 2 colunas (2+1 centralizado ou 2+2). */
+  /* Retrato: 2 trabalhos lado a lado; 3 ou 4 em 2 colunas (2+1
+     centralizado ou 2+2). Assim sempre cabe acima da faixa de fios. */
+  .works-grid[data-count="2"],
   .works-grid[data-count="3"],
   .works-grid[data-count="4"] {
     --card-w: 47rem;
@@ -118,12 +120,16 @@
   padding: 1.2rem;
 }
 
+/* A imagem ocupa a area da moldura e usa "contain": aparece inteira em
+   qualquer proporcao (inclusive fotos verticais), sem corte e sem distorcer.
+   drop-shadow segue o contorno da foto, nao a area vazia ao redor. */
 .work-frame img {
-  max-width: 100%;
-  max-height: 100%;
+  position: absolute;
+  inset: 1.2rem;
+  width: calc(100% - 2.4rem);
+  height: calc(100% - 2.4rem);
   object-fit: contain;
-  border-radius: 0.6rem;
-  box-shadow: 0 0.6rem 1.6rem rgba(59, 36, 24, 0.25);
+  filter: drop-shadow(0 0.6rem 1.2rem rgba(59, 36, 24, 0.25));
 }
 
 .work-frame.is-empty {
@@ -251,5 +257,66 @@
   .work-frame--large {
     height: 80rem;
     max-height: 50vh;
+  }
+}
+
+/* Paisagem (notebook / tela deitada): grade de colunas fixas pela
+   quantidade de trabalhos (2, 3 ou 4 lado a lado, nunca quebra de linha),
+   centralizada entre o cabecalho e a faixa de fios. A moldura da foto
+   ocupa a altura que sobra no cartao, entao tudo cabe sem rolagem em
+   qualquer proporcao (4:3, 16:9...). */
+@media (orientation: landscape) {
+  .works-layout {
+    max-width: 150rem;
+    justify-content: center;
+  }
+
+  .works-grid {
+    --cols: 2;
+
+    flex: 0 1 auto;
+    height: min(100%, 64rem);
+    display: grid;
+    grid-template-columns: repeat(var(--cols), minmax(0, var(--card-w)));
+    grid-auto-rows: minmax(0, 1fr);
+    justify-content: center;
+    overflow: visible;
+  }
+
+  .works-grid[data-count="1"] { --cols: 1; --card-w: 50rem; }
+  .works-grid[data-count="2"] { --cols: 2; --card-w: 46rem; }
+  .works-grid[data-count="3"] { --cols: 3; --card-w: 42rem; }
+  .works-grid[data-count="4"] { --cols: 4; --card-w: 36rem; gap: 2.4rem; }
+
+  .work-card {
+    height: 100%;
+    min-height: 0;
+  }
+
+  .work-card .work-frame {
+    flex: 1 1 0;
+    min-height: 10rem;
+    aspect-ratio: auto;
+    max-height: none;
+  }
+
+  .work-card__body {
+    flex: 0 0 auto;
+  }
+
+  /* 4 trabalhos: cartoes estreitos, textos um pouco menores. */
+  .works-grid[data-count="4"] .work-card__title { font-size: 2.9rem; -webkit-line-clamp: 3; }
+  .works-grid[data-count="4"] .work-card__author { font-size: 2.3rem; }
+  .works-grid[data-count="4"] .work-card__action { font-size: 2.3rem; padding: 0 1rem; }
+
+  .work-detail {
+    max-width: 128rem;
+    gap: 3.2rem;
+    padding: 3.2rem;
+  }
+
+  .work-frame--large {
+    height: 58rem;
+    max-height: 62vh;
   }
 }

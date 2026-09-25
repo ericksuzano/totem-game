@@ -20,10 +20,10 @@ Funciona 100% offline (sem camera, sem login, sem backend externo).
   "Participe!"/"Venha!", nome da experiencia e fios animados nas cores da
   identidade. Qualquer toque inicia a experiencia. O totem volta sozinho para
   ela apos inatividade (`idleTimeoutMs`; nas telas finais, `idleAfterFinishMs`).
-- **Jogo das Transformacoes**: tela inicial -> jogo (10 pares, 2 rodadas de 5,
-  imagem + nome em cada cartao, fios coloridos ligando os pares) -> conclusao
-  com **FINALIZAR** (volta a tela de espera) e **VOLTAR AO INICIO** (volta a
-  tela inicial do jogo). Nao ha "jogar novamente".
+- **Jogo das Transformacoes**: tela inicial -> jogo (2 rodadas; em cada uma, 3
+  objetos antigos e 3 modernos, 2 pares corretos e 3 tentativas; imagem + nome
+  em cada cartao, fios coloridos ligando os pares) -> conclusao com um unico
+  botao, **FINALIZAR** (volta a tela de espera). Nao ha "jogar novamente".
 - **Concurso Cultural**: galeria dos trabalhos -> detalhe do trabalho. Sem
   votacao.
 - **Votacao**: trabalhos -> confirmacao -> voto registrado -> volta a tela de
@@ -36,14 +36,23 @@ Tres formas (use a que for mais pratica na instalacao):
 1. **Arquivo de configuracao** (recomendado com o instalador generico):
    editar `resources/app-config.json` ao lado do `.exe` instalado (no codigo:
    `config/app-config.json`) e trocar `"totemMode"`. Reabrir o app.
-2. **Instalador especifico por totem** (o `.exe` ja sai com o modo definido):
+2. **Executavel portatil por totem** (um `.exe` unico, SEM instalar, ja com
+   o modo definido - e so dar dois cliques):
    ```
-   npm run build:win:transformations   -> dist/transformations/
-   npm run build:win:contest           -> dist/contest/
-   npm run build:win:voting            -> dist/voting/
+   npm run build:win:totens            -> os dois: dist/transformations/ e dist/voting/
+   npm run build:win:transformations   -> dist/transformations/APROXIMA 2026 - Jogo das Transformacoes.exe
+   npm run build:win:voting            -> dist/voting/APROXIMA 2026 - Votacao.exe
+   npm run build:win:contest           -> dist/contest/APROXIMA 2026 - Concurso Cultural.exe
    ```
-   Cada um tem nome proprio ("Aproxima 2026 Totens - Votacao" etc.) e
-   instala separado dos outros.
+   Cada executavel leva so o que o seu jogo usa: o das Transformacoes nao
+   inclui `content/` (trabalhos); os da Votacao e do Concurso nao incluem as
+   imagens do jogo. Os votos ficam em `%APPDATA%\Aproxima 2026 Totens - Votacao`
+   (nao se perdem ao fechar o app nem ao trocar o `.exe`).
+   Trocar fotos/cadastro dos trabalhos sem gerar o `.exe` de novo: colocar uma
+   pasta `content\trabalhos\` (com `trabalhos.json` e as fotos) ao lado do
+   `.exe` - ela tem prioridade sobre o conteudo embutido.
+   Abertura ainda mais rapida: a pasta `dist/<modo>/win-unpacked/` (gerada
+   junto) roda o app direto, sem descompactar - copiar a pasta inteira.
 3. **Argumento no atalho do Windows**: `--totem-mode=voting` no campo
    "Destino" do atalho. Tem prioridade sobre o arquivo (util para testar os
    3 modos na mesma maquina). No desenvolvimento: `npm run start:voting`,
@@ -88,7 +97,7 @@ e decisao do cliente - ver "Pendencias".
 ## Manutencao / saida do kiosk
 
 Tocar 5 vezes, em menos de 3 segundos, no **logo FIPECq Previdencia** (canto
-superior esquerdo, presente em todas as telas) abre o teclado do PIN
+superior direito, presente em todas as telas) abre o teclado do PIN
 (`kiosk.exitPin`). Nao ha nenhuma indicacao visual disso para o publico.
 
 - Totens do Jogo e do Concurso: o PIN correto fecha o aplicativo (como antes).

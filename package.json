@@ -14,7 +14,8 @@
     "start:contest": "electron . --totem-mode=contest",
     "start:voting": "electron . --totem-mode=voting",
     "build:win": "electron-builder --win",
-    "build:win:transformations": "node scripts/build-totem.js transformations",
+    "build:win:totens": "node scripts/build-totem.js transformations voting",
+    "build:win:transformations":"node scripts/build-totem.js transformations",
     "build:win:contest": "node scripts/build-totem.js contest",
     "build:win:voting": "node scripts/build-totem.js voting"
   },

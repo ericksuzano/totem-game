@@ -1,39 +1,580 @@
 /* ==========================================================================
-   Totem de Votacao: confirmacao do voto e relatorio (zeresima / resultado).
-   A grade e os cartoes dos trabalhos estao em works.css (compartilhados com
-   o Concurso Cultural).
-   Tamanhos em rem (ver escala em base.css).
+   Totem de Votacao: escolha da obra, confirmacao, voto registrado e
+   relatorio (zeresima / resultado).
+   A grade e o cartao base dos trabalhos estao em works.css (compartilhados
+   com o Concurso Cultural); aqui eles ganham o visual de "exposicao" SO na
+   votacao (escopo .works-grid--voting), sem mudar o concurso.
+   Tamanhos em rem (ver escala em base.css). A grade usa a altura da tela
+   (linhas 1fr) para caber sem rolagem em 4:3, 16:9 e retrato.
    ========================================================================== */
 
-/* ---- Tela de confirmacao ------------------------------------------------- */
+/* ---- Tela de escolha: cabecalho ------------------------------------------ */
 
-.panel--confirm {
-  gap: 1.8rem;
-  padding-top: var(--space-4);
+.voting-layout {
+  max-width: 180rem;
+  gap: 2.4rem;
+}
+
+.voting-header {
+  gap: 1rem;
+}
+
+.voting-header__hint {
+  margin: 0.4rem 0 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 0.8rem 2.8rem 0.8rem 2rem;
+  border-radius: var(--radius-pill);
+  background: var(--c-olive-soft);
+  color: var(--c-olive);
+  font-size: 2.6rem;
+  font-weight: 800;
+}
+
+.voting-header__hint svg {
+  width: 3.6rem;
+  height: 3.6rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: voting-tap 2.4s ease-in-out infinite;
+}
+
+@keyframes voting-tap {
+  0%, 60%, 100% { transform: translateY(0); }
+  70% { transform: translateY(0.5rem) scale(0.94); }
+  80% { transform: translateY(0); }
+}
+
+/* ---- Grade: colunas pela quantidade de obras (data-count) ----------------
+   Paisagem: 2, 3 ou 4 lado a lado. Retrato: 2 empilhadas, 3 em 2+1
+   (a de baixo centralizada, sem "buraco") ou 4 em 2x2. As linhas dividem a
+   altura livre, e a moldura da foto cresce/encolhe para caber. */
+
+.works-grid--voting {
+  --cols: 2;
+  --col-max: 72rem;
+
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, var(--col-max)));
+  grid-auto-rows: minmax(0, 1fr);
+  justify-content: center;
+  align-content: stretch;
+  gap: 3.2rem;
+  padding: 1.2rem 1.2rem 0.4rem;
+  overflow: visible;
+}
+
+.works-grid--voting[data-count="1"] { --cols: 1; --col-max: 80rem; }
+.works-grid--voting[data-count="2"] { --cols: 2; --col-max: 72rem; }
+.works-grid--voting[data-count="3"] { --cols: 3; --col-max: 58rem; }
+.works-grid--voting[data-count="4"] { --cols: 4; --col-max: 46rem; gap: 2.4rem; }
+
+@media (orientation: portrait) {
+  .works-grid--voting[data-count="1"],
+  .works-grid--voting[data-count="2"] { --cols: 1; --col-max: 92rem; }
+
+  .works-grid--voting[data-count="4"] { --cols: 2; --col-max: 52rem; gap: 3.2rem; }
+
+  /* 3 obras: grade de 4 meias-colunas; cada cartao ocupa 2 e o terceiro
+     fica no meio da linha de baixo. */
+  .works-grid--voting[data-count="3"] {
+    --cols: 4;
+    --col-max: 1fr;
+  }
+  .works-grid--voting[data-count="3"] .work-card { grid-column: span 2; }
+  .works-grid--voting[data-count="3"] .work-card:nth-child(3) { grid-column: 2 / span 2; }
+}
+
+/* ---- Cartao: peca de exposicao ------------------------------------------- */
+
+.works-grid--voting .work-card {
+  position: relative;
+  min-height: 0;
+  height: 100%;
+  gap: 0;
+  padding: 2.2rem 1.8rem 1.8rem;
+  background: #FFFFFF;
+  border: 0.4rem solid var(--c-sand);
+  border-radius: 3.2rem;
+  box-shadow: 0 2rem 4.8rem rgba(59, 36, 24, 0.16), 0 0.3rem 0.8rem rgba(59, 36, 24, 0.08);
+  overflow: hidden;
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease,
+    opacity 250ms ease, filter 250ms ease;
+}
+
+/* Filete de 4 cores no topo, como nos paineis. */
+.works-grid--voting .work-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 0.8rem;
+  background: var(--stripe);
+}
+
+/* Moldura: "parede de galeria" iluminada de cima, com passe-partout largo.
+   A foto aparece inteira (contain), sem corte e sem distorcer. */
+.works-grid--voting .work-frame {
+  flex: 1 1 0;
+  min-height: 12rem;
+  aspect-ratio: auto;
+  max-height: none;
+  border-radius: 2rem;
+  padding: 0;
+  background:
+    radial-gradient(ellipse 75% 60% at 50% 0%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 70%),
+    linear-gradient(180deg, #F6EBDB 0%, #E8D5B9 100%);
+  box-shadow: inset 0 0 0 0.2rem rgba(59, 36, 24, 0.07), inset 0 -1.6rem 3.2rem rgba(59, 36, 24, 0.07);
+}
+
+.works-grid--voting .work-frame img {
+  inset: 2.8rem;
+  width: calc(100% - 5.6rem);
+  height: calc(100% - 5.6rem);
+  filter: drop-shadow(0 1.2rem 1.4rem rgba(59, 36, 24, 0.32));
+}
+
+/* Etiqueta da obra: categoria, titulo e autor, com hierarquia clara.
+   A etiqueta reserva sempre a altura do titulo e do autor mais longos
+   possiveis (--t-lines / --a-lines): assim as molduras de todos os cartoes
+   ficam do mesmo tamanho e os botoes alinhados, e o espaco que sobra fica
+   abaixo do autor (nunca entre titulo e autor). */
+.works-grid--voting .work-card {
+  --t-size: 3.8rem;
+  --t-lines: 2;
+  --a-size: 2.8rem;
+  --a-lines: 2;
+  --act-h: 8.4rem;
+}
+
+.works-grid--voting .work-card__body {
+  flex: 0 0 auto;
+  gap: 0.6rem;
+  padding: 2rem 0.8rem 0;
+  min-height: calc(2rem + 2.1rem * 1.2 + 3 * 0.6rem
+    + var(--t-lines) * var(--t-size) * 1.12
+    + var(--a-lines) * var(--a-size) * 1.2
+    + 1.8rem + var(--act-h));
+}
+
+.works-grid--voting .work-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0;
+  background: none;
+  color: var(--c-olive);
+  font-size: 2.1rem;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+}
+
+.works-grid--voting .work-chip::before {
+  content: '';
+  width: 3.2rem;
+  height: 0.5rem;
+  border-radius: var(--radius-pill);
+  background: var(--c-mustard);
+}
+
+.works-grid--voting .work-card__title {
+  font-size: var(--t-size);
+  line-height: 1.12;
+  -webkit-line-clamp: var(--t-lines);
+}
+
+.works-grid--voting .work-card__author {
+  font-size: var(--a-size);
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--a-lines);
+  overflow: hidden;
+  margin-bottom: 1.2rem;
+}
+
+.works-grid--voting .work-card__action {
+  margin-top: auto;
+  min-height: var(--act-h);
+  gap: 1.2rem;
+  background: var(--c-navy);
+  box-shadow: 0 0.8rem 2rem rgba(20, 75, 116, 0.25);
+  font-size: 3rem;
+  transition: background-color 150ms ease;
+}
+
+.works-grid--voting .work-card__action::after {
+  content: '';
+  width: 2.4rem;
+  height: 2.4rem;
+  flex-shrink: 0;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M8 4l8 8-8 8' fill='none' stroke='black' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M8 4l8 8-8 8' fill='none' stroke='black' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* 4 obras lado a lado (cartoes estreitos): textos um pouco menores e ate
+   3 linhas de titulo. */
+.works-grid--voting[data-count="4"] .work-card {
+  --t-size: 3.1rem;
+  --t-lines: 3;
+  --a-size: 2.5rem;
+  --act-h: 8rem;
+  padding: 2rem 1.4rem 1.4rem;
+}
+.works-grid--voting[data-count="4"] .work-frame img {
+  inset: 2rem;
+  width: calc(100% - 4rem);
+  height: calc(100% - 4rem);
+}
+.works-grid--voting[data-count="4"] .work-card__action { font-size: 2.8rem; }
+
+/* Retrato 2x2: cartoes largos o bastante para 2 linhas de titulo. */
+@media (orientation: portrait) {
+  .works-grid--voting[data-count="4"] .work-card { --t-lines: 2; }
+}
+
+/* Toque: resposta imediata (afunda e acende a borda). */
+.works-grid--voting .work-card:active {
+  transform: scale(0.98);
+  border-color: var(--c-orange);
+}
+
+.works-grid--voting .work-card:focus-visible {
+  outline: 0.5rem solid var(--c-focus);
+  outline-offset: 0.4rem;
+}
+
+/* Obra escolhida: borda laranja, halo, selo de check e botao laranja. As
+   demais ficam apagadas ate a confirmacao abrir. */
+.works-grid--voting .work-card.is-chosen {
+  transform: translateY(-0.8rem);
+  border-color: var(--c-orange);
+  box-shadow: 0 0 0 0.8rem rgba(228, 87, 28, 0.28), 0 2.4rem 5.6rem rgba(59, 36, 24, 0.24);
+}
+
+.works-grid--voting .work-card.is-chosen .work-card__action {
+  background: var(--c-orange-strong);
+}
+
+.works-grid--voting .work-card.is-chosen .work-frame::after {
+  content: '';
+  position: absolute;
+  top: 1.6rem;
+  right: 1.6rem;
+  width: 8rem;
+  height: 8rem;
+  border-radius: 50%;
+  background: var(--c-orange-strong) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M13 25l7 7 15-16' fill='none' stroke='white' stroke-width='5.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 70% no-repeat;
+  box-shadow: 0 0.8rem 2rem rgba(156, 54, 11, 0.4);
+  animation: voting-pop 300ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Apagadas sem transparencia (os fios do fundo nao aparecem por dentro). */
+.works-grid--voting.has-choice .work-card:not(.is-chosen) {
+  filter: grayscale(1) contrast(0.55) brightness(1.18);
+  transform: scale(0.97);
+}
+
+@keyframes voting-pop {
+  from { transform: scale(0.3); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* ---- Tela de confirmacao ------------------------------------------------- */
+/* Paisagem: foto grande a esquerda e etiqueta + botoes a direita. Retrato:
+   foto em cima e etiqueta + botoes embaixo. */
+
+.voting-confirm {
+  position: relative;
+  width: 100%;
+  max-width: 164rem;
+  height: 100%;
+  max-height: 96rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  align-items: stretch;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--c-cream-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.voting-confirm::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1rem;
+  background: var(--stripe);
+}
+
+.voting-confirm__media {
+  min-height: 0;
+  display: flex;
 }
 
 .work-frame--confirm {
-  width: min(64rem, 100%);
-  max-height: 38vh;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  max-height: none;
+  padding: 0;
+  border-radius: 2.8rem;
+  background:
+    radial-gradient(ellipse 75% 60% at 50% 0%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 70%),
+    linear-gradient(180deg, #F6EBDB 0%, #E8D5B9 100%);
+  box-shadow: inset 0 0 0 0.2rem rgba(59, 36, 24, 0.07), inset 0 -1.6rem 3.2rem rgba(59, 36, 24, 0.07);
+}
+
+.work-frame--confirm img {
+  inset: 3.6rem;
+  width: calc(100% - 7.2rem);
+  height: calc(100% - 7.2rem);
+  filter: drop-shadow(0 1.6rem 1.8rem rgba(59, 36, 24, 0.32));
+}
+
+.voting-confirm__info {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 1.6rem;
+}
+
+.voting-confirm__category {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  color: var(--c-olive);
+  font-size: 2.4rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.voting-confirm__category::before {
+  content: '';
+  width: 3.6rem;
+  height: 0.6rem;
+  border-radius: var(--radius-pill);
+  background: var(--c-mustard);
 }
 
 .voting-confirm__title {
   margin: 0;
-  font-size: 4.6rem;
-  line-height: 1.15;
+  font-size: 6rem;
+  line-height: 1.1;
   font-weight: 800;
   color: var(--c-navy);
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   overflow: hidden;
 }
 
 .voting-confirm__author {
   margin: 0;
-  font-size: 3rem;
+  font-size: 3.8rem;
   font-weight: 700;
   color: var(--c-orange-strong);
+}
+
+.voting-confirm__question {
+  margin: 0;
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--c-ink);
+}
+
+.voting-confirm__actions {
+  width: 100%;
+  margin-top: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2.8rem;
+}
+
+.voting-confirm__actions .btn {
+  width: 100%;
+  min-width: 0;
+  gap: 1.6rem;
+  padding: 0 3.2rem;
+}
+
+.voting-confirm__actions .btn svg {
+  flex-shrink: 0;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Botao principal: grande, inequivoco. */
+.voting-confirm__confirm {
+  min-height: 13rem;
+  font-size: 4.2rem;
+  font-weight: 900;
+  box-shadow: 0 1.2rem 2.8rem rgba(156, 54, 11, 0.32);
+}
+
+.voting-confirm__confirm svg {
+  width: 5.6rem;
+  height: 5.6rem;
+  stroke-width: 5.5;
+}
+
+.voting-confirm__back {
+  min-height: 9.6rem;
+  font-size: 3.2rem;
+}
+
+.voting-confirm__back svg {
+  width: 3.6rem;
+  height: 3.6rem;
+  stroke-width: 5;
+}
+
+@media (orientation: portrait) {
+  .voting-confirm {
+    max-height: none;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: var(--space-3);
+  }
+
+  .voting-confirm__info {
+    align-items: center;
+    text-align: center;
+  }
+
+  .voting-confirm__actions {
+    gap: 2.4rem;
+  }
+}
+
+/* ---- Voto registrado ----------------------------------------------------- */
+
+.voting-done {
+  max-width: 120rem;
+  gap: 2.4rem;
+  padding-bottom: var(--space-5);
+}
+
+.voting-done__badge {
+  position: relative;
+  width: 20rem;
+  height: 20rem;
+  border-radius: 50%;
+  background: var(--c-success);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  box-shadow: 0 1.6rem 4rem rgba(60, 122, 42, 0.35);
+}
+
+/* Anel que se expande uma vez, reforcando o "registrado". */
+.voting-done__badge::before {
+  content: '';
+  position: absolute;
+  inset: -1.6rem;
+  border-radius: 50%;
+  border: 0.6rem solid var(--c-success);
+  opacity: 0;
+}
+
+.voting-done__badge svg {
+  width: 13rem;
+  height: 13rem;
+  fill: none;
+  stroke: #FFFFFF;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.screen.is-active .voting-done__badge {
+  animation: voting-pop 450ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.screen.is-active .voting-done__badge::before {
+  animation: voting-ring 1.1s ease-out 350ms both;
+}
+
+/* O check surge logo depois do circulo. So transform/opacity: o estado
+   final (visivel) e o estilo normal, entao o check aparece mesmo se a
+   animacao nao rodar. */
+.screen.is-active .voting-done__badge svg {
+  animation: voting-check 380ms cubic-bezier(0.34, 1.56, 0.64, 1) 220ms backwards;
+}
+
+@keyframes voting-check {
+  from { transform: scale(0.2) rotate(-20deg); opacity: 0; }
+  to { transform: scale(1) rotate(0); opacity: 1; }
+}
+
+@keyframes voting-ring {
+  from { transform: scale(0.85); opacity: 0.8; }
+  to { transform: scale(1.35); opacity: 0; }
+}
+
+.voting-done__title {
+  margin: 0;
+  font-size: 8rem;
+  line-height: 1.05;
+  font-weight: 900;
+  color: var(--c-success);
+}
+
+.voting-done__work {
+  margin: 0;
+  max-width: 96rem;
+  font-size: 3.4rem;
+  line-height: 1.3;
+  font-weight: 700;
+  color: var(--c-navy);
+}
+
+.voting-done__work:empty {
+  display: none;
+}
+
+/* Barra que esvazia ate o retorno automatico a tela inicial. */
+.voting-done__return {
+  width: 36rem;
+  height: 1rem;
+  margin-top: 1.2rem;
+  border-radius: var(--radius-pill);
+  background: var(--c-sand);
+  overflow: hidden;
+}
+
+.voting-done__return span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--stripe);
+  transform-origin: left center;
+}
+
+.screen.is-active.is-counting .voting-done__return span {
+  animation: voting-return var(--return-ms, 6000ms) linear both;
+}
+
+@keyframes voting-return {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
 }
 
 /* ---- Relatorio: zeresima / resultado ------------------------------------- */
@@ -151,4 +692,33 @@
 
 .report--compact .report__total {
   font-size: 2.4rem;
+}
+
+/* Paisagem (notebook / tela deitada): obras menores e centralizadas na
+   tela, com respiro em cima e embaixo; confirmacao mais compacta. */
+@media (orientation: landscape) {
+  .voting-layout {
+    max-width: 150rem;
+    justify-content: center;
+  }
+
+  .works-grid--voting {
+    flex: 0 1 auto;
+    height: min(100%, 68rem);
+  }
+
+  .works-grid--voting[data-count="1"] { --col-max: 58rem; }
+  .works-grid--voting[data-count="2"] { --col-max: 54rem; }
+  .works-grid--voting[data-count="3"] { --col-max: 46rem; }
+  .works-grid--voting[data-count="4"] { --col-max: 38rem; }
+
+  /* Cartoes menores: a etiqueta reserva so 2 linhas de titulo e 1 de autor
+     (2 com 4 obras, cartoes estreitos), sem vazio no meio do cartao. */
+  .works-grid--voting .work-card { --t-lines: 2; --a-lines: 1; }
+  .works-grid--voting[data-count="4"] .work-card { --t-lines: 2; --a-lines: 2; }
+
+  .voting-confirm {
+    max-width: 136rem;
+    max-height: 80rem;
+  }
 }

@@ -1,43 +1,63 @@
 /* ==========================================================================
    Tela de espera / atracao (comum aos 3 totens).
-   Logo APROXIMA grande no centro, chamada "Participe!"/"Venha!" e uma faixa
-   de fios coloridos que viram circuitos (conceito da identidade: "Entre os
-   fios da historia e a inteligencia do amanha").
+   Arte-chave do evento ao fundo, logo APROXIMA no canto superior esquerdo
+   (FIPECq no direito, ver base.css) e a chamada "Participe!"/"Venha!" no
+   centro da tela. A faixa animada de fios fica nas telas internas (ver
+   .brand-wires em base.css).
    Tamanhos em rem (ver escala em base.css).
    ========================================================================== */
 
 .screen--attract {
-  flex-direction: column;
-  justify-content: flex-start;
+  /* Largura do logo APROXIMA do canto. A altura reservada em cima e embaixo
+     do texto central (.attract) e calculada a partir dela, para o texto
+     nunca encostar no logo. Proporcao do SVG: ~2,13 x 1. */
+  --attract-logo-w: 40rem;
+  --attract-logo-pad: 2rem;
+  --attract-logo-bottom: calc(var(--space-4) + var(--attract-logo-w) / 2.13 + 2 * var(--attract-logo-pad));
+
   padding: 0;
   cursor: pointer;
+  /* Arte-chave oficial do evento (src/assets/images/background.jpg) com um
+     veu creme no centro, para o logo e as chamadas continuarem legiveis. */
+  background:
+    radial-gradient(ellipse 60% 60% at 50% 50%,
+      rgba(255, 250, 243, 0.92) 0%, rgba(255, 250, 243, 0.55) 60%, rgba(255, 250, 243, 0) 100%),
+    url("../assets/images/background.jpg") center / cover no-repeat;
 }
 
+/* Texto central: ocupa a tela inteira e centraliza verticalmente no meio
+   dela. A margem livre e igual em cima e embaixo (a altura do logo), entao
+   o texto fica no centro exato sem nunca encostar no logo. */
 .attract {
-  flex: 1;
-  min-height: 0;
-  width: 100%;
+  position: absolute;
+  inset: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2rem;
-  padding: 3rem var(--space-4) 1rem;
+  gap: 2.4rem;
+  padding: calc(var(--attract-logo-bottom) + 1rem) var(--space-4);
   text-align: center;
 }
 
-/* Logo oficial completo (APROXIMA de IMPACTO + assinatura). Largura limitada
-   pela largura E pela altura da tela, para caber em qualquer proporcao. */
+/* Logo oficial completo (APROXIMA de IMPACTO + assinatura) no canto superior
+   esquerdo, sobre uma placa clara (o fundo ali e a madeira escura da arte). */
 .attract__logo {
+  position: absolute;
+  top: var(--space-4);
+  left: var(--space-4);
   display: block;
-  width: min(82vw, 72vh);
+  width: var(--attract-logo-w);
   height: auto;
-  flex-shrink: 0;
+  padding: var(--attract-logo-pad);
+  border-radius: var(--radius-md);
+  background: rgba(255, 250, 243, 0.9);
+  box-shadow: var(--shadow-card);
 }
 
 .attract__cta {
   margin: 0;
-  font-size: 11rem;
+  font-size: 14rem;
   line-height: 1;
   font-weight: 900;
   letter-spacing: -0.01em;
@@ -47,7 +67,7 @@
 
 .attract__title {
   margin: 0;
-  font-size: 5.6rem;
+  font-size: 6.4rem;
   line-height: 1.1;
   font-weight: 800;
   color: var(--c-navy);
@@ -56,7 +76,7 @@
 .attract__subtitle {
   margin: 0;
   max-width: 120rem;
-  font-size: 3.6rem;
+  font-size: 4rem;
   line-height: 1.2;
   font-weight: 700;
   color: var(--c-olive);
@@ -83,80 +103,9 @@
   50% { transform: scale(1.05); }
 }
 
-/* ---- Faixa decorativa de fios -------------------------------------------- */
-
-.attract-band {
-  display: block;
-  width: 100%;
-  height: 22vh;
-  flex-shrink: 0;
-  pointer-events: none;
-}
-
-.attract-band .wire {
-  fill: none;
-  stroke-width: 9;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.attract-band .pulse {
-  fill: none;
-  stroke: #FFFFFF;
-  stroke-width: 4;
-  stroke-linecap: round;
-  stroke-dasharray: 5 95;
-  opacity: 0.85;
-  animation: attract-pulse 5s linear infinite;
-}
-
-.attract-band .pulse:nth-child(2) { animation-delay: -1s; }
-.attract-band .pulse:nth-child(3) { animation-delay: -2.2s; }
-.attract-band .pulse:nth-child(4) { animation-delay: -3.1s; }
-.attract-band .pulse:nth-child(5) { animation-delay: -4.2s; }
-
-@keyframes attract-pulse {
-  from { stroke-dashoffset: 100; }
-  to { stroke-dashoffset: 0; }
-}
-
-.attract-band .node {
-  fill: var(--c-cream-light);
-  stroke-width: 7;
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: attract-node 2.4s ease-in-out infinite;
-}
-
-.attract-band .node:nth-child(2) { animation-delay: 0.5s; }
-.attract-band .node:nth-child(3) { animation-delay: 1s; }
-.attract-band .node:nth-child(4) { animation-delay: 1.5s; }
-.attract-band .node:nth-child(5) { animation-delay: 2s; }
-
-@keyframes attract-node {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.3); }
-}
-
-.wire--orange { stroke: var(--c-orange); }
-.wire--mustard { stroke: var(--c-mustard); }
-.wire--olive { stroke: var(--c-olive); }
-.wire--navy { stroke: var(--c-navy); }
-.wire--blue { stroke: var(--c-blue); }
-.node--orange { stroke: var(--c-orange); }
-.node--mustard { stroke: var(--c-mustard); }
-.node--olive { stroke: var(--c-olive); }
-.node--navy { stroke: var(--c-navy); }
-.node--blue { stroke: var(--c-blue); }
-
-/* Retrato: mais respiro no topo para o logo FIPECq do canto. */
+/* Retrato: mais espaco entre as chamadas. */
 @media (orientation: portrait) {
   .attract {
-    padding-top: 14rem;
     gap: 3rem;
-  }
-
-  .attract-band {
-    height: 16vh;
   }
 }

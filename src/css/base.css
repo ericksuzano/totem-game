@@ -62,6 +62,14 @@
   --fs-eyebrow: 2.4rem;
 
   --header-h: 8.4rem;
+  /* Faixa de fios animados na base das telas internas (.brand-wires): o
+     tracado (js/utils/brand-wires.js) fica sempre dentro desta altura, e as
+     telas a deixam livre. --wires-side e a largura das trilhas que sobem
+     pela borda direita (reservada nos dois lados, em paisagem). */
+  --wires-h: 15rem;
+  --wires-side: 14rem;
+  /* Respiro igual entre o conteudo e o cabecalho / a faixa de fios. */
+  --edge-gap: 3.2rem;
 
   --space-1: 0.8rem;
   --space-2: 1.6rem;
@@ -132,9 +140,10 @@ button {
 }
 
 /* ---- Cabecalho institucional -------------------------------------------- */
-/* Barra fina nas telas internas; na tela de espera (data-chrome="minimal")
-   vira so o logo FIPECq solto no canto, integrado a arte. O logo FIPECq e
-   tambem a area do gesto de manutencao (#kiosk-exit-hitzone). */
+/* Barra fina nas telas internas: APROXIMA a esquerda, nome da experiencia no
+   centro e FIPECq a direita. Na tela de espera (data-chrome="minimal") vira
+   so o logo FIPECq solto no canto superior direito, integrado a arte. O logo
+   FIPECq e tambem a area do gesto de manutencao (#kiosk-exit-hitzone). */
 
 .totem-header {
   position: fixed;
@@ -169,7 +178,7 @@ button {
   display: flex;
   align-items: center;
   /* Area de toque um pouco maior que o logo, para o gesto de manutencao. */
-  padding: 0 var(--space-2) 0 0;
+  padding: 0 0 0 var(--space-2);
   flex-shrink: 0;
 }
 
@@ -191,20 +200,24 @@ button {
   text-overflow: ellipsis;
 }
 
+/* Um pouco menor que o FIPECq: e so a assinatura do evento na barra (o logo
+   APROXIMA grande fica na tela de espera). */
 .totem-header__aproxima {
   display: block;
-  height: 5.6rem;
+  height: 4.6rem;
   width: auto;
   flex-shrink: 0;
 }
 
-/* Tela de espera: sem barra. Logo FIPECq maior, solto sobre o fundo. */
+/* Tela de espera: sem barra. Logo FIPECq maior, solto no canto superior
+   direito, sobre o fundo. */
 #app[data-chrome="minimal"] .totem-header {
   background: transparent;
   box-shadow: none;
   height: auto;
   padding: var(--space-4) var(--space-4) 0;
   align-items: flex-start;
+  justify-content: flex-end;
   pointer-events: none;
 }
 
@@ -216,6 +229,12 @@ button {
 
 #app[data-chrome="minimal"] .totem-header__brand {
   pointer-events: auto;
+  /* Placa clara atras do logo: garante contraste sobre a arte de fundo. */
+  height: auto;
+  padding: 1.6rem 2.4rem;
+  border-radius: var(--radius-md);
+  background: rgba(255, 250, 243, 0.9);
+  box-shadow: var(--shadow-card);
 }
 
 #app[data-chrome="minimal"] .totem-header__fipecq {
@@ -232,7 +251,91 @@ button {
   position: fixed;
   inset: 0;
   overflow: hidden;
+  /* Acima da faixa de fios (.brand-wires), que fica como fundo. */
+  z-index: 1;
 }
+
+/* ---- Faixa animada de fios (telas internas dos 3 totens) ----------------- */
+/* Fios (historia) que nascem no canto inferior esquerdo, cruzam a base e
+   sobem pela borda direita como trilhas de circuito (inteligencia) ate o
+   canto superior direito, nas cores APROXIMA. O tracado e gerado em
+   js/utils/brand-wires.js (em pixels, 1 unidade do SVG = 1px). Ocupa a tela
+   toda, ATRAS das telas: aparece nos espacos livres e nunca cobre cartas,
+   botoes ou textos (paineis e cartoes sao opacos). Escondida na tela de
+   espera e no carregamento (data-chrome != "bar"). */
+
+.brand-wires {
+  position: fixed;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  transition: opacity 400ms ease;
+}
+
+#app:not([data-chrome="bar"]) .brand-wires {
+  opacity: 0;
+}
+
+.brand-wires .wire {
+  fill: none;
+  stroke-width: 0.8rem;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Pulso de luz que percorre cada fio do canto inferior esquerdo ate a ponta
+   no canto superior direito. */
+.brand-wires .pulse {
+  fill: none;
+  stroke: #FFFFFF;
+  stroke-width: 0.35rem;
+  stroke-linecap: round;
+  stroke-dasharray: 3 97;
+  opacity: 0.85;
+  animation: brand-wires-pulse 9s linear infinite;
+}
+
+.brand-wires .pulse:nth-child(2) { animation-delay: -1.8s; }
+.brand-wires .pulse:nth-child(3) { animation-delay: -4s; }
+.brand-wires .pulse:nth-child(4) { animation-delay: -5.6s; }
+.brand-wires .pulse:nth-child(5) { animation-delay: -7.5s; }
+
+@keyframes brand-wires-pulse {
+  from { stroke-dashoffset: 100; }
+  to { stroke-dashoffset: 0; }
+}
+
+.brand-wires .node {
+  fill: var(--c-cream-light);
+  stroke-width: 0.6rem;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: brand-wires-node 2.4s ease-in-out infinite;
+}
+
+.brand-wires .node:nth-child(2) { animation-delay: 0.5s; }
+.brand-wires .node:nth-child(3) { animation-delay: 1s; }
+.brand-wires .node:nth-child(4) { animation-delay: 1.5s; }
+.brand-wires .node:nth-child(5) { animation-delay: 2s; }
+
+@keyframes brand-wires-node {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+}
+
+.wire--orange { stroke: var(--c-orange); }
+.wire--mustard { stroke: var(--c-mustard); }
+.wire--olive { stroke: var(--c-olive); }
+.wire--navy { stroke: var(--c-navy); }
+.wire--blue { stroke: var(--c-blue); }
+.node--orange { stroke: var(--c-orange); }
+.node--mustard { stroke: var(--c-mustard); }
+.node--olive { stroke: var(--c-olive); }
+.node--navy { stroke: var(--c-navy); }
+.node--blue { stroke: var(--c-blue); }
 
 .screen {
   position: absolute;
@@ -252,6 +355,25 @@ button {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
+}
+
+/* Telas internas (barra no topo + fios na base; as de espera e carregamento
+   tem data-chrome): o conteudo fica centralizado ENTRE o cabecalho e a faixa
+   de fios, com o mesmo respiro em cima e embaixo, e nunca por cima dos
+   fios. Em paisagem, as laterais tambem reservam as trilhas que sobem pela
+   direita (dos dois lados, para continuar centralizado). */
+.screen:not([data-chrome]) {
+  padding:
+    calc(var(--header-h) + var(--edge-gap))
+    var(--space-4)
+    calc(var(--wires-h) + var(--edge-gap));
+}
+
+@media (orientation: landscape) {
+  .screen:not([data-chrome]) {
+    padding-left: var(--wires-side);
+    padding-right: var(--wires-side);
+  }
 }
 
 /* Conteudo alinhado ao topo (ex.: jogo: "box mais para cima"). */

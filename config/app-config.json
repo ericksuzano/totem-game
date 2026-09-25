@@ -14,7 +14,7 @@
     "enabled": true,
     "exitPin": "0000",
     "_exitPin_todo": "TODO: definir PIN oficial de saida antes do evento e nao deixar o padrao.",
-    "_exitGesture_info": "Gesto: 5 toques no logo da FIPECq Previdencia (canto superior esquerdo, presente em todas as telas), em ate windowMs. No totem de votacao, o PIN abre o menu de manutencao (zeresima, fases, resultado, sair).",
+    "_exitGesture_info": "Gesto: 5 toques no logo da FIPECq Previdencia (canto superior direito, presente em todas as telas), em ate windowMs. No totem de votacao, o PIN abre o menu de manutencao (zeresima, fases, resultado, sair).",
     "exitGesture": {
       "taps": 5,
       "windowMs": 3000

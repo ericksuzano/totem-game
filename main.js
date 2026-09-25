@@ -52,7 +52,16 @@ function getConfigPath() {
 
 // Mesma ideia do app-config.json: o conteudo editavel (trabalhos e fotos) fica
 // fora do asar para poder ser trocado no totem ja instalado.
+// Executavel portatil (um .exe so, sem instalar): ele roda a partir de uma
+// pasta temporaria, entao uma pasta "content" colocada AO LADO do .exe tem
+// prioridade - assim da para trocar fotos/cadastro sem gerar o .exe de novo.
+// Sem essa pasta, usa o conteudo embutido no proprio .exe.
 function getContentDir() {
+  const portableDir = process.env.PORTABLE_EXECUTABLE_DIR;
+  if (portableDir) {
+    const besideExe = path.join(portableDir, 'content');
+    if (fs.existsSync(path.join(besideExe, 'trabalhos', 'trabalhos.json'))) return besideExe;
+  }
   if (app.isPackaged) {
     return path.join(process.resourcesPath, 'content');
   }

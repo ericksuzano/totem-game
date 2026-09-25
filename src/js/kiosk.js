@@ -1,6 +1,6 @@
 // Gesto oculto de manutencao (nao visivel ao publico).
 // Um numero configuravel de toques no logo FIPECq Previdencia (canto superior
-// esquerdo, presente em todas as telas), dentro de uma janela de tempo, abre
+// direito, presente em todas as telas), dentro de uma janela de tempo, abre
 // um teclado numerico.
 //
 // - Totens do Jogo e do Concurso: o PIN correto fecha o aplicativo (o operador

@@ -1,19 +1,20 @@
 /* ==========================================================================
    Jogo das Transformacoes.
-   O jogo fica num painel arredondado mais compacto e alinhado ao topo. Os
-   objetos antigos ficam na fileira de cima e os modernos na de baixo. Cada
-   cartao mostra [imagem] + [nome] juntos. Os fios coloridos (cores da
-   identidade) ligam os pares acertados pelo espaco entre as fileiras e
-   ficam visiveis ate o fim da rodada.
+   O jogo fica num painel arredondado, compacto e alinhado ao topo. Cada
+   rodada tem 3 objetos antigos (fileira de cima) e 3 modernos (fileira de
+   baixo); cada cartao mostra [imagem] + [nome] juntos. Os fios coloridos
+   (cores da identidade) ligam os pares acertados pelo espaco entre as
+   fileiras e ficam visiveis ate o fim da rodada. Contadores de acertos e
+   tentativas ficam a direita do titulo.
    Tamanhos em rem (ver escala em base.css).
    ========================================================================== */
 
 .game-board {
-  --card-media-h: 13rem;
-  --wire-gap: 10rem;
+  --card-media-h: 13.5rem;
+  --wire-gap: 9rem;
 
   width: 100%;
-  max-width: 168rem;
+  max-width: 140rem;
   background: var(--c-cream-light);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
@@ -33,7 +34,7 @@
   background: var(--stripe);
 }
 
-/* ---- Cabecalho do jogo: titulo, instrucao/feedback e progresso ---------- */
+/* ---- Cabecalho do jogo: rodada, titulo, instrucao/feedback e contadores -- */
 
 .game-head {
   display: flex;
@@ -57,8 +58,9 @@
   color: var(--c-navy);
 }
 
-/* Mostra a instrucao; por alguns segundos, a frase de apoio (acerto) ou o
-   aviso de erro. Altura fixa de 2 linhas para o painel nao "pular". */
+/* Mostra a instrucao; por alguns segundos, a frase de apoio (acerto), o
+   aviso de erro ou uma dica. Altura fixa de 2 linhas para o painel nao
+   "pular". */
 .game-message {
   margin: 0;
   min-height: calc(2 * 1.3em + 1.2rem);
@@ -86,38 +88,63 @@
   font-weight: 800;
 }
 
-.game-progress {
+.game-message.is-hint {
+  background: var(--c-mustard-soft);
+  color: var(--c-brown);
+  font-weight: 800;
+}
+
+/* Contadores: acertos e tentativas (numeros grandes + 3 bolinhas). */
+.game-stats {
   flex-shrink: 0;
-  min-width: 17rem;
-  padding: 1.4rem 2rem;
+  display: flex;
+  gap: 1.2rem;
+}
+
+.game-stat {
+  min-width: 15rem;
+  padding: 1.2rem 1.8rem;
   border-radius: var(--radius-md);
   background: var(--c-navy);
   color: #FFFFFF;
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 0.4rem;
   line-height: 1.1;
 }
 
-.game-progress__round {
+.game-stat__label {
   font-size: 1.9rem;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--c-mustard);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
-.game-progress__count {
-  font-size: 5.2rem;
+.game-stat__value {
+  font-size: 5rem;
   font-weight: 900;
 }
 
-.game-progress__label {
-  font-size: 2rem;
-  font-weight: 600;
+.game-stat__dots {
+  display: flex;
+  gap: 0.8rem;
 }
 
-/* ---- Campo: duas fileiras e os fios entre elas -------------------------- */
+.game-stat__dots span {
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  border: 0.3rem solid var(--c-cream-light);
+}
+
+.game-stat__dots span.is-used {
+  background: var(--c-mustard);
+  border-color: var(--c-mustard);
+}
+
+/* ---- Campo: duas fileiras de 3 cartas e os fios entre elas -------------- */
 
 .game-field {
   position: relative;
@@ -167,8 +194,8 @@
 
 .game-row__cards {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 2.4rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4rem;
 }
 
 /* ---- Cartao: imagem + nome ---------------------------------------------- */
@@ -195,14 +222,15 @@
   background: var(--c-cream);
 }
 
+/* Area da imagem com altura fixa; a imagem ocupa a area toda e usa
+   "contain" - aparece inteira, sem corte e sem distorcer. */
 .game-card__media {
+  display: block;
   width: 100%;
   height: var(--card-media-h);
   border-radius: 2rem;
-  display: grid;
-  place-items: center;
   overflow: hidden;
-  padding: 0.8rem;
+  padding: 1rem;
 }
 
 .game-card--old .game-card__media {
@@ -214,9 +242,15 @@
 }
 
 .game-card__media img {
-  max-width: 100%;
-  max-height: 100%;
+  display: block;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
+}
+
+.game-card__media.is-empty {
+  display: grid;
+  place-items: center;
 }
 
 .game-card__media.is-empty svg {
@@ -231,7 +265,7 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  font-size: 2.6rem;
+  font-size: 2.8rem;
   line-height: 1.15;
   font-weight: 800;
 }
@@ -297,7 +331,7 @@
   75% { transform: translateX(0.8rem); }
 }
 
-/* ---- Fios: 5 cores da identidade, uma por par acertado na rodada -------- */
+/* ---- Fios: 4 cores da identidade para os acertos + fio de erro ---------- */
 
 .game-wire-halo {
   fill: none;
@@ -326,32 +360,38 @@
 .game-wire--2 { stroke: var(--c-mustard); }
 .game-wire--3 { stroke: var(--c-navy); }
 .game-wire--4 { stroke: var(--c-olive); }
-.game-wire--5 { stroke: var(--c-blue); }
+
+/* Tentativa errada: fio vermelho temporario (removido junto com o aviso). */
+.game-wire--error { stroke: var(--c-error); }
 
 /* Cartoes do par acertado assumem a cor do seu fio. */
 .game-card.is-matched[data-color="1"] { border-color: var(--c-orange); }
 .game-card.is-matched[data-color="2"] { border-color: var(--c-mustard); }
 .game-card.is-matched[data-color="3"] { border-color: var(--c-navy); }
 .game-card.is-matched[data-color="4"] { border-color: var(--c-olive); }
-.game-card.is-matched[data-color="5"] { border-color: var(--c-blue); }
 
 .game-card.is-matched[data-color="1"] .game-card__node { border-color: var(--c-orange); background: var(--c-orange); }
 .game-card.is-matched[data-color="2"] .game-card__node { border-color: var(--c-mustard); background: var(--c-mustard); }
 .game-card.is-matched[data-color="3"] .game-card__node { border-color: var(--c-navy); background: var(--c-navy); }
 .game-card.is-matched[data-color="4"] .game-card__node { border-color: var(--c-olive); background: var(--c-olive); }
-.game-card.is-matched[data-color="5"] .game-card__node { border-color: var(--c-blue); background: var(--c-blue); }
+
+/* Regra do jogo na tela inicial. */
+.panel__text--rules {
+  color: var(--c-navy);
+  font-weight: 700;
+}
 
 /* Retrato: sobra altura, entao as imagens e o espaco dos fios crescem.
    (So variaveis de disposicao - fontes nao mudam.) */
 @media (orientation: portrait) {
   .game-board {
-    --card-media-h: 22rem;
+    --card-media-h: 24rem;
     --wire-gap: 16rem;
-    padding: var(--space-3) 2rem;
+    padding: var(--space-3) 2.4rem;
   }
 
   .game-row__cards {
-    gap: 1.4rem;
+    gap: 2.4rem;
   }
 
   .game-head {
@@ -359,13 +399,28 @@
     align-items: stretch;
   }
 
-  .game-progress {
-    flex-direction: row;
+  .game-stats {
     justify-content: center;
-    gap: 1.6rem;
+  }
+}
+
+/* O tabuleiro fica centralizado entre o cabecalho e a faixa de fios, com o
+   mesmo respiro em cima e embaixo (ver .screen em base.css). */
+.screen[data-screen="transformations-game"] {
+  align-items: center;
+}
+
+/* Paisagem (notebook / tela deitada): tabuleiro mais compacto, com cartas
+   menores, para caber entre o cabecalho e os fios. */
+@media (orientation: landscape) {
+  .game-board {
+    --card-media-h: 8rem;
+    --wire-gap: 5rem;
+    max-width: 118rem;
+    padding: 1.8rem 3rem 2rem;
   }
 
-  .game-progress__count {
-    font-size: 3.6rem;
+  .game-row__cards {
+    gap: 3.2rem;
   }
 }
