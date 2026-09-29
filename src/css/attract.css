@@ -1,33 +1,16 @@
-/* ==========================================================================
-   Tela de espera / atracao (comum aos 3 totens).
-   Arte-chave do evento ao fundo, logo APROXIMA no canto superior esquerdo
-   (FIPECq no direito, ver base.css) e a chamada "Participe!"/"Venha!" no
-   centro da tela. A faixa animada de fios fica nas telas internas (ver
-   .brand-wires em base.css).
-   Tamanhos em rem (ver escala em base.css).
-   ========================================================================== */
-
 .screen--attract {
-  /* Largura do logo APROXIMA do canto. A altura reservada em cima e embaixo
-     do texto central (.attract) e calculada a partir dela, para o texto
-     nunca encostar no logo. Proporcao do SVG: ~2,13 x 1. */
   --attract-logo-w: 40rem;
   --attract-logo-pad: 2rem;
   --attract-logo-bottom: calc(var(--space-4) + var(--attract-logo-w) / 2.13 + 2 * var(--attract-logo-pad));
 
   padding: 0;
   cursor: pointer;
-  /* Arte-chave oficial do evento (src/assets/images/background.jpg) com um
-     veu creme no centro, para o logo e as chamadas continuarem legiveis. */
   background:
     radial-gradient(ellipse 60% 60% at 50% 50%,
       rgba(255, 250, 243, 0.92) 0%, rgba(255, 250, 243, 0.55) 60%, rgba(255, 250, 243, 0) 100%),
     url("../assets/images/background.jpg") center / cover no-repeat;
 }
 
-/* Texto central: ocupa a tela inteira e centraliza verticalmente no meio
-   dela. A margem livre e igual em cima e embaixo (a altura do logo), entao
-   o texto fica no centro exato sem nunca encostar no logo. */
 .attract {
   position: absolute;
   inset: 0;
@@ -40,8 +23,6 @@
   text-align: center;
 }
 
-/* Logo oficial completo (APROXIMA de IMPACTO + assinatura) no canto superior
-   esquerdo, sobre uma placa clara (o fundo ali e a madeira escura da arte). */
 .attract__logo {
   position: absolute;
   top: var(--space-4);
@@ -71,6 +52,17 @@
   line-height: 1.1;
   font-weight: 800;
   color: var(--c-navy);
+}
+
+.attract__cta:empty {
+  display: none;
+}
+
+.attract__cta:empty + .attract__title {
+  max-width: 130rem;
+  font-size: 9rem;
+  line-height: 1.05;
+  font-weight: 900;
 }
 
 .attract__subtitle {
@@ -103,7 +95,6 @@
   50% { transform: scale(1.05); }
 }
 
-/* Retrato: mais espaco entre as chamadas. */
 @media (orientation: portrait) {
   .attract {
     gap: 3rem;

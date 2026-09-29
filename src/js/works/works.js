@@ -1,10 +1,3 @@
-// Trabalhos (obras) compartilhados pelo Totem do Concurso Cultural e pelo
-// Totem de Votacao. O cadastro NAO fica no codigo: vem de
-// content/trabalhos/trabalhos.json (lido pelo processo principal, que tambem
-// localiza a foto de cada trabalho - ver content/trabalhos/LEIA-ME.md).
-//
-// Todo texto vindo do cadastro entra via textContent (nunca innerHTML).
-
 (function () {
   let works = [];
 
@@ -28,8 +21,6 @@
     frame.appendChild(el('span', 'work-frame__empty-label', 'Foto do trabalho'));
   }
 
-  // Preenche uma moldura com a foto do trabalho (inteira, sem corte) ou com o
-  // marcador neutro, se a foto ainda nao foi colocada na pasta.
   function renderFrame(frame, work) {
     frame.innerHTML = '';
     frame.classList.remove('is-empty');
@@ -59,13 +50,10 @@
     body.appendChild(el('span', 'btn btn-primary work-card__action', actionLabel));
     card.appendChild(body);
 
-    // O cartao vai junto para quem quiser dar feedback visual nele (votacao).
     card.addEventListener('click', () => onSelect(work, card));
     return card;
   }
 
-  // A grade usa data-count (2, 3 ou 4) para escolher o numero de colunas -
-  // ver css/works.css. Nunca sobra "buraco" com 2 ou 3 trabalhos.
   function renderGrid(container, { actionLabel, onSelect }) {
     container.innerHTML = '';
     container.dataset.count = String(works.length);

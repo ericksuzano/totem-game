@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, ipcMain } = require('electron');
+const { app, BrowserWindow, Menu, dialog, ipcMain } = require('electron');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
@@ -7,25 +7,15 @@ const db = require('./database/db');
 
 const isDev = process.argv.includes('--dev');
 const forceKiosk = process.argv.includes('--kiosk');
-// O executavel instalado (build final) sempre roda em kiosk. Rodando a partir
-// do codigo-fonte (npm start / npm run dev), fica em janela para facilitar o
-// desenvolvimento, a menos que --kiosk seja passado explicitamente para testar.
 const useKiosk = forceKiosk || app.isPackaged;
 
-// Identifica esta execucao do totem nos votos registrados (nao identifica o
-// eleitor - ver database/schema.sql). Muda a cada abertura do aplicativo.
 const sessionId = crypto.randomUUID();
 
-// Cada totem fisico abre uma unica experiencia, sem menu de escolha.
 const TOTEM_MODES = ['transformations', 'contest', 'voting'];
 
-// Fases da votacao (ver README, secao "Zeresima e resultado"). A fase so muda
-// pelo menu de manutencao (PIN); "open" e o padrao para que o totem funcione
-// normalmente mesmo que ninguem configure nada.
 const VOTING_PHASES = ['pre', 'open', 'closed', 'results'];
 const DEFAULT_VOTING_PHASE = 'open';
 
-// A grade de trabalhos foi desenhada para 2, 3 ou 4 trabalhos.
 const MAX_WORKS = 4;
 const WORK_IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp'];
 
@@ -42,20 +32,12 @@ const DEFAULT_CONFIG = {
 };
 
 function getConfigPath() {
-  // Em producao, o app-config.json fica fora do asar (extraResources), editavel
-  // pelo operador do totem sem precisar reabrir o instalador.
   if (app.isPackaged) {
     return path.join(process.resourcesPath, 'app-config.json');
   }
   return path.join(__dirname, 'config', 'app-config.json');
 }
 
-// Mesma ideia do app-config.json: o conteudo editavel (trabalhos e fotos) fica
-// fora do asar para poder ser trocado no totem ja instalado.
-// Executavel portatil (um .exe so, sem instalar): ele roda a partir de uma
-// pasta temporaria, entao uma pasta "content" colocada AO LADO do .exe tem
-// prioridade - assim da para trocar fotos/cadastro sem gerar o .exe de novo.
-// Sem essa pasta, usa o conteudo embutido no proprio .exe.
 function getContentDir() {
   const portableDir = process.env.PORTABLE_EXECUTABLE_DIR;
   if (portableDir) {
@@ -68,8 +50,6 @@ function getContentDir() {
   return path.join(__dirname, 'content');
 }
 
-// --totem-mode=voting no atalho do Windows tem prioridade sobre o arquivo de
-// configuracao (permite, por exemplo, testar os 3 modos na mesma maquina).
 function getTotemModeFromArgs() {
   const arg = process.argv.find((a) => a.startsWith('--totem-mode='));
   return arg ? arg.slice('--totem-mode='.length).trim() : null;
@@ -103,9 +83,6 @@ function findWorkImage(worksDir, work) {
   return null;
 }
 
-// Le content/trabalhos/trabalhos.json e resolve a foto de cada trabalho.
-// Nunca lanca erro: problemas voltam em "warnings" para o renderer mostrar
-// uma tela de configuracao, em vez de o totem travar.
 function loadWorks() {
   const worksDir = path.join(getContentDir(), 'trabalhos');
   const warnings = [];
@@ -139,35 +116,74 @@ function loadWorks() {
 }
 
 function getVotingPhase() {
-  const phase = db.getSetting('voting_phase', DEFAULT_VOTING_PHASE);
-  return VOTING_PHASES.includes(phase) ? phase : DEFAULT_VOTING_PHASE;
+  return DEFAULT_VOTING_PHASE;
 }
 
-// Relatorio de votos (zeresima quando total = 0). Os trabalhos cadastrados
-// aparecem sempre (mesmo com 0 votos); votos de ids que nao estao mais no
-// cadastro tambem aparecem, para que nenhum voto fique oculto.
 function buildVotingReport() {
   const { works } = loadWorks();
-  const counts = db.countVotesByWork();
-  const countById = new Map(counts.map((c) => [c.work_id, c]));
+  const countById = new Map(db.countVotesByWork().map((c) => [c.work_id, c.votes]));
 
   const rows = works.map((w) => ({
     id: w.id,
     title: w.title,
     author: w.author,
-    votes: countById.has(w.id) ? countById.get(w.id).votes : 0
+    category: w.category,
+    votes: countById.get(w.id) || 0
   }));
-  counts
-    .filter((c) => !works.some((w) => w.id === c.work_id))
-    .forEach((c) => rows.push({ id: c.work_id, title: c.work_title, author: '', votes: c.votes, orphan: true }));
 
   return {
     phase: getVotingPhase(),
-    total: db.countVotes(),
+    total: rows.reduce((sum, r) => sum + r.votes, 0),
     rows,
     generatedAt: new Date().toISOString()
   };
 }
+
+const pad2 = (n) => String(n).padStart(2, '0');
+
+function formatExportDate(d) {
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+}
+
+function formatExportDateTime(d) {
+  return `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()} ` +
+    `${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
+}
+
+function buildVotesExportText(report, exportedAt) {
+  const strong = '='.repeat(40);
+  const light = '-'.repeat(40);
+  const lines = [
+    'APROXIMA 2026 - APURAÇÃO DA VOTAÇÃO',
+    'FIPECq Previdência',
+    '',
+    `Data da exportação: ${formatExportDateTime(exportedAt)}`,
+    '',
+    strong,
+    'RESUMO DA VOTAÇÃO',
+    strong,
+    '',
+    `TOTAL DE VOTOS: ${report.total}`,
+    '',
+    light,
+    'OBRAS',
+    light,
+    ''
+  ];
+
+  report.rows.forEach((row, i) => {
+    lines.push(`${i + 1}. ${row.title}`);
+    lines.push(`   Artista: ${row.author || '-'}`);
+    lines.push(`   Tipo: ${row.category || '-'}`);
+    lines.push(`   Votos: ${row.votes}`);
+    lines.push('');
+  });
+
+  lines.push(strong, 'FIM DA APURAÇÃO', strong, '');
+  return '﻿' + lines.join('\r\n');
+}
+
+let nativeDialogOpen = false;
 
 function isValidPin(pin) {
   const config = loadConfig();
@@ -181,8 +197,6 @@ ipcMain.handle('get-works', () => loadWorks());
 ipcMain.handle('get-voting-state', () => ({ phase: getVotingPhase() }));
 
 ipcMain.handle('register-vote', (event, { workId, workTitle }) => {
-  // Protecao no processo principal: fora da fase "open" nenhum voto e gravado,
-  // mesmo que alguma tela antiga ainda esteja aberta no renderer.
   if (getVotingPhase() !== 'open') {
     return { ok: false, reason: 'voting-not-open' };
   }
@@ -190,15 +204,11 @@ ipcMain.handle('register-vote', (event, { workId, workTitle }) => {
   return { ok: true };
 });
 
-// Relatorio publico so quando a fase atual e de exibicao (zeresima ou
-// resultado). Fora disso, apenas pelo menu de manutencao (com PIN).
 ipcMain.handle('get-public-voting-report', () => {
   const phase = getVotingPhase();
   if (phase !== 'pre' && phase !== 'results') return null;
   return buildVotingReport();
 });
-
-// ---- Manutencao (todas as acoes exigem o PIN do kiosk) --------------------
 
 ipcMain.handle('verify-maintenance-pin', (event, pin) => isValidPin(pin));
 
@@ -223,9 +233,48 @@ ipcMain.handle('maintenance-reset-votes', (event, pin) => {
   return { removed, backupFile: path.basename(backupPath) };
 });
 
-// Saida de manutencao do modo kiosk: so funciona com o PIN configurado em
-// config/app-config.json. Fecha o aplicativo inteiro (o operador volta ao
-// Windows para fazer o que for preciso e reabre o totem manualmente depois).
+ipcMain.handle('maintenance-export-votes', async (event, pin) => {
+  if (!isValidPin(pin)) return { ok: false, error: true };
+
+  const exportedAt = new Date();
+  let content;
+  try {
+    content = buildVotesExportText(buildVotingReport(), exportedAt);
+  } catch (err) {
+    console.error('Falha ao montar a apuracao para exportar.', err);
+    return { ok: false, error: true };
+  }
+
+  const win = BrowserWindow.fromWebContents(event.sender);
+  const defaultName = `votos-aproxima-2026-${formatExportDate(exportedAt)}.txt`;
+  let result;
+  nativeDialogOpen = true;
+  try {
+    result = await dialog.showSaveDialog(win, {
+      title: 'Exportar votos',
+      defaultPath: path.join(app.getPath('desktop'), defaultName),
+      buttonLabel: 'Salvar',
+      filters: [{ name: 'Arquivo de texto', extensions: ['txt'] }]
+    });
+  } catch (err) {
+    console.error('Falha ao abrir a janela de salvar arquivo.', err);
+    return { ok: false, error: true };
+  } finally {
+    nativeDialogOpen = false;
+    if (win && !win.isDestroyed()) win.focus();
+  }
+
+  if (result.canceled || !result.filePath) return { ok: false, canceled: true };
+
+  try {
+    fs.writeFileSync(result.filePath, content, 'utf-8');
+    return { ok: true, filePath: result.filePath };
+  } catch (err) {
+    console.error('Falha ao salvar a apuracao em', result.filePath, err);
+    return { ok: false, error: true };
+  }
+});
+
 ipcMain.handle('exit-kiosk', (event, pin) => {
   if (isValidPin(pin)) {
     app.quit();
@@ -257,14 +306,11 @@ function createMainWindow() {
 
   mainWindow.loadFile(path.join(__dirname, 'src', 'index.html'));
 
-  // Touchscreen: evita pinch-zoom e ctrl+scroll-zoom acidentais no totem.
   mainWindow.webContents.setVisualZoomLevelLimits(1, 1);
 
   if (useKiosk) {
-    // Reconquista o foco se outra janela/notificacao do Windows tentar
-    // aparecer por cima do totem durante o evento.
     mainWindow.on('blur', () => {
-      if (!mainWindow.isDestroyed()) mainWindow.focus();
+      if (!mainWindow.isDestroyed() && !nativeDialogOpen) mainWindow.focus();
     });
   }
 

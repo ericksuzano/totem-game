@@ -1,27 +1,12 @@
-// Logica do Totem de Votacao ("Vote no seu trabalho favorito"): trabalhos,
-// selecao, confirmacao e registro do voto. Trabalhos vem de
-// content/trabalhos/trabalhos.json (via js/works/works.js).
-//
-// Fases da votacao (guardadas no banco, alteradas so pelo menu de manutencao):
-//   "pre"     -> zeresima: o totem mostra a contagem zerada, sem aceitar votos
-//   "open"    -> votacao normal (padrao)
-//   "closed"  -> votacao encerrada, sem exibir resultado
-//   "results" -> o totem mostra o resultado
-// QUANDO cada fase acontece e decisao do cliente (ver README) - o codigo
-// apenas oferece os estados.
-
 (function () {
   const REGISTERED_AUTO_RETURN_MS = 6000;
-  // Tempo em que a obra tocada fica em destaque antes da confirmacao abrir.
   const CHOICE_FEEDBACK_MS = 450;
-  // Ao abrir a confirmacao, os botoes ignoram toques por um instante: um
-  // toque duplo na obra nao pode cair em "CONFIRMAR VOTO" sem querer.
   const CONFIRM_GUARD_MS = 800;
 
   const PHASE_LABELS = {
-    pre: 'Zerésima (votação ainda não aberta)',
-    open: 'Votação aberta',
-    closed: 'Votação encerrada',
+    pre: 'Zerésima (escolhas ainda não abertas)',
+    open: 'Escolhas abertas',
+    closed: 'Escolhas encerradas',
     results: 'Exibindo resultado'
   };
 
@@ -38,7 +23,6 @@
   let selectedWork = null;
   let autoReturnTimer = null;
   let submitting = false;
-  // true entre o toque numa obra e a abertura da confirmacao (ignora outros).
   let choosing = false;
   let confirmReadyAt = 0;
 
@@ -83,7 +67,6 @@
     try {
       const result = await window.totemAPI.registerVote(selectedWork.id, selectedWork.title);
       if (!result || !result.ok) {
-        // A fase mudou (ex.: votacao encerrada pela manutencao): nao grava.
         selectedWork = null;
         await window.Totem.goHome();
         return;
@@ -92,8 +75,7 @@
       submitting = false;
     }
 
-    doneWork.textContent = `Seu voto em “${selectedWork.title}” foi computado.`;
-    // Reinicia a barra do retorno automatico (animacao CSS com o mesmo tempo).
+    doneWork.textContent = `Você escolheu “${selectedWork.title}”.`;
     doneScreen.style.setProperty('--return-ms', `${REGISTERED_AUTO_RETURN_MS}ms`);
     doneScreen.classList.remove('is-counting');
     void doneScreen.offsetWidth;
@@ -106,9 +88,6 @@
       window.Totem.goHome();
     }, REGISTERED_AUTO_RETURN_MS);
   });
-
-  // ---- Relatorio (zeresima / resultado). Usado na tela publica e no menu
-  // de manutencao. Monta a tabela com textContent (dados do cadastro). ----
 
   function formatDateTime(iso) {
     const d = new Date(iso);
@@ -131,7 +110,7 @@
       info.className = 'report__info';
       const title = document.createElement('p');
       title.className = 'report__title';
-      title.textContent = row.orphan ? `${row.title} (fora do cadastro atual)` : row.title;
+      title.textContent = row.title;
       info.appendChild(title);
       if (row.author) {
         const author = document.createElement('p');
@@ -156,13 +135,13 @@
 
     const total = document.createElement('p');
     total.className = 'report__total';
-    total.textContent = `Total de votos: ${report.total}`;
+    total.textContent = `Total de escolhas: ${report.total}`;
     container.appendChild(total);
   }
 
   function reportTitle(report) {
-    if (report.phase === 'results') return 'Resultado da votação';
-    return report.total === 0 ? 'Zerésima da votação' : 'Relatório de votos';
+    if (report.phase === 'results') return 'Resultado';
+    return report.total === 0 ? 'Zerésima' : 'Relatório de escolhas';
   }
 
   async function showPublicReport() {
@@ -171,7 +150,7 @@
     document.getElementById('voting-report-title').textContent = reportTitle(report);
     document.getElementById('voting-report-meta').textContent =
       report.phase === 'pre' && report.total === 0
-        ? `Nenhum voto registrado. Emitida em ${formatDateTime(report.generatedAt)}.`
+        ? `Nenhuma escolha registrada. Emitida em ${formatDateTime(report.generatedAt)}.`
         : `Emitido em ${formatDateTime(report.generatedAt)}.`;
     renderReport(document.getElementById('voting-report-body'), report, {
       sortByVotes: report.phase === 'results'
@@ -196,8 +175,6 @@
       window.Totem.showScreen('voting-works');
     },
 
-    // Tela de "espera" conforme a fase: votacao aberta -> tela de atracao;
-    // demais fases -> zeresima, encerrada ou resultado.
     async getHomeScreen() {
       const { phase } = await window.totemAPI.getVotingState();
       if (phase === 'closed') return 'voting-closed';

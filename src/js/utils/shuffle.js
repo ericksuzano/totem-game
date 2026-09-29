@@ -1,6 +1,3 @@
-// Embaralhamento Fisher-Yates. Nao muta o array original.
-// Usa crypto.getRandomValues (fonte aleatoria do sistema) em vez de
-// Math.random, com rejeicao de amostras para nao favorecer nenhuma posicao.
 function randomInt(maxExclusive) {
   const buffer = new Uint32Array(1);
   const limit = Math.floor(0x100000000 / maxExclusive) * maxExclusive;

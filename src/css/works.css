@@ -1,10 +1,3 @@
-/* ==========================================================================
-   Trabalhos (obras) - compartilhado pelo Totem do Concurso Cultural e pelo
-   Totem de Votacao: grade adaptavel (2, 3 ou 4 trabalhos), cartao, moldura
-   da foto e tela de detalhe do concurso.
-   Tamanhos em rem (ver escala em base.css).
-   ========================================================================== */
-
 .works-layout {
   width: 100%;
   max-width: 170rem;
@@ -47,10 +40,6 @@
   color: var(--c-olive);
 }
 
-/* ---- Grade: o numero de trabalhos (data-count) define a largura dos
-   cartoes. Flex centralizado: com 3 trabalhos em 2 colunas (retrato), o
-   ultimo fica centralizado, sem "buraco". ---- */
-
 .works-grid {
   --card-w: 58rem;
 
@@ -62,7 +51,6 @@
   align-content: center;
   align-items: stretch;
   gap: 3.2rem;
-  /* Rede de seguranca para telas muito baixas; no uso normal nao rola. */
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 1rem;
@@ -74,8 +62,6 @@
 .works-grid[data-count="4"] { --card-w: 38rem; }
 
 @media (orientation: portrait) {
-  /* Retrato: 2 trabalhos lado a lado; 3 ou 4 em 2 colunas (2+1
-     centralizado ou 2+2). Assim sempre cabe acima da faixa de fios. */
   .works-grid[data-count="2"],
   .works-grid[data-count="3"],
   .works-grid[data-count="4"] {
@@ -105,8 +91,6 @@
   border-color: var(--c-orange);
 }
 
-/* Moldura da foto: a obra aparece INTEIRA (contain), nunca cortada, sobre
-   um "passe-partout" claro. */
 .work-frame {
   position: relative;
   width: 100%;
@@ -120,9 +104,6 @@
   padding: 1.2rem;
 }
 
-/* A imagem ocupa a area da moldura e usa "contain": aparece inteira em
-   qualquer proporcao (inclusive fotos verticais), sem corte e sem distorcer.
-   drop-shadow segue o contorno da foto, nao a area vazia ao redor. */
 .work-frame img {
   position: absolute;
   inset: 1.2rem;
@@ -198,8 +179,6 @@
   white-space: nowrap;
 }
 
-/* ---- Detalhe de um trabalho (Concurso Cultural) -------------------------- */
-
 .work-detail {
   width: 100%;
   max-width: 160rem;
@@ -260,11 +239,6 @@
   }
 }
 
-/* Paisagem (notebook / tela deitada): grade de colunas fixas pela
-   quantidade de trabalhos (2, 3 ou 4 lado a lado, nunca quebra de linha),
-   centralizada entre o cabecalho e a faixa de fios. A moldura da foto
-   ocupa a altura que sobra no cartao, entao tudo cabe sem rolagem em
-   qualquer proporcao (4:3, 16:9...). */
 @media (orientation: landscape) {
   .works-layout {
     max-width: 150rem;
@@ -304,7 +278,6 @@
     flex: 0 0 auto;
   }
 
-  /* 4 trabalhos: cartoes estreitos, textos um pouco menores. */
   .works-grid[data-count="4"] .work-card__title { font-size: 2.9rem; -webkit-line-clamp: 3; }
   .works-grid[data-count="4"] .work-card__author { font-size: 2.3rem; }
   .works-grid[data-count="4"] .work-card__action { font-size: 2.3rem; padding: 0 1rem; }

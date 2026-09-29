@@ -8,9 +8,9 @@ contextBridge.exposeInMainWorld('totemAPI', {
   registerVote: (workId, workTitle) => ipcRenderer.invoke('register-vote', { workId, workTitle }),
   exitKiosk: (pin) => ipcRenderer.invoke('exit-kiosk', pin),
 
-  // Menu de manutencao (totem de votacao). Todas exigem o PIN do kiosk.
   verifyMaintenancePin: (pin) => ipcRenderer.invoke('verify-maintenance-pin', pin),
   maintenanceGetReport: (pin) => ipcRenderer.invoke('maintenance-get-report', pin),
   maintenanceSetVotingPhase: (pin, phase) => ipcRenderer.invoke('maintenance-set-voting-phase', { pin, phase }),
-  maintenanceResetVotes: (pin) => ipcRenderer.invoke('maintenance-reset-votes', pin)
+  maintenanceResetVotes: (pin) => ipcRenderer.invoke('maintenance-reset-votes', pin),
+  maintenanceExportVotes: (pin) => ipcRenderer.invoke('maintenance-export-votes', pin)
 });

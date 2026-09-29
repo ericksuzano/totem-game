@@ -1,16 +1,3 @@
-// Gesto oculto de manutencao (nao visivel ao publico).
-// Um numero configuravel de toques no logo FIPECq Previdencia (canto superior
-// direito, presente em todas as telas), dentro de uma janela de tempo, abre
-// um teclado numerico.
-//
-// - Totens do Jogo e do Concurso: o PIN correto fecha o aplicativo (o operador
-//   volta ao Windows e reabre o totem manualmente depois) - comportamento
-//   original, sem mudancas.
-// - Totem de Votacao: o PIN correto abre o menu de manutencao da votacao
-//   (fase: zeresima/aberta/encerrada/resultado, relatorio, zerar votos com
-//   backup, sair do app). Toda acao e revalidada com o PIN no processo
-//   principal.
-
 (function () {
   const AUTO_CLOSE_MS = 8000;
   const MENU_AUTO_CLOSE_MS = 60000;
@@ -26,7 +13,6 @@
 
   const menu = document.getElementById('maintenance-menu');
   const menuStatus = document.getElementById('maintenance-status');
-  const menuPhases = document.getElementById('maintenance-phases');
   const menuReport = document.getElementById('maintenance-report');
   const menuMessage = document.getElementById('maintenance-message');
   const menuConfirm = document.getElementById('maintenance-confirm');
@@ -36,7 +22,6 @@
   let expectedPin = '0000';
   let autoCloseTimer = null;
   let useMaintenanceMenu = false;
-  // PIN validado na sessao atual do menu (limpo ao fechar).
   let sessionPin = null;
 
   function updateDisplay() {
@@ -66,7 +51,6 @@
     pinPanel.hidden = false;
     sessionPin = null;
     clearTimeout(autoCloseTimer);
-    // A fase da votacao pode ter mudado: reavalia a tela de espera.
     if (wasMenuOpen && window.Totem) window.Totem.goHome();
   }
 
@@ -105,27 +89,19 @@
 
     const ok = await window.totemAPI.exitKiosk(entered);
     if (!ok) showPinError();
-    // Se ok, o processo principal esta encerrando o aplicativo - nao ha mais
-    // nada a fazer aqui.
   }
 
-  // ---- Menu de manutencao da votacao ----------------------------------------
-
-  function setMenuMessage(text) {
+  function setMenuMessage(text, isError) {
     menuMessage.textContent = text || '';
+    menuMessage.classList.toggle('is-error', Boolean(isError));
   }
 
   async function refreshMenu() {
     const report = await window.totemAPI.maintenanceGetReport(sessionPin);
     if (!report) return closeModal();
     const voting = window.VotingApp;
-    menuStatus.textContent =
-      `Fase atual: ${voting.PHASE_LABELS[report.phase]} · ${voting.reportTitle(report)} ` +
-      `emitido em ${voting.formatDateTime(report.generatedAt)}`;
-    menuPhases.querySelectorAll('[data-phase]').forEach((btn) => {
-      btn.classList.toggle('is-current', btn.dataset.phase === report.phase);
-    });
-    voting.renderReport(menuReport, report, { sortByVotes: report.phase === 'results' });
+    menuStatus.textContent = `Contagem atualizada em ${voting.formatDateTime(report.generatedAt)}`;
+    voting.renderReport(menuReport, report, { sortByVotes: false });
   }
 
   function openMenu() {
@@ -137,19 +113,36 @@
     refreshMenu();
   }
 
-  menuPhases.querySelectorAll('[data-phase]').forEach((btn) => {
-    btn.addEventListener('click', async () => {
-      resetAutoClose();
-      const ok = await window.totemAPI.maintenanceSetVotingPhase(sessionPin, btn.dataset.phase);
-      setMenuMessage(ok ? `Fase alterada para: ${window.VotingApp.PHASE_LABELS[btn.dataset.phase]}.` : 'Não foi possível alterar a fase.');
-      refreshMenu();
-    });
-  });
-
   document.getElementById('maintenance-refresh').addEventListener('click', () => {
     resetAutoClose();
     setMenuMessage('');
     refreshMenu();
+  });
+
+  const exportBtn = document.getElementById('maintenance-export');
+  let exporting = false;
+
+  exportBtn.addEventListener('click', async () => {
+    if (exporting) return;
+    exporting = true;
+    exportBtn.disabled = true;
+    setMenuMessage('');
+    clearTimeout(autoCloseTimer);
+    try {
+      const result = await window.totemAPI.maintenanceExportVotes(sessionPin);
+      if (result && result.ok) {
+        setMenuMessage(`Votos exportados com sucesso. Arquivo salvo em: ${result.filePath}`);
+      } else if (!result || !result.canceled) {
+        setMenuMessage('Não foi possível exportar os votos. Tente novamente.', true);
+      }
+    } catch (err) {
+      console.error('Falha ao exportar os votos.', err);
+      setMenuMessage('Não foi possível exportar os votos. Tente novamente.', true);
+    } finally {
+      exporting = false;
+      exportBtn.disabled = false;
+      if (!menu.hidden) resetAutoClose();
+    }
   });
 
   document.getElementById('maintenance-reset').addEventListener('click', () => {
@@ -167,8 +160,8 @@
     menuConfirm.hidden = true;
     const result = await window.totemAPI.maintenanceResetVotes(sessionPin);
     setMenuMessage(result
-      ? `${result.removed} voto(s) removido(s). Backup salvo: ${result.backupFile}`
-      : 'Não foi possível zerar os votos.');
+      ? `${result.removed} escolha(s) removida(s). Backup salvo: ${result.backupFile}`
+      : 'Não foi possível zerar as escolhas.');
     refreshMenu();
   });
 
@@ -179,8 +172,6 @@
   document.getElementById('maintenance-close').addEventListener('click', closeModal);
 
   menu.addEventListener('pointerdown', resetAutoClose);
-
-  // ---- Teclado do PIN -------------------------------------------------------
 
   keypad.querySelectorAll('[data-digit]').forEach((btn) => {
     btn.addEventListener('click', () => pressDigit(btn.dataset.digit));

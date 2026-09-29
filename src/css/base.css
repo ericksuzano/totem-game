@@ -1,39 +1,17 @@
-/* ==========================================================================
-   Design system - Totens APROXIMA 2026 (FIPECq Previdencia)
-   Identidade: "APROXIMA de IMPACTO - Entre os fios da historia e a
-   inteligencia do amanha" (cores tiradas dos vetores do PDF oficial do
-   evento, levemente mais vivas a pedido do cliente).
-   Publico-alvo: 60+, touchscreen. Prioridades: contraste alto, fontes e
-   botoes grandes, poucas informacoes por tela.
-
-   ESCALA RESPONSIVA (uma unica regra, sem media queries de tamanho):
-   todo o layout usa "rem", e o rem vale 1/108 da menor dimensao da tela.
-     notebook 1366x768 -> 1rem = 7.1px
-     Full HD 1920x1080 -> 1rem = 10px
-     4K 3840x2160      -> 1rem = 20px
-     retrato 1080x1920 -> 1rem = 10px
-   Assim a proporcao do layout e sempre a mesma e nada "volta" a um tamanho
-   menor por causa de uma media query posterior. As unicas media queries do
-   projeto sao de ORIENTACAO (retrato x paisagem) e so trocam disposicao
-   (colunas), nunca tamanhos de fonte/logo.
-   ========================================================================== */
-
 :root {
-  /* ---- Cores da identidade APROXIMA (PDF oficial -> versao "viva") ---- */
-  --c-orange: #E4571C;        /* laranja IMPACTO (PDF #C25217), vivo */
-  --c-orange-strong: #C9460F; /* laranja p/ texto e botoes (contraste AA) */
+  --c-orange: #E4571C;
+  --c-orange-strong: #C9460F;
   --c-orange-dark: #9C360B;
-  --c-mustard: #F2A516;       /* mostarda (PDF #C4850D), vivo - so decoracao/fundo */
+  --c-mustard: #F2A516;
   --c-mustard-soft: #FCE7B8;
-  --c-olive: #5A7A2C;         /* verde oliva (PDF #4A573D), vivo */
+  --c-olive: #5A7A2C;
   --c-olive-soft: #E4EED3;
-  --c-navy: #144B74;          /* azul petroleo (PDF #1C4057), vivo */
+  --c-navy: #144B74;
   --c-navy-deep: #0E3A5C;
   --c-navy-soft: #DCE8F2;
-  --c-blue: #1264A0;          /* azul FIPECq (PANTONE 634 C) */
-  --c-brown: #3B2418;         /* marrom "APROXIMA" (PDF #332117) */
+  --c-blue: #1264A0;
+  --c-brown: #3B2418;
 
-  /* Fundo "papel" da identidade, mais claro e limpo que o original. */
   --c-cream: #F8EEDF;
   --c-cream-light: #FFFAF3;
   --c-sand: #EBD9BF;
@@ -46,14 +24,12 @@
   --c-error-bg: #FBE3DC;
   --c-focus: #1264A0;
 
-  /* Faixa de 4 cores da marca (usada no cabecalho e nos divisores). */
   --stripe: linear-gradient(90deg,
     var(--c-orange) 0 25%, var(--c-mustard) 25% 50%,
     var(--c-olive) 50% 75%, var(--c-navy) 75% 100%);
 
   --font-family-base: 'Segoe UI', system-ui, -apple-system, sans-serif;
 
-  /* Tamanhos em rem (ver "ESCALA RESPONSIVA" acima). Em Full HD: 1rem=10px. */
   --fs-body: 2.8rem;
   --fs-lg: 3.2rem;
   --fs-xl: 4.2rem;
@@ -62,13 +38,8 @@
   --fs-eyebrow: 2.4rem;
 
   --header-h: 8.4rem;
-  /* Faixa de fios animados na base das telas internas (.brand-wires): o
-     tracado (js/utils/brand-wires.js) fica sempre dentro desta altura, e as
-     telas a deixam livre. --wires-side e a largura das trilhas que sobem
-     pela borda direita (reservada nos dois lados, em paisagem). */
   --wires-h: 15rem;
   --wires-side: 14rem;
-  /* Respiro igual entre o conteudo e o cabecalho / a faixa de fios. */
   --edge-gap: 3.2rem;
 
   --space-1: 0.8rem;
@@ -92,17 +63,11 @@
   box-sizing: border-box;
 }
 
-/* Garante que o atributo "hidden" sempre vença, mesmo quando um elemento tem
-   uma regra propria de "display" (ex.: .kiosk-overlay usa display:flex, que
-   empataria em especificidade com o [hidden] padrao do navegador e venceria
-   por ser CSS de autor - escondendo o "hidden" e deixando o overlay sempre
-   visivel). Alternar visibilidade sempre via .hidden = true/false no JS. */
 [hidden] {
   display: none !important;
 }
 
 html {
-  /* A regra de escala: 1rem = 1/108 da menor dimensao da janela. */
   font-size: max(5px, calc(100vmin / 108));
 }
 
@@ -122,7 +87,6 @@ body {
   font-size: var(--fs-body);
   color: var(--c-ink);
   background-color: var(--c-cream);
-  /* Leve textura de papel, so com CSS (offline). */
   background-image:
     radial-gradient(ellipse at 12% 8%, rgba(255, 255, 255, 0.85), transparent 55%),
     radial-gradient(ellipse at 90% 95%, rgba(242, 165, 22, 0.14), transparent 50%),
@@ -138,12 +102,6 @@ button {
   font-family: inherit;
   -webkit-tap-highlight-color: transparent;
 }
-
-/* ---- Cabecalho institucional -------------------------------------------- */
-/* Barra fina nas telas internas: APROXIMA a esquerda, nome da experiencia no
-   centro e FIPECq a direita. Na tela de espera (data-chrome="minimal") vira
-   so o logo FIPECq solto no canto superior direito, integrado a arte. O logo
-   FIPECq e tambem a area do gesto de manutencao (#kiosk-exit-hitzone). */
 
 .totem-header {
   position: fixed;
@@ -162,7 +120,6 @@ button {
   transition: background-color 300ms ease, box-shadow 300ms ease;
 }
 
-/* Faixa de 4 cores na base da barra. */
 .totem-header::after {
   content: '';
   position: absolute;
@@ -177,7 +134,6 @@ button {
   height: 100%;
   display: flex;
   align-items: center;
-  /* Area de toque um pouco maior que o logo, para o gesto de manutencao. */
   padding: 0 0 0 var(--space-2);
   flex-shrink: 0;
 }
@@ -200,8 +156,6 @@ button {
   text-overflow: ellipsis;
 }
 
-/* Um pouco menor que o FIPECq: e so a assinatura do evento na barra (o logo
-   APROXIMA grande fica na tela de espera). */
 .totem-header__aproxima {
   display: block;
   height: 4.6rem;
@@ -209,8 +163,6 @@ button {
   flex-shrink: 0;
 }
 
-/* Tela de espera: sem barra. Logo FIPECq maior, solto no canto superior
-   direito, sobre o fundo. */
 #app[data-chrome="minimal"] .totem-header {
   background: transparent;
   box-shadow: none;
@@ -229,7 +181,6 @@ button {
 
 #app[data-chrome="minimal"] .totem-header__brand {
   pointer-events: auto;
-  /* Placa clara atras do logo: garante contraste sobre a arte de fundo. */
   height: auto;
   padding: 1.6rem 2.4rem;
   border-radius: var(--radius-md);
@@ -245,24 +196,12 @@ button {
   display: none;
 }
 
-/* ---- Telas (uma visivel por vez, com transicao suave) -------------------- */
-
 #screen-container {
   position: fixed;
   inset: 0;
   overflow: hidden;
-  /* Acima da faixa de fios (.brand-wires), que fica como fundo. */
   z-index: 1;
 }
-
-/* ---- Faixa animada de fios (telas internas dos 3 totens) ----------------- */
-/* Fios (historia) que nascem no canto inferior esquerdo, cruzam a base e
-   sobem pela borda direita como trilhas de circuito (inteligencia) ate o
-   canto superior direito, nas cores APROXIMA. O tracado e gerado em
-   js/utils/brand-wires.js (em pixels, 1 unidade do SVG = 1px). Ocupa a tela
-   toda, ATRAS das telas: aparece nos espacos livres e nunca cobre cartas,
-   botoes ou textos (paineis e cartoes sao opacos). Escondida na tela de
-   espera e no carregamento (data-chrome != "bar"). */
 
 .brand-wires {
   position: fixed;
@@ -286,8 +225,6 @@ button {
   stroke-linejoin: round;
 }
 
-/* Pulso de luz que percorre cada fio do canto inferior esquerdo ate a ponta
-   no canto superior direito. */
 .brand-wires .pulse {
   fill: none;
   stroke: #FFFFFF;
@@ -343,7 +280,6 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  /* Reserva a altura da barra fixa, para nada ficar por baixo dela. */
   padding: calc(var(--header-h) + var(--space-3)) var(--space-4) var(--space-4);
   opacity: 0;
   transform: translateY(2.4rem);
@@ -357,11 +293,6 @@ button {
   pointer-events: auto;
 }
 
-/* Telas internas (barra no topo + fios na base; as de espera e carregamento
-   tem data-chrome): o conteudo fica centralizado ENTRE o cabecalho e a faixa
-   de fios, com o mesmo respiro em cima e embaixo, e nunca por cima dos
-   fios. Em paisagem, as laterais tambem reservam as trilhas que sobem pela
-   direita (dos dois lados, para continuar centralizado). */
 .screen:not([data-chrome]) {
   padding:
     calc(var(--header-h) + var(--edge-gap))
@@ -376,12 +307,9 @@ button {
   }
 }
 
-/* Conteudo alinhado ao topo (ex.: jogo: "box mais para cima"). */
 .screen--top {
   align-items: flex-start;
 }
-
-/* ---- Painel central (placa arredondada) ---------------------------------- */
 
 .panel {
   width: 100%;
@@ -400,7 +328,6 @@ button {
   overflow: hidden;
 }
 
-/* Filete de 4 cores no topo do painel. */
 .panel::before {
   content: '';
   position: absolute;
@@ -462,7 +389,6 @@ button {
   justify-content: flex-start;
 }
 
-/* Selo de "concluido" nas telas finais. */
 .done-badge {
   width: 12rem;
   height: 12rem;
@@ -485,8 +411,6 @@ button {
   stroke-linejoin: round;
   padding: 1.6rem;
 }
-
-/* ---- Botoes grandes e arredondados, feedback claro ao toque -------------- */
 
 .btn {
   min-height: 9.6rem;
@@ -533,19 +457,12 @@ button {
   background: var(--c-navy-soft);
 }
 
-/* ---- Tela de carregamento -------------------------------------------------- */
-
 .loading-mark {
   color: var(--c-navy);
   font-size: var(--fs-lg);
   font-weight: 700;
   letter-spacing: 0.04em;
 }
-
-/* ---- Manutencao do kiosk (nao visivel ao publico) ------------------------- */
-/* O gesto (5 toques) acontece no proprio logo FIPECq do cabecalho
-   (#kiosk-exit-hitzone em index.html) - nao ha area extra ou indicacao
-   visual, para nao chamar atencao do publico. */
 
 .kiosk-overlay {
   position: fixed;
@@ -625,7 +542,6 @@ button {
   color: var(--c-error);
 }
 
-/* Menu de manutencao da votacao. */
 .maintenance {
   width: 110rem;
   text-align: left;
@@ -704,4 +620,14 @@ button {
   font-weight: 700;
   color: var(--c-success);
   text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.maintenance__message.is-error {
+  color: var(--c-error);
+}
+
+.maintenance button:disabled {
+  opacity: 0.5;
+  cursor: default;
 }

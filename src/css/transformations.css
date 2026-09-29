@@ -1,14 +1,3 @@
-/* ==========================================================================
-   Jogo das Transformacoes.
-   O jogo fica num painel arredondado, compacto e alinhado ao topo. Cada
-   rodada tem 3 objetos antigos (fileira de cima) e 3 modernos (fileira de
-   baixo); cada cartao mostra [imagem] + [nome] juntos. Os fios coloridos
-   (cores da identidade) ligam os pares acertados pelo espaco entre as
-   fileiras e ficam visiveis ate o fim da rodada. Contadores de acertos e
-   tentativas ficam a direita do titulo.
-   Tamanhos em rem (ver escala em base.css).
-   ========================================================================== */
-
 .game-board {
   --card-media-h: 13.5rem;
   --wire-gap: 9rem;
@@ -23,7 +12,6 @@
   overflow: hidden;
 }
 
-/* Filete de 4 cores no topo, igual aos demais paineis. */
 .game-board::before {
   content: '';
   position: absolute;
@@ -33,8 +21,6 @@
   height: 0.8rem;
   background: var(--stripe);
 }
-
-/* ---- Cabecalho do jogo: rodada, titulo, instrucao/feedback e contadores -- */
 
 .game-head {
   display: flex;
@@ -58,9 +44,6 @@
   color: var(--c-navy);
 }
 
-/* Mostra a instrucao; por alguns segundos, a frase de apoio (acerto), o
-   aviso de erro ou uma dica. Altura fixa de 2 linhas para o painel nao
-   "pular". */
 .game-message {
   margin: 0;
   min-height: calc(2 * 1.3em + 1.2rem);
@@ -94,7 +77,6 @@
   font-weight: 800;
 }
 
-/* Contadores: acertos e tentativas (numeros grandes + 3 bolinhas). */
 .game-stats {
   flex-shrink: 0;
   display: flex;
@@ -143,8 +125,6 @@
   background: var(--c-mustard);
   border-color: var(--c-mustard);
 }
-
-/* ---- Campo: duas fileiras de 3 cartas e os fios entre elas -------------- */
 
 .game-field {
   position: relative;
@@ -198,8 +178,6 @@
   gap: 4rem;
 }
 
-/* ---- Cartao: imagem + nome ---------------------------------------------- */
-
 .game-card {
   position: relative;
   display: flex;
@@ -213,8 +191,6 @@
   box-shadow: var(--shadow-card);
   cursor: pointer;
   color: var(--c-ink);
-  /* Sem transicao de transform: a posicao dos nos precisa estar exata no
-     momento em que o fio e desenhado. */
   transition: border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease;
 }
 
@@ -222,8 +198,6 @@
   background: var(--c-cream);
 }
 
-/* Area da imagem com altura fixa; a imagem ocupa a area toda e usa
-   "contain" - aparece inteira, sem corte e sem distorcer. */
 .game-card__media {
   display: block;
   width: 100%;
@@ -270,7 +244,6 @@
   font-weight: 800;
 }
 
-/* No de conexao do fio (como os circuitos da identidade). */
 .game-card__node {
   position: absolute;
   left: 50%;
@@ -292,7 +265,6 @@
   top: -2rem;
 }
 
-/* Objeto antigo selecionado: aguardando o toque no moderno. */
 .game-card.is-selected {
   border-color: var(--c-orange-strong);
   box-shadow: 0 0 0 0.8rem rgba(228, 87, 28, 0.25), var(--shadow-card);
@@ -309,7 +281,6 @@
   50% { box-shadow: 0 0 0 1.2rem rgba(228, 87, 28, 0); }
 }
 
-/* Com um antigo selecionado, os modernos ainda livres ganham destaque. */
 .game-board.has-selection .game-card--new:not(.is-matched) {
   border-color: var(--c-navy);
 }
@@ -330,8 +301,6 @@
   25% { transform: translateX(-0.8rem); }
   75% { transform: translateX(0.8rem); }
 }
-
-/* ---- Fios: 4 cores da identidade para os acertos + fio de erro ---------- */
 
 .game-wire-halo {
   fill: none;
@@ -361,10 +330,8 @@
 .game-wire--3 { stroke: var(--c-navy); }
 .game-wire--4 { stroke: var(--c-olive); }
 
-/* Tentativa errada: fio vermelho temporario (removido junto com o aviso). */
 .game-wire--error { stroke: var(--c-error); }
 
-/* Cartoes do par acertado assumem a cor do seu fio. */
 .game-card.is-matched[data-color="1"] { border-color: var(--c-orange); }
 .game-card.is-matched[data-color="2"] { border-color: var(--c-mustard); }
 .game-card.is-matched[data-color="3"] { border-color: var(--c-navy); }
@@ -375,14 +342,11 @@
 .game-card.is-matched[data-color="3"] .game-card__node { border-color: var(--c-navy); background: var(--c-navy); }
 .game-card.is-matched[data-color="4"] .game-card__node { border-color: var(--c-olive); background: var(--c-olive); }
 
-/* Regra do jogo na tela inicial. */
 .panel__text--rules {
   color: var(--c-navy);
   font-weight: 700;
 }
 
-/* Retrato: sobra altura, entao as imagens e o espaco dos fios crescem.
-   (So variaveis de disposicao - fontes nao mudam.) */
 @media (orientation: portrait) {
   .game-board {
     --card-media-h: 24rem;
@@ -404,14 +368,10 @@
   }
 }
 
-/* O tabuleiro fica centralizado entre o cabecalho e a faixa de fios, com o
-   mesmo respiro em cima e embaixo (ver .screen em base.css). */
 .screen[data-screen="transformations-game"] {
   align-items: center;
 }
 
-/* Paisagem (notebook / tela deitada): tabuleiro mais compacto, com cartas
-   menores, para caber entre o cabecalho e os fios. */
 @media (orientation: landscape) {
   .game-board {
     --card-media-h: 8rem;

@@ -73,26 +73,23 @@ instalador. Instrucoes completas em `content/trabalhos/LEIA-ME.md`.
   `works` de `trabalhos.json`, com `id` `trabalho-3` / `trabalho-4`. A grade
   se ajusta sozinha a 2, 3 ou 4 trabalhos (maximo 4).
 
-## Zeresima e resultado da votacao
+## Menu de manutencao da votacao
 
-O sistema suporta 4 fases, guardadas no banco local e trocadas pelo **menu de
-manutencao** (so no totem de votacao):
+O totem de votacao fica **sempre com a votacao aberta**. O menu de
+manutencao (5 toques no logo FIPECq + PIN) mostra, **so para o operador**:
 
-| Fase | O que o publico ve | Aceita votos? |
-|---|---|---|
-| Zeresima (`pre`) | Relatorio com a contagem real do banco (tudo 0) e data/hora | Nao |
-| Votacao aberta (`open`, padrao) | Fluxo normal de votacao | Sim |
-| Encerrada (`closed`) | "Votacao encerrada" | Nao |
-| Resultado (`results`) | Votos por trabalho, em ordem, com percentuais | Nao |
+- a **contagem de votos por obra** (na ordem do cadastro) e o total;
+- **EXPORTAR VOTOS**: gera um `.txt` com a apuracao atual e abre a janela
+  "Salvar como" do Windows (Area de Trabalho, pendrive...). Somente leitura;
+- **Zerar votos** (com confirmacao; antes de apagar, salva uma copia do banco
+  como `votes-backup-AAAAMMDD-HHMMSS.sqlite` na mesma pasta).
 
-O menu tambem mostra o relatorio atual **so para o operador** e tem
-**Zerar votos** (com confirmacao; antes de apagar, salva uma copia do banco
-como `votes-backup-AAAAMMDD-HHMMSS.sqlite` na mesma pasta). Toda troca de
-fase, emissao de relatorio e zeramento fica registrada na tabela
-`voting_log`. O processo principal recusa votos fora da fase "aberta".
+A contagem considera so as obras do `trabalhos.json` atual. Zeramentos e
+emissoes de relatorio ficam registrados na tabela `voting_log`.
 
-**QUANDO** mostrar a zeresima e o resultado (e se o resultado sera publico)
-e decisao do cliente - ver "Pendencias".
+As fases antigas (zeresima publica, encerrada, resultado) sairam do menu a
+pedido do cliente, mas continuam no codigo (`getVotingPhase` em `main.js`)
+caso voltem a ser usadas.
 
 ## Manutencao / saida do kiosk
 
@@ -101,8 +98,8 @@ superior direito, presente em todas as telas) abre o teclado do PIN
 (`kiosk.exitPin`). Nao ha nenhuma indicacao visual disso para o publico.
 
 - Totens do Jogo e do Concurso: o PIN correto fecha o aplicativo (como antes).
-- Totem de Votacao: o PIN correto abre o menu de manutencao (fases,
-  relatorio, zerar votos, **Sair do app**, Fechar).
+- Totem de Votacao: o PIN correto abre o menu de manutencao (contagem de
+  votos, exportar votos, zerar votos, **Sair do app**, Fechar).
 
 "Cancelar" ou alguns segundos sem digitar fecham o teclado sem sair do kiosk.
 Numero de toques, janela de tempo e PIN sao configuraveis em
@@ -122,8 +119,8 @@ Numero de toques, janela de tempo e PIN sao configuraveis em
 
 ## Pendencias conhecidas
 
-- Decisoes do cliente listadas em "Zeresima e resultado" e no final da
-  entrega (conteudo do Concurso Cultural, quando exibir zeresima/resultado).
+- Decisoes do cliente listadas no final da entrega (conteudo do Concurso
+  Cultural).
 - Fotos dos trabalhos (previstas para o dia 29) e imagens dos objetos do jogo
   (`src/assets/images/antigos` e `modernos`, nomes em
   `src/js/data/transformations-data.js`).

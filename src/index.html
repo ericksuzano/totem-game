@@ -11,28 +11,16 @@
 </head>
 <body>
 
-<!-- Cada totem fisico abre uma unica experiencia (config "totemMode"), sem
-     menu de escolha. #app recebe data-totem-mode e data-chrome (estilo do
-     cabecalho da tela atual) via js/app.js. -->
 <div id="app" data-chrome="none">
 
-  <!-- Cabecalho institucional. Na tela de espera (data-chrome="minimal") vira
-       so o logo FIPECq solto no canto; nas telas internas, uma barra fina. -->
   <header class="totem-header">
     <img class="totem-header__aproxima" src="assets/logos/logo-aproxima.svg" alt="APROXIMA de Impacto">
     <p class="totem-header__title" id="totem-header-title"></p>
-    <!-- Area do gesto oculto de manutencao (5 toques no logo FIPECq). Esta
-         presente em todas as telas, sempre no canto superior direito. -->
     <div class="totem-header__brand" id="kiosk-exit-hitzone">
       <img class="totem-header__fipecq" src="assets/logos/logo-fipecq.svg" alt="FIPECq Previdência">
     </div>
   </header>
 
-  <!-- Faixa decorativa animada: fios (historia) que nascem no canto inferior
-       esquerdo, cruzam a base e sobem pela borda direita como circuitos
-       (inteligencia), nas cores APROXIMA. Tracado gerado por
-       js/utils/brand-wires.js. Fica ATRAS das telas internas (nunca cobre
-       conteudo); escondida na tela de espera. -->
   <svg class="brand-wires" preserveAspectRatio="none" aria-hidden="true"></svg>
 
   <main id="screen-container">
@@ -41,7 +29,6 @@
       <p class="loading-mark">Carregando...</p>
     </section>
 
-    <!-- Exibida so se totemMode estiver ausente/invalido (erro de instalacao). -->
     <section class="screen" data-screen="config-error" data-idle="none">
       <div class="panel">
         <p class="eyebrow">Configuração do totem</p>
@@ -51,10 +38,6 @@
       </div>
     </section>
 
-    <!-- ================================================================
-         TELA DE ESPERA / ATRACAO (comum aos 3 totens; textos por modo em
-         js/experiences.js). Qualquer toque inicia a experiencia do totem.
-         ================================================================ -->
     <section class="screen screen--attract" data-screen="attract" data-chrome="minimal" data-idle="none">
       <div class="attract">
         <img class="attract__logo" src="assets/logos/logo-aproxima-completa.svg"
@@ -66,11 +49,6 @@
       </div>
     </section>
 
-    <!-- ================================================================
-         TOTEM 1 - JOGO DAS TRANSFORMACOES (totemMode "transformations")
-         ================================================================ -->
-
-    <!-- Tela inicial da experiencia (aberta ao tocar na tela de espera). -->
     <section class="screen" data-screen="transformations-start">
       <div class="panel panel--hero">
         <p class="eyebrow">Jogo das Transformações</p>
@@ -88,12 +66,10 @@
       </div>
     </section>
 
-    <!-- Jogo de associacao (montado por js/games/transformations.js). -->
     <section class="screen screen--top" data-screen="transformations-game">
       <div class="game-board" id="transformations-game-layout"></div>
     </section>
 
-    <!-- Conclusao: sem "jogar novamente" (pedido do cliente). -->
     <section class="screen" data-screen="transformations-complete" data-idle="finished">
       <div class="panel panel--hero">
         <div class="done-badge" aria-hidden="true">
@@ -112,8 +88,6 @@
       </div>
     </section>
 
-    <!-- 3 tentativas sem 2 acertos. Volta sozinha para a tela de espera
-         (js/games/transformations.js). -->
     <section class="screen" data-screen="transformations-retry" data-idle="finished">
       <div class="panel panel--hero">
         <p class="eyebrow">Jogo das Transformações</p>
@@ -122,10 +96,6 @@
       </div>
     </section>
 
-    <!-- ================================================================
-         TOTEM 2 - CONCURSO CULTURAL (totemMode "contest")
-         Trabalhos lidos de content/trabalhos/trabalhos.json.
-         ================================================================ -->
     <section class="screen" data-screen="contest-gallery">
       <div class="works-layout">
         <div class="works-header">
@@ -153,17 +123,11 @@
       </div>
     </section>
 
-    <!-- ================================================================
-         TOTEM 3 - VOTACAO (totemMode "voting")
-         ================================================================ -->
-    <!-- Escolha da obra: cada cartao e uma "peca de exposicao" (moldura com a
-         foto inteira + etiqueta com categoria, titulo e autor). O cartao todo
-         e clicavel. Visual em css/voting.css (escopo .works-grid--voting). -->
     <section class="screen" data-screen="voting-works">
       <div class="works-layout voting-layout">
         <div class="works-header voting-header">
           <p class="eyebrow">Sua voz faz história</p>
-          <h1 class="works-header__title">Vote no seu trabalho favorito</h1>
+          <h1 class="works-header__title">Entre tantas expressões de talento e criatividade, escolha a arte que mais encantou você.</h1>
           <p class="voting-header__hint">
             <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M19 22V10a3.5 3.5 0 0 1 7 0v10l8.6 1.9a5 5 0 0 1 3.9 5.6L37 38a6 6 0 0 1-6 5H23.5a6 6 0 0 1-4.9-2.6L11 29.6a3.4 3.4 0 0 1 5.2-4.3L19 28"/></svg>
             Toque na obra escolhida
@@ -173,9 +137,6 @@
       </div>
     </section>
 
-    <!-- Confirmacao: a obra escolhida em destaque + botao grande de confirmar.
-         Os botoes so respondem depois de um instante (voting.js), para um
-         toque duplo na obra nao virar voto sem querer. -->
     <section class="screen" data-screen="voting-confirm">
       <div class="voting-confirm">
         <div class="voting-confirm__media">
@@ -187,11 +148,11 @@
           <h1 class="voting-confirm__title" id="voting-confirm-title"></h1>
           <p class="voting-confirm__author" id="voting-confirm-author"></p>
           <div class="rule"></div>
-          <p class="voting-confirm__question">Deseja confirmar seu voto nesta obra?</p>
+          <p class="voting-confirm__question">Deseja confirmar sua escolha?</p>
           <div class="voting-confirm__actions">
             <button class="btn btn-primary voting-confirm__confirm" id="btn-voting-confirm">
               <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M12 25l8 8 16-17"/></svg>
-              CONFIRMAR VOTO
+              CONFIRMAR ESCOLHA
             </button>
             <button class="btn btn-secondary voting-confirm__back" id="btn-voting-back">
               <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M28 12L16 24l12 12"/></svg>
@@ -207,20 +168,17 @@
         <div class="voting-done__badge" aria-hidden="true">
           <svg viewBox="0 0 48 48"><path d="M13 25l7 7 15-16"/></svg>
         </div>
-        <h1 class="voting-done__title">Voto registrado!</h1>
+        <h1 class="voting-done__title">Escolha registrada!</h1>
         <p class="voting-done__work" id="voting-done-work"></p>
         <div class="rule"></div>
         <p class="panel__text">Obrigado por participar do APROXIMA 2026.</p>
-        <!-- Barra do retorno automatico (mesmo tempo de voting.js). -->
         <div class="voting-done__return" aria-hidden="true"><span></span></div>
       </div>
     </section>
 
-    <!-- Zeresima (fase "pre") ou resultado (fase "results"). So aparece para o
-         publico se a fase for escolhida no menu de manutencao. -->
     <section class="screen" data-screen="voting-report" data-idle="none">
       <div class="panel panel--report">
-        <p class="eyebrow" id="voting-report-eyebrow">Votação</p>
+        <p class="eyebrow" id="voting-report-eyebrow">Concurso Cultural</p>
         <h1 class="panel__title" id="voting-report-title"></h1>
         <p class="report__meta" id="voting-report-meta"></p>
         <div class="report" id="voting-report-body"></div>
@@ -229,8 +187,8 @@
 
     <section class="screen" data-screen="voting-closed" data-idle="none">
       <div class="panel panel--hero">
-        <p class="eyebrow">Vote no seu trabalho favorito</p>
-        <h1 class="panel__title">Votação encerrada</h1>
+        <p class="eyebrow">Concurso Cultural</p>
+        <h1 class="panel__title">Escolhas encerradas</h1>
         <div class="rule"></div>
         <p class="panel__text">Obrigado por participar do APROXIMA 2026.</p>
       </div>
@@ -238,8 +196,6 @@
 
   </main>
 
-  <!-- Manutencao: 5 toques no logo FIPECq (#kiosk-exit-hitzone) abrem o PIN.
-       Nao ha nenhuma indicacao visual disso para o publico. -->
   <div id="kiosk-exit-overlay" class="kiosk-overlay" hidden>
     <div class="kiosk-overlay__panel" id="kiosk-pin-panel">
       <p class="kiosk-overlay__title">Acesso de manutenção</p>
@@ -261,27 +217,21 @@
       </div>
     </div>
 
-    <!-- Menu de manutencao do totem de votacao (so abre com PIN correto e
-         totemMode "voting"; nos outros totens o PIN fecha o app direto). -->
     <div class="kiosk-overlay__panel maintenance" id="maintenance-menu" hidden>
-      <p class="kiosk-overlay__title">Manutenção - Votação</p>
+      <p class="kiosk-overlay__title">Manutenção</p>
       <p class="maintenance__status" id="maintenance-status"></p>
 
-      <p class="maintenance__label">Fase da votação (o que o público vê)</p>
-      <div class="maintenance__phases" id="maintenance-phases">
-        <button type="button" data-phase="pre">Zerésima</button>
-        <button type="button" data-phase="open">Votação aberta</button>
-        <button type="button" data-phase="closed">Encerrada</button>
-        <button type="button" data-phase="results">Resultado</button>
-      </div>
-
-      <p class="maintenance__label">Relatório atual (visível só aqui)</p>
+      <p class="maintenance__label">Votos por obra (visível só aqui)</p>
       <div class="maintenance__report report report--compact" id="maintenance-report"></div>
 
+      <div class="maintenance__row">
+        <button type="button" id="maintenance-export">EXPORTAR VOTOS</button>
+      </div>
+
       <div class="maintenance__confirm" id="maintenance-confirm" hidden>
-        <p>Apagar todos os votos? Um backup do banco será salvo antes.</p>
+        <p>Apagar todas as escolhas? Um backup do banco será salvo antes.</p>
         <div class="maintenance__row">
-          <button type="button" class="is-danger" id="maintenance-confirm-yes">Sim, zerar votos</button>
+          <button type="button" class="is-danger" id="maintenance-confirm-yes">Sim, zerar escolhas</button>
           <button type="button" id="maintenance-confirm-no">Cancelar</button>
         </div>
       </div>
@@ -290,7 +240,7 @@
 
       <div class="maintenance__row">
         <button type="button" id="maintenance-refresh">Atualizar</button>
-        <button type="button" class="is-danger" id="maintenance-reset">Zerar votos</button>
+        <button type="button" class="is-danger" id="maintenance-reset">Zerar escolhas</button>
         <button type="button" id="maintenance-exit">Sair do app</button>
         <button type="button" id="maintenance-close">Fechar</button>
       </div>

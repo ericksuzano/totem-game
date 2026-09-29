@@ -1,9 +1,3 @@
-// Os 10 pares oficiais do Jogo das Transformacoes.
-
-// Fonte: "FIPECq Previdencia - Totens - Briefing de Producao" (08/09/2026).
-
-// Nao alterar sem confirmacao da producao.
-
 const TRANSFORMATIONS_DATA = [
 
   {

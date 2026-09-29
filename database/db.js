@@ -1,14 +1,3 @@
-// Modulo de acesso ao banco de dados local (SQLite via sql.js - WASM, sem
-// compilacao nativa). Roda apenas no processo principal (main). O renderer nunca
-// acessa isto diretamente, apenas atraves das funcoes expostas via preload.js + IPC.
-//
-// sql.js mantem o banco em memoria; por isso persistimos em disco (fs.writeFileSync)
-// apos cada escrita. Escolhido no lugar de better-sqlite3 por nao exigir Visual Studio
-// Build Tools / node-gyp para compilar, o que tornaria o build fragil em outras maquinas.
-//
-// Desenhado como um "repositorio": no futuro, trocar estas funcoes por chamadas a uma
-// API externa nao deve exigir mudancas em quem as consome (main.js / preload.js).
-
 const fs = require('fs');
 const path = require('path');
 const initSqlJs = require('sql.js');
@@ -73,7 +62,6 @@ function listVotes() {
   );
 }
 
-// Contagem de votos por trabalho (usada na zeresima e no resultado).
 function countVotesByWork() {
   return queryAll(
     'SELECT work_id, MAX(work_title) AS work_title, COUNT(*) AS votes FROM votes GROUP BY work_id'
@@ -107,10 +95,6 @@ function logEvent(event, details) {
   persist();
 }
 
-// Zera os votos. Antes de apagar, salva uma copia completa do banco ao lado do
-// arquivo principal (votes-backup-AAAAMMDD-HHMMSS.sqlite), para que nenhum voto
-// seja perdido de forma irreversivel por um toque errado. Retorna quantos votos
-// foram removidos e onde ficou o backup.
 function resetVotes() {
   const removed = countVotes();
   const stamp = new Date().toISOString().replace(/[-:]/g, '').replace('T', '-').slice(0, 15);

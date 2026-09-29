@@ -1,28 +1,6 @@
-// Logica do Jogo das Transformacoes.
-//
-// Regras:
-// - 2 rodadas, usando pares de TRANSFORMATIONS_DATA (data/transformations-data.js).
-// - Cada rodada mostra 3 objetos antigos e 3 modernos:
-//     2 pares corretos (A e B, presentes nos dois lados)
-//     1 distrator: um antigo sem par (C) e um moderno sem par (D),
-//     de pares diferentes - qualquer ligacao com eles e incorreta.
-// - Cada ligacao (antigo -> moderno) consome 1 tentativa; maximo 3 por rodada.
-// - 2 acertos encerram a rodada com sucesso na hora (passa a proxima rodada
-//   ou, na ultima, abre a tela de conclusao).
-// - 3 tentativas com menos de 2 acertos: tela "Tente daqui a pouco." e volta
-//   a tela de espera do totem.
-// - As 2 rodadas usam 8 pares diferentes, sorteados a cada partida
-//   (crypto.getRandomValues - ver utils/shuffle.js). Um historico recente em
-//   localStorage impede que a proxima pessoa receba a mesma configuracao.
-//
-// Layout: antigos na fileira de cima, modernos na de baixo; cada cartao mostra
-// [imagem] + [nome] juntos. Os fios dos pares acertados passam pelo espaco
-// entre as fileiras e ficam visiveis ate o fim da rodada.
-
 (function () {
   const TOTAL_ROUNDS = 2;
   const CORRECT_PAIRS_PER_ROUND = 2;
-  // Pares consumidos por rodada: 2 corretos + 1 antigo sem par + 1 moderno sem par.
   const PAIRS_USED_PER_ROUND = CORRECT_PAIRS_PER_ROUND + 2;
   const ATTEMPTS_PER_ROUND = 3;
   const HITS_TO_ADVANCE = 2;
@@ -36,8 +14,6 @@
   const HINT_FEEDBACK_MS = 2200;
   const ROUND_ADVANCE_DELAY_MS = 1600;
   const RETRY_RETURN_MS = 5000;
-  // Cores de fio definidas em css/transformations.css (.game-wire--1 ... --4),
-  // as 4 cores da identidade APROXIMA.
   const WIRE_COLORS = 4;
 
   const INSTRUCTION_TEXT =
@@ -54,19 +30,12 @@
     roundIndex: 0,
     hits: 0,
     attempts: 0,
-    // Combinacoes erradas ja tentadas nesta rodada ("antigo-moderno"): repetir
-    // a mesma nao consome outra tentativa.
     triedKeys: new Set(),
-    // Fios desta rodada, na ordem dos acertos: { pairId, color }
     wires: [],
     selectedOldId: null,
-    // true enquanto uma tentativa esta sendo processada ou a rodada acabou:
-    // bloqueia toques repetidos/rapidos.
     locked: false
   };
 
-  // Todos os temporizadores do jogo, para cancelar de uma vez ao reiniciar
-  // (nenhum callback de uma partida antiga age sobre a nova).
   const timers = new Set();
   let messageTimer = null;
 
@@ -84,14 +53,10 @@
     clearTimeout(messageTimer);
   }
 
-  // ---- Geracao da partida + historico anti-repeticao ----------------------
-
   function buildRound([pairA, pairB, oldOnly, newOnly]) {
     return {
       oldCards: shuffleArray([pairA, pairB, oldOnly]),
       newCards: shuffleArray([pairA, pairB, newOnly]),
-      // Assinatura do conteudo da rodada (independe da ordem das cartas):
-      // quais sao os 2 pares corretos e qual e o distrator de cada lado.
       signature:
         `c${[pairA.id, pairB.id].sort((a, b) => a - b).join('+')}` +
         `-o${oldOnly.id}-n${newOnly.id}`
@@ -107,9 +72,6 @@
     return rounds;
   }
 
-  // Historico: lista das ultimas partidas, cada uma com as assinaturas das
-  // suas rodadas. localStorage pode falhar (armazenamento bloqueado) - nesse
-  // caso o jogo segue so com a aleatoriedade.
   function readHistory() {
     try {
       const value = JSON.parse(localStorage.getItem(HISTORY_STORAGE_KEY));
@@ -125,13 +87,9 @@
       history.unshift(rounds.map((r) => r.signature));
       localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history.slice(0, HISTORY_SIZE)));
     } catch (err) {
-      // Sem armazenamento: nada a fazer.
     }
   }
 
-  // Sorteia partidas ate encontrar uma em que NENHUMA rodada tenha aparecido
-  // nas ultimas partidas (ha milhares de rodadas possiveis, entao isso
-  // acontece quase sempre na primeira tentativa).
   function createGame() {
     const recent = new Set(readHistory().flat());
     let rounds = buildGame();
@@ -141,8 +99,6 @@
     saveToHistory(rounds);
     return rounds;
   }
-
-  // ---- Partida / rodada ----------------------------------------------------
 
   function resetGame() {
     cancelTimers();
@@ -227,14 +183,12 @@
     card.dataset.pairId = pair.id;
     card.dataset.side = side;
 
-    // Imagem e nome no mesmo cartao, um logo abaixo do outro.
     const media = document.createElement('span');
     media.className = 'game-card__media';
     const img = document.createElement('img');
     img.src = imageSrc;
     img.alt = '';
     img.addEventListener('error', () => {
-      // Imagem ausente: mostra um marcador neutro no lugar.
       media.classList.add('is-empty');
       media.innerHTML = TOTEM_ICONS.image;
     });
@@ -244,13 +198,10 @@
     name.className = 'game-card__name';
     name.textContent = label;
 
-    // "No" onde o fio se conecta (embaixo nos antigos, em cima nos modernos).
     const node = document.createElement('span');
     node.className = 'game-card__node';
 
     card.append(media, name, node);
-    // So "click": no touch o navegador gera um unico click por toque (sem
-    // pointerdown paralelo que pudesse duplicar a tentativa).
     card.addEventListener('click', () => handleCardClick(pair.id, side, card));
     return card;
   }
@@ -263,8 +214,6 @@
     });
   }
 
-  // Linha de mensagem do cabecalho: mostra a instrucao e, por alguns
-  // segundos, a frase de apoio (acerto), o aviso de erro ou uma dica.
   function setMessage(text, kind) {
     const el = document.getElementById('game-message');
     if (!el) return;
@@ -278,9 +227,6 @@
     setMessage(text, kind);
     messageTimer = setTimeout(() => setMessage(INSTRUCTION_TEXT, null), durationMs);
   }
-
-  // ---- Fios (SVG). Os corretos ficam em state.wires e sao redesenhados se a
-  // janela mudar de tamanho; o de erro aparece so durante o aviso. ----
 
   function nodeCenter(card, fieldRect) {
     const r = card.querySelector('.game-card__node').getBoundingClientRect();
@@ -329,8 +275,6 @@
 
   window.addEventListener('resize', redrawWires);
 
-  // ---- Interacao -----------------------------------------------------------
-
   function clearSelection() {
     state.selectedOldId = null;
     layout.querySelectorAll('.game-card--old.is-selected').forEach((el) => el.classList.remove('is-selected'));
@@ -349,7 +293,6 @@
       return;
     }
 
-    // side === 'new'
     if (state.selectedOldId === null) {
       showFeedback('Toque primeiro em um objeto antigo.', 'hint', HINT_FEEDBACK_MS);
       return;
@@ -365,8 +308,6 @@
       return;
     }
 
-    // A partir daqui a tentativa conta: trava antes de qualquer outra coisa
-    // para que toques rapidos nao registrem a mesma tentativa duas vezes.
     state.locked = true;
     state.triedKeys.add(key);
     state.attempts += 1;
@@ -418,8 +359,6 @@
     }, ERROR_FEEDBACK_MS);
   }
 
-  // Depois de uma tentativa que nao completou a rodada: libera o proximo toque
-  // ou, se as tentativas acabaram, encerra a partida.
   function continueOrFail() {
     if (state.attempts >= ATTEMPTS_PER_ROUND) {
       failGame();
@@ -437,8 +376,6 @@
     }
   }
 
-  // 3 tentativas sem 2 acertos: "Tente daqui a pouco." e volta a tela de
-  // espera, liberando o totem para a proxima pessoa.
   function failGame() {
     window.Totem.showScreen('transformations-retry');
     schedule(() => window.Totem.goHome(), RETRY_RETURN_MS);
@@ -448,8 +385,6 @@
     resetGame();
   });
 
-  // FINALIZAR (unico botao da tela de conclusao): encerra a experiencia e
-  // volta para a tela de espera do totem.
   finishBtn.addEventListener('click', () => {
     window.Totem.goHome();
   });
