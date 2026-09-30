@@ -2,6 +2,7 @@
   const REGISTERED_AUTO_RETURN_MS = 6000;
   const CHOICE_FEEDBACK_MS = 450;
   const CONFIRM_GUARD_MS = 800;
+  const GRID_GUARD_MS = 800;
 
   const PHASE_LABELS = {
     pre: 'Zerésima (escolhas ainda não abertas)',
@@ -25,6 +26,12 @@
   let submitting = false;
   let choosing = false;
   let confirmReadyAt = 0;
+  let gridReadyAt = 0;
+
+  function showWorks() {
+    gridReadyAt = performance.now() + GRID_GUARD_MS;
+    window.Totem.showScreen('voting-works');
+  }
 
   function clearChoice() {
     choosing = false;
@@ -33,7 +40,7 @@
   }
 
   function selectWork(work, card) {
-    if (choosing) return;
+    if (choosing || performance.now() < gridReadyAt) return;
     choosing = true;
     selectedWork = work;
     if (card) card.classList.add('is-chosen');
@@ -58,7 +65,7 @@
   backBtn.addEventListener('click', () => {
     if (!confirmReady() || submitting) return;
     clearChoice();
-    window.Totem.showScreen('voting-works');
+    showWorks();
   });
 
   confirmBtn.addEventListener('click', async () => {
@@ -172,7 +179,7 @@
       selectedWork = null;
       clearChoice();
       window.Works.renderGrid(grid, { actionLabel: 'ESCOLHER', onSelect: selectWork });
-      window.Totem.showScreen('voting-works');
+      showWorks();
     },
 
     async getHomeScreen() {

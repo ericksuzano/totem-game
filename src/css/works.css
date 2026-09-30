@@ -67,6 +67,10 @@
   .works-grid[data-count="4"] {
     --card-w: 47rem;
   }
+
+  .works-header {
+    padding-inline: calc(var(--wires-side) - var(--space-4));
+  }
 }
 
 .work-card {

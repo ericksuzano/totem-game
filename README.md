@@ -65,13 +65,17 @@ com os valores aceitos (o gesto de manutencao continua funcionando).
 
 O cadastro fica **fora do codigo**, em `content/trabalhos/` (no totem
 instalado: `resources/content/trabalhos/`), editavel sem gerar novo
-instalador. Instrucoes completas em `content/trabalhos/LEIA-ME.md`.
+instalador. Depois de trocar, fechar e reabrir o aplicativo.
 
 - **Fotos**: salvar como `trabalho-1.jpg`, `trabalho-2.jpg`... (tambem
-  `.jpeg`, `.png`, `.webp`) nessa pasta. Sem foto, aparece um quadro neutro.
+  `.jpeg`, `.png`, `.webp`) nessa pasta. A foto aparece inteira, sem corte;
+  de preferencia com o lado maior de pelo menos 1600 px. Sem foto, aparece um
+  quadro neutro.
 - **3o e 4o trabalho**: copiar o bloco `_modelo_novo_trabalho` para a lista
   `works` de `trabalhos.json`, com `id` `trabalho-3` / `trabalho-4`. A grade
   se ajusta sozinha a 2, 3 ou 4 trabalhos (maximo 4).
+- **Nunca alterar o `id`** de um trabalho depois que a votacao comecar: os
+  votos sao contados pelo `id`.
 
 ## Menu de manutencao da votacao
 
@@ -126,7 +130,7 @@ Numero de toques, janela de tempo e PIN sao configuraveis em
   `src/js/data/transformations-data.js`).
 - Medidas/orientacao fisica das telas dos totens (o layout ja se adapta a
   paisagem e retrato).
-- Icone do instalador (`build/PLACEHOLDER.md`).
+- Icone do executavel (`build/icon.ico`, ainda nao definido).
 - **PIN de saida do kiosk**: trocar o padrao `0000` antes do evento.
 
 ## Antes de instalar nos totens definitivos

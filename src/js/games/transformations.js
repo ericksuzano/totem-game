@@ -32,7 +32,7 @@
     attempts: 0,
     triedKeys: new Set(),
     wires: [],
-    selectedOldId: null,
+    selected: null,
     locked: false
   };
 
@@ -116,7 +116,7 @@
     state.attempts = 0;
     state.triedKeys = new Set();
     state.wires = [];
-    state.selectedOldId = null;
+    state.selected = null;
     state.locked = false;
 
     renderRound();
@@ -276,31 +276,30 @@
   window.addEventListener('resize', redrawWires);
 
   function clearSelection() {
-    state.selectedOldId = null;
-    layout.querySelectorAll('.game-card--old.is-selected').forEach((el) => el.classList.remove('is-selected'));
+    state.selected = null;
+    layout.querySelectorAll('.game-card.is-selected').forEach((el) => el.classList.remove('is-selected'));
     layout.classList.remove('has-selection');
+    delete layout.dataset.selectedSide;
   }
 
   function handleCardClick(pairId, side, cardEl) {
     if (state.locked || cardEl.classList.contains('is-matched')) return;
 
-    if (side === 'old') {
-      state.selectedOldId = pairId;
-      layout.querySelectorAll('.game-card--old').forEach((el) => {
+    if (!state.selected || state.selected.side === side) {
+      state.selected = { pairId, side };
+      layout.querySelectorAll('.game-card').forEach((el) => {
         el.classList.toggle('is-selected', el === cardEl);
       });
       layout.classList.add('has-selection');
+      layout.dataset.selectedSide = side;
       return;
     }
 
-    if (state.selectedOldId === null) {
-      showFeedback('Toque primeiro em um objeto antigo.', 'hint', HINT_FEEDBACK_MS);
-      return;
-    }
-
-    const oldId = state.selectedOldId;
+    const oldId = side === 'old' ? pairId : state.selected.pairId;
+    const newId = side === 'new' ? pairId : state.selected.pairId;
     const oldCardEl = cardFor('old', oldId);
-    const key = `${oldId}-${pairId}`;
+    const newCardEl = cardFor('new', newId);
+    const key = `${oldId}-${newId}`;
 
     if (state.triedKeys.has(key)) {
       showFeedback('Essa combinação já foi tentada. Escolha outra.', 'hint', HINT_FEEDBACK_MS);
@@ -312,10 +311,10 @@
     state.triedKeys.add(key);
     state.attempts += 1;
 
-    if (oldId === pairId) {
-      handleCorrectMatch(pairId, oldCardEl, cardEl);
+    if (oldId === newId) {
+      handleCorrectMatch(oldId, oldCardEl, newCardEl);
     } else {
-      handleIncorrectMatch(oldCardEl, cardEl);
+      handleIncorrectMatch(oldCardEl, newCardEl);
     }
   }
 

@@ -281,7 +281,8 @@
   50% { box-shadow: 0 0 0 1.2rem rgba(228, 87, 28, 0); }
 }
 
-.game-board.has-selection .game-card--new:not(.is-matched) {
+.game-board[data-selected-side="old"] .game-card--new:not(.is-matched),
+.game-board[data-selected-side="new"] .game-card--old:not(.is-matched) {
   border-color: var(--c-navy);
 }
 
